@@ -183,7 +183,7 @@ https://developer.mozilla.org/zh-CN/docs/Learn/HTML/Howto/Use_data_attributes
 # 2023 7 9
 AudioBuffer.getChannelData()返回的数组是引用的！
 AudioBuffer是音频底层数据
-```
+```js
 var myArrayBuffer = audioCtx.createBuffer(channels, frameCount, audioCtx.sampleRate);
 var newBuffering = myArrayBuffer.getChannelData(channel);
 // 对newBuffering进行某些数组操作后
@@ -520,3 +520,675 @@ VScode顶部只有搜索框：右击搜索框，取消Quick的勾选
 ## 2023 8 18
 box-shadow被遮挡。设置z-index无效。因为z-index只对定位元素有效！也就是说我们需要给菜单元素一个position:relative/absolute。
 ::before和::after必须要有content: '';才能显示
+
+## 2023 8 22
+web serial api学习：
+1. 获取当前已经连接的串口设备中，之前连接过的串口，构成的列表
+```js
+let availablePorts = await navigator.serial.getPorts();
+```
+2. 获取当前所有串口端口
+```js
+let availablePorts = await navigator.serial.requestPort();
+```
+3. 读取串口
+```js
+async function () {
+  this.reader = this.port.readable.getReader();
+  try{
+      while (true) {
+          const { value, done } = await this.reader.read();
+          if (done) break;
+          // do something with value
+      }
+  } catch(e){
+      console.log(e);
+  } finally {   // try执行完或者catch到错误，都会执行finally
+      this.reader.releaseLock();
+  }
+}
+```
+4. 写串口
+```js
+async function (data) {
+    const writer = port.writable.getWriter();
+    await writer.write(data);
+    writer.releaseLock();
+}
+```
+
+## 2023 8 23
+关于树莓派会断网，而且每次都要输密码，可能是因为连太久，校园网会自动断。所以需要实现自动连接。
+抓包一直抓不到（搜索密码无结果），于是换了运营商，抓一个注定会失败的请求，一下就找到了api。换一个运营商，又找到一个api。比较两个api，找到不同点，就是运营商的参数。而运营商是通过下拉列表选择的，所以定位到<select>标签，找正确的运营商对应的值，填入上述api，用python发请求，成功！
+以下是代码。
+
+```python
+# 连接SEU_ISP
+import requests
+import socket
+import json
+import uuid
+import schedule
+import time
+
+def extract_ip():
+    st = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    try:
+        st.connect(('10.255.255.255', 1))
+        IP = st.getsockname()[0]
+    except Exception:
+        IP = '127.0.0.1'
+    finally:
+        st.close()
+    return IP
+
+def GetMAC():
+    r""" 针对单网卡 """
+    addr = hex(uuid.getnode())[2:].upper()
+    return (''.join(addr[i:i+2] for i in range(0, len(addr), 2))).lower()
+
+# def check_internet_connection():
+#     try:
+#         # 发送一个简单的GET请求到一个可靠的网站
+#         response = requests.get("https://www.baidu.com")
+#         # 检查响应状态码是否为200，表示连接成功
+#         if response.status_code == 200:
+#             return True
+#     except requests.ConnectionError:
+#         pass
+#     return False
+
+def login():    # 登录SEU_ISP
+    ip = extract_ip()
+    MAC = GetMAC()
+    operator = 'cmcc'   # 中国移动cmcc 其他可选：telecom(中国电信)unicom(中国联通)
+    account = '一卡通'
+    pwd = '密码'
+    a = requests.get(
+        f'https://w.seu.edu.cn:802/eportal/?c=Portal&a=login&callback=dr1004&login_method=1&user_account=%2C0%2C{account}%40{operator}&user_password={pwd}&wlan_user_ip={ip}&wlan_user_ipv6=&wlan_user_mac={MAC}&wlan_ac_ip=&wlan_ac_name=&jsVersion=3.3.3&v=6245').text
+    print(json.loads(a[7:-1]))
+    # {'result': '0', 'msg': '', 'ret_code': 2}: 已经登录
+    # {'result': '1', 'msg': '认证成功'}: 登录成功
+    # {'result': '0', 'msg': 'dXNlcmlkIGVycm9yMQ==', 'ret_code': 1}: 运营商错误
+    # {'result': '0', 'msg': 'bGRhcCBhdXRoIGVycm9y', 'ret_code': 1}: 密码用户名不匹配
+
+def logout():   # 登出SEU_ISP
+    ip = extract_ip()
+    MAC = GetMAC()
+    a = requests.get(
+        f'https://w.seu.edu.cn:802/eportal/?c=Portal&a=logout&callback=dr1005&login_method=1&user_account=drcom&user_password=123&ac_logout=1&register_mode=1&wlan_user_ip={ip}&wlan_user_ipv6=&wlan_vlan_id=1&wlan_user_mac={MAC}&wlan_ac_ip=&wlan_ac_name=&jsVersion=3.3.3&v=1810').text
+    print(json.loads(a[7:-1]))
+
+def refreshWifi():
+    print(time.strftime('%Y-%m-%d %H:%M:%S', time.localtime()))
+    logout()
+    login()
+
+if __name__=="__main__":
+    schedule.every().day.at("03:00").do(refreshWifi)
+    while True:
+        schedule.run_pending()
+```
+最后一个“v=?”不知道是什么，去掉也可以请求成功。
+
+## 2023 8 24
+Web Serial API
+```js
+(async function(){
+    var temp;
+    temp = await navigator.serial.requestPort();
+    await temp.open({
+        baudRate: 9600,
+        dataBits: 8,
+        stopBits: 1,
+    });
+    (async function (){   // 必须async，不然一直执行console.log(value); 必须用函数，不然一直卡在while
+        let reader = temp.readable.getReader();
+        try{
+            while (true) {
+                const { value, done } = await reader.read();
+                if (done) {
+                    temp.close();
+                    break;
+                }
+                console.log(value);
+            }
+        } catch(e){
+            console.log(e);
+        } finally {
+            reader.releaseLock();
+        }
+    })();
+    console.log("函数结束！");
+    port = async (data)=>{
+        const writer = temp.writable.getWriter();
+        await writer.write(data);
+        writer.releaseLock();
+    }
+})();
+```
+要在blockly中支持有问题：有异步。如果要支持异步，在不深入源码的情况下，最简单的方法是所有函数都要加上async，所有调用都加上await，总函数也用async的立即执行函数包裹。有一个issue中有这个方案的具体执行方法:https://github.com/google/blockly-samples/issues/1356
+
+优化vivado的使用体验：https://blog.csdn.net/qq_39498701/article/details/84668833
+其中打开vscode的代码是：cmd /S /k "code -g [file name]:[line number]" 
+
+## 2023 8 26
+门电路输出短接电平如何。答案是，如果门是推挽输出就不能短接；如果都是某一极开漏(OC/OD门)就可以，实现了“线与”(弱上拉)和“线或”(弱下拉)。
+
+## 2023 8 27
+else里面空的会被其他地方填上，不会锁死别的值
+```verilog
+`timescale 1ns/1ps
+module counter(
+    input clk,
+    output reg[3:0] count,
+    output reg c
+);
+    always @(posedge clk) begin
+        if(c==1) c<=0;
+        else ;
+        if(count==9) begin
+            count<=0;
+            c<=1;
+        end
+        else count<=count+1;
+    end
+    initial begin
+        count<=0;
+        c<=0;
+    end
+endmodule
+```
+这个是可以综合的
+
+## 2023 8 28
+测试综合结果：
+```verilog
+`timescale 1ns/1ps
+module x (
+    input CLK,
+    input MODE,
+    input ADD,
+    output reg [3:0] A,
+    output reg [3:0] B,
+    output reg [3:0] C
+);
+    reg mode;
+    always @(posedge CLK) begin
+        mode <= MODE;
+    end
+    always @(posedge CLK) begin
+        if(mode) begin
+            if(A==9) begin
+                A <= 0;
+                if(B==9) begin
+                    B <= 0;
+                    if(C==9) begin
+                        C <= 0;
+                    end
+                end else B<=B+1;
+            end else A <= A + 1;
+        end else ;
+    end
+    always @(posedge ADD) begin
+        if(!mode) begin
+            B <= B + 1;
+        end else ;
+    end
+    initial begin
+        A = 5;
+        B = 5;
+        C = 3;
+    end
+endmodule
+```
+结果是，当mode=0时，B可以增加到f，即两条道路毫无瓜葛（预想是B收到CLK那一条的影响，满了会进位）。RTL综合结果是B多了一个reg__0，两个寄存器组输出短接，所以毫不影响。
+！！！！不行！只能sy不能imp！两个reg短接是不行的！
+
+## 2023 8 29
+```verilog
+always @(posedge BTN) begin
+    if (!change)    // 防止两个always对同一个量赋值
+        change <= 1;
+    else ;
+    in <= 1;
+end
+always @(posedge CLK) begin
+    if (in) begin
+        if (change) change <= 0;    // 两次检测中间有变化
+```
+尽管做了一定的操作防止两个always对同一个change赋值，但是综合的时候还是两个reg短接，导致综合失败
+
+关于VIVADO每次点击综合时蹦出来的number of jobs，只是同时能跑的job数（一个design是一个job），不是线程。
+设置多线程参考以下：
+https://blog.csdn.net/I_LOVE_MCU/article/details/123189010
+
+
+## 2023 9 3
+css position：
+relative和absolute的区别: 前者还在父容器中，其大小还影响其他元素。后者是跳脱之外，不在一个图层
+而fixed更是跳脱，直接跳出这个body，能实现始终在屏幕的某个位置(当页面可以下滑之类时)
+
+## 2023 9 6
+verilog写reg a = 1;竟然初始化真的是1。
+
+## 2023 9 7
+蓝牙模块HC05，小米自带的蓝牙连不了，只能配对。要用专门的app。
+Server（服务器）就是数据中心，一般指蓝牙设备，一般是从机；
+Client（客户端）就是数据访问者，一般指手机，一般是主机。
+Appinventor中，蓝牙接收是有缓存区的，“获取接收字节数”返回的就是缓冲区的字节数。如果缓冲区字节数小于需求字节数，则卡死，等到收集满了才返回。
+
+## 2023 9 10
+自定义的HID USB如果改了功能，不改其VID会被识别为上次的（比如上次是鼠标，后来程序改成了键盘，如果不该VID则还是识别为鼠标）。需要删除电脑对设备的记忆。具体做法是：打开设备管理器，重新插拔一下USB，找到多的项，右击卸载。
+Keil中字体设置无效，只要把项目用的编码从GBK改成UTF-8就好了
+
+## 2023 9 25
+css中，设置了padding和margin，默认是加在width上面的。即设置width 100%后，设置padding或margin会导致宽度超出100%。此时只要加上box-sizing: border-box;即可。
+修改textarea的:focus的边框需要额外写上outline: none;
+
+## 2023 10 5
+关于mc paper验证服务器走端口：
+```bash
+java -DsocksProxyHost=127.0.0.1 -DsocksProxyPort=7890 -jar paper-1.20.1-129.jar nogui
+```
+clash不必开全局
+
+## 2023 10 6
+在JavaScript中，静态方法是直接绑定在类本身(是constructor)上，而不是绑定在类的原型上。它们作为类的属性存在，并且可以通过类名直接访问。所以不能用实例直接访问。见解方式：
+myInstance.constructor.staticMethod();
+没有直接的办法用类名和实例访问同一个函数
+
+## 2023 10 19
+树莓派装devtunnel
+https://learn.microsoft.com/en-us/azure/developer/dev-tunnels/get-started?tabs=windows
+
+1. curl -sL https://aka.ms/DevTunnelCliInstall | bash
+2. source ~/.zshrc
+3. devtunnel --version
+4. devtunnel user login
+5. devtunnel host -p 25565 --allow-anonymous
+
+## 2023 11 14
+冒号可以给解构重命名，用于同名时：
+```js
+function FFT(
+    { reverseBits = new Float32Array(), Wr = new Float32Array(), Wi = new Float32Array() }, // 此行没必要重命名
+    { data: xr = new Float32Array(), offset: or = 0, step: sr = 1 },
+    { data: xi = new Float32Array(), offset: oi = 0, step: si = 1 }
+) {
+    console.log(xr, or, sr, xi, oi, si, reverseBits, Wr, Wi);
+}
+FFT({
+    reverseBits: 1,
+    Wi: 2,
+    Wr: 3
+},{
+    data: 4,
+    offset: 5,
+    step: 6
+},{});
+```
+
+## 2023 11 26
+```js
+var blen=this.actx.sampleRate*.5|0;
+```
+“|”的作用是向下取整
+卷积来实现混响
+
+关于振荡器使用自定义周期波：
+```js
+function osc(f=440,zeros=0) {
+    var real = new Float32Array([0,...Array.from({length: zeros}, ()=>0), 1]);
+    var imag = new Float32Array([0,...Array.from({length: zeros}, ()=>0), 0]);
+    var ac = new AudioContext();
+    var osc = ac.createOscillator();
+    osc.frequency.value = f;
+
+    var wave = ac.createPeriodicWave(real, imag, { disableNormalization: true });
+
+    osc.setPeriodicWave(wave);
+
+    osc.connect(ac.destination);
+
+    osc.start();
+    osc.stop(2);
+}
+```
+传参的两个数组是归一化傅里叶变换的结果（实部和虚部），频率增量是振荡器的频率。如果只有real，则是纯正的余弦波的叠加；如果只有imag则是纯正弦波。
+所以：osc(440,0)和osc(220,1)的效果是一样的。
+
+相比于周期波（使用频域信息创建），可以用时域数据：
+```js
+function createSource() {
+    audioCtx = new AudioContext();
+    myAudioBuffer = audioCtx.createBuffer(1, 2048 * 100, audioCtx.sampleRate);
+    var newBuffering = myAudioBuffer.getChannelData(0);
+
+    let T = parseInt(audioCtx.sampleRate / 220);
+    for (let i = 0; i < newBuffering.length; i++) {
+        // newBuffering[i] = (i % T > T / 2) ? 1 : -1;  // 方波
+        newBuffering[i] = Math.cos(6.283 / T * i)   // 正弦波
+    }
+
+    source = audioCtx.createBufferSource();
+    source.buffer = myAudioBuffer;
+    analyser = audioCtx.createAnalyser();
+    analyser.smoothingTimeConstant = 0;
+    source.connect(analyser);
+    analyser.connect(audioCtx.destination);
+}
+```
+但是不能周期性播放。需要使用时域数据应该先进行fft，再使用createPeriodicWave创建周期波
+
+## 2023 11 28
+html鼠标右击无法通过onclick事件触发。因为被右键菜单拦截。如果禁用右键菜单：
+```js
+document.oncontextmenu = function (e) {
+    // 或者：e.preventDefault();
+    return false;
+}
+```
+右击还是无法触发onclick事件。可以改成在oncontextmenu中触发，或者用onmousedown触发。后者与右键菜单独立。
+
+## 2023 12 2
+js ()=>{}的this不会改变！一旦定义了就不会再变
+```js
+function createArrowFunction() {
+    return () => {
+        console.log(this);
+    };
+}
+
+let obj = {
+    name: 'My Object',
+    arrowFunction: null,
+};
+
+obj.arrowFunction = createArrowFunction();
+obj.arrowFunction();  // 输出：Window
+obj.arrowFunction = createArrowFunction.call(obj);
+obj.arrowFunction();  // 输出：{ name: 'My Object', arrowFunction: [Function] }
+```
+
+## 2023 12 14
+关于费时函数与进度条，以下是可行的：
+```js
+var i = 0;
+async function r() {
+    const d = document.getElementById('progress');
+    let ii = 0;
+    while (1) {
+        i++;
+        if (i == 50) {
+            i = 0;
+            ii++;
+            d.style.width = `${ii}px`;
+            if (ii == 100) {
+                break;  // 不要break则then永远不会被执行
+                ii = 0;
+            }
+        }
+        await new Promise(resolve => setTimeout(resolve, 0));
+    }
+}
+r().then(()=>{
+    console.log("over");
+});
+console.log(i); // 输出是1
+```
+await那一句执行setTimeout会拖到下一个时钟周期，所以有时间给dom更新。
+用了async也不一定是异步。例子：
+```js
+var i  = 0;
+async function r() {
+    const d = document.getElementById('progress');
+    let ii = 0;
+    while (1) {
+        i++;
+        if (i == 52) {
+            ii++;
+            d.style.width = `${ii}px`;
+            if (ii == 100) {
+                ii = 0;
+            }
+            await new Promise(resolve => setTimeout(resolve, 0));
+            i = 0;
+        }
+    }
+}
+r();
+console.log(i);
+for(let i = 0; i< 5000;i++) {
+    console.log(' ');
+}
+```
+输出是52。说明是第一次到await的时候才结束了这一轮，在下一轮得以执行下一步。且后面循环5000次的看起来是和r函数同步在做。
+以下的情况展示了同步被异步打断，实际只输出了1000次空格：
+```js
+var i  = 0;
+async function r() {
+    const d = document.getElementById('progress');
+    let ii = 0;
+    await new Promise(resolve => setTimeout(resolve, 0));
+    while (1) {
+        i++;
+        if (i == 52) {
+            ii++;
+            console.log("!");
+            d.style.width = `${ii}px`;
+            if (ii == 100) {
+                ii = 0;
+            }
+            i = 0;
+        }
+    }
+}
+r();
+console.log(i);
+for(let i = 0; i< 5000;i++) {
+    console.log(' ');
+}
+```
+不用async的版本：
+```js
+function r() {
+    const d = document.getElementById('progress');
+    let i = 0;
+    let ii = 0;
+    function loop() {
+        i++;
+        if (i == 50) {
+            i = 0;
+            ii++;
+            d.style.width = `${ii}px`;
+            if (ii == 100) {
+                ii = 0;
+            }
+        }
+        setTimeout(loop, 0);
+    }
+    loop();
+}
+```
+以下是不行的：直接将费时的函数用promise或async包装。
+
+## 2023 12 15
+canvas调整width和height之后，canvas的状态（包括当前的strokeStyle、fillStyle、lineWidth等）会被重置为默认值。默认的strokeStyle是黑色。
+
+## 2023 12 31
+阅读tune.js看到的基频提取算法：
+```js
+function autoCorrelate( buf, sampleRate ) {
+	// Implements the ACF2+ algorithm
+	var SIZE = buf.length;
+	var rms = 0;
+
+	for ( var i=0; i < SIZE; i++ ) {
+		var val = buf[i]; rms += val * val;
+	}
+	rms = Math.sqrt(rms/SIZE);
+					
+	if ( rms < 0.01 ) { // not enough signal
+		return -1;
+	}
+	var r1 = 0, r2 = SIZE - 1, thres = 0.2;
+	for (var i=0; i<SIZE/2; i++){ if ( Math.abs(buf[i])      < thres ) { r1=i;      break; } }
+	for (var i=1; i<SIZE/2; i++){ if ( Math.abs(buf[SIZE-i]) < thres ) { r2=SIZE-i; break; } }
+
+	buf = buf.slice(r1,r2);
+	SIZE = buf.length;
+
+	var c = new Array(SIZE).fill(0);
+	for ( var i = 0; i < SIZE; i++ ){
+		 for (var j=0; j<SIZE-i; j++){
+			 c[i] = c[i] + buf[j] * buf[j+i];
+		 }
+	}
+	var d=0; while (c[d]>c[d+1]) d++;
+	var maxval=-1, maxpos=-1;
+	for (var i=d; i<SIZE; i++) {
+		if (c[i] > maxval) { maxval = c[i]; maxpos = i; }
+	}
+	var T0 = maxpos;
+
+	var x1 = c[T0-1], x2 = c[T0], x3 = c[T0+1];
+	a = (x1 + x3 - 2 * x2) / 2;
+	b = (x3 - x1) / 2;
+	if (a) { T0 = T0 - b/(2*a); }
+
+	return sampleRate/T0;
+}
+```
+这段JavaScript代码定义了一个名为`autoCorrelate`的函数，该函数实现了ACF2+算法（自相关函数）来分析音频信号的基频。
+以下是该函数的主要步骤：
+1. 计算输入缓冲区（buf）的均方根（RMS）。如果RMS小于0.01，函数返回-1，表示信号不足。
+2. 找到缓冲区中的第一个和最后一个绝对值大于阈值（0.2）的元素，然后将缓冲区裁剪到这两个元素之间。
+3. 计算新缓冲区的自相关函数，并存储在数组c中。
+4. 找到数组c中的第一个局部最大值，然后找到全局最大值及其位置。
+5. 使用这三个值（x1，x2，x3）来通过抛物线插值精确计算基频的位置。
+6. 最后，函数返回基频的估计值，即采样率除以T0。
+这个函数通常用于音乐和语音处理中的音高检测。buf是时域数据
+
+FFT（快速傅里叶变换）和ACF（自相关函数）都是音频信号分析中常用的方法，但它们各有优劣。
+FFT的优点：
+1. 计算效率高：FFT是一种高效的算法，可以快速计算大量数据的频谱。
+2. 频谱分辨率高：FFT可以提供详细的频谱信息，包括各个频率成分的幅度和相位。
+FFT的缺点：
+1. 对于音高检测，FFT可能不如ACF准确。因为FFT是基于频谱的，而人类对音高的感知是基于周期性的，这两者并不完全相同。
+2. FFT对于非稳态信号（如音乐和语音）的分析可能会有困难。
+ACF的优点：
+1. 对于音高检测，ACF可能比FFT更准确。ACF是基于信号的自相关性，可以直接检测信号的周期性，这更接近人类对音高的感知方式。
+2. ACF可以处理非稳态信号，适合用于音乐和语音的分析。
+ACF的缺点：
+1. 计算效率可能不如FFT高。
+2. ACF可能需要更多的前期处理，如窗函数和预白化。
+总的来说，选择FFT还是ACF，取决于你的具体需求。如果你需要快速计算大量数据的频谱，或者需要详细的频谱信息，那么FFT可能是更好的选择。如果你需要准确地检测音高，或者处理非稳态信号，那么ACF可能是更好的选择。
+
+https://zhuanlan.zhihu.com/p/269107205
+常数Q变换！constant Q transform！似乎能解决音乐分析的问题！
+但是复杂度太高了……比DFT还高，扒谱用不上啊
+
+
+## 2024 1 15
+想做轮腿平衡车。首先是电机控制。
+电机区别：https://blog.csdn.net/zhuguanlin121/article/details/120099439
+- 步进电机：开环；步进转动靠的是定子线圈绕组不同相位的电流以及定子和转子上齿槽产生的转矩。
+- 伺服电机：闭环；把控制电路放到了电机之外，里面的电机部分就是标准的直流电机或交流感应电机。
+- 交流感应电机（ACIM）：是定子生成旋转磁场，转子切割磁感线产生电流，从而生成安培力驱动转子转动。定子和转子的转速是不同步的，并且定子的磁场转速必须大于转子的转速才能切割磁感线。三相交流电驱动，不含永磁体。
+- 无刷直流电机（BLDC）（Brushless Direct Current Motor）：六步换相控制，电子换向，所以是梯形输入
+- 永磁同步电机（PMSM）：将交流感应电机的转子换成永磁体，可以将其转变为永磁同步电机。这时磁场转速就和转子转速一样了，所以“同步”。关系图：https://pic3.zhimg.com/80/v2-cccfe53358428869b2f90c5fe152c1a2_1440w.webp。所以控制是正弦波的三相旋转交流电
+BLDC和PMSM区别：原理结构都很相似(一样)，绕组方式：BLDC与PMSM电机的区别(构造、原理与控制)？有没有较好的电机与控制的资料或书籍推荐？ - 此用户叫小明的回答 - 知乎
+https://www.zhihu.com/question/268255121/answer/3226583157
+
+## 2024 1 17
+电机选型
+大多数情况下，制造商为电机使用4位数字的标准命名方案。例如，一个名为2205的电动机，其中前两位数字代表定子的直径（以毫米为单位），后两位数字代表高度（以毫米为单位）。
+3205小米云台电机
+2804无刷电机
+PM3510
+4010
+### Keil使用C++
+https://blog.csdn.net/DP29syM41zyGndVF/article/details/115300868
+[参考](https://blog.csdn.net/DP29syM41zyGndVF/article/details/115300868)
+- V5
+1. 首先打开MDK软件，去掉use microlib 勾选，这个一个C的依赖库，但比标准的库小，它可以减少C代码的大小。CubeMX生成的文件默认选择此项。因为这个精简库不支持C++，所以我们需要去掉此项功能。
+2. Options for Target 再点C/C++  在下边的Misc Controls 中输入—cpp
+3. 去掉C99 mode选项
+- V6
+直接就可以用
+V6的注意点：
+以下代码在 ARM Compiler 5 中，正常执行，但在 ARM Compiler 6 中，只要不是-O0级别，整个函数因为空循环问题，都被优化掉。也就是延时没有起作用。
+```c
+void delay_us (uint32_t ul_time)
+{
+    ul_time *= 30; 
+	while(--ul_time != 0);
+}
+```
+
+### 关于数组指针和存储：
+```cpp
+uint16_t a = 0x1123;
+uint8_t* b = (uint8_t*)(&a);
+cout<<(int)(*b)<<'\n'<<(int)(*(b+1));
+```
+输出是35\n17，即0x23和0x11，说明是小端存储
+
+## 2024 1 18
+- html中可以直接用id索引。如果js中定义了同名变量则会覆盖
+- dialog已经可以在绝大多数新浏览器中使用了
+```html
+<button id="btn" onclick="dialog.show()"></button>
+<dialog id="dialog">
+    <div>hhhh</div>
+</dialog>
+```
+
+## 2024 1 19
+Web Audio API
+connect的对象可以是AudioNode，也可以是属性，表示该属性受输入的幅度的控制
+
+### performace.now()
+`performance.now()`和`Date.now()`是JavaScript中用于获取时间的两个方法，它们之间有一些重要的区别。
+1. 时间精度：`performance.now()`方法返回的是一个高精度的时间戳，通常是以毫秒为单位，但可以具有更高的精度。这个时间戳基于浏览器的性能计时器，它提供了一个相对于导航开始的时间值。它的精度比`Date.now()`更高。
+2. 相对性：`performance.now()`返回的时间戳是相对于导航开始的，即页面加载开始的时间点，而不是相对于1970年1月1日的UTC时间。这使得它在测量性能和计时操作时非常有用。
+3. 兼容性：`performance.now()`方法是HTML5的一部分，所以它在现代浏览器中得到广泛支持。但是，它在旧版本的浏览器中可能不被支持，特别是在Internet Explorer 9及以下版本。
+相比之下，`Date.now()`方法返回的是一个表示当前时间的时间戳，以毫秒为单位，相对于1970年1月1日的UTC时间。它是基于系统时钟的，并且在所有主流浏览器中都得到支持，包括较旧的浏览器版本。
+综上所述，如果你需要高精度的时间戳，并且在现代浏览器中运行，可以使用`performance.now()`方法。如果你只需要获取当前时间的时间戳，并且在各种浏览器中都能正常工作，可以使用`Date.now()`方法。
+
+## 2024 1 22
+css变量
+```css
+.your-element {
+  top: var(--your-variable); /* 使用 CSS 变量 */
+}
+```
+
+```js
+element.style.setProperty('--your-variable', value); // 设置 CSS 变量的值
+```
+
+自定义属性
+```css
+.your-element {
+  top: attr(data-my-variable); /* 使用 CSS 变量 */
+}
+```
+
+```js
+element.setAttribute('data-my-variable', 'new value');  // 名字可以任意 但不能和已有的冲突
+element.dataset.myVariable = 'new value';   // dataset属性只能用于访问和修改以 data- 开头的自定义属性。
+```
+attr() 函数在 CSS 中通常用于在伪元素的 content 属性中获取元素的属性值。然而，目前大多数浏览器并不支持在其他 CSS 属性（如 border-color）中使用 attr() 函数来获取元素的属性值。
+伪类::before/::after的conent却用attr，因为用var不起作用
+
+
+报错：[Intervention] Slow network is detected. See https://www.chromestatus.com/feature/5636954674692096 for more details. Fallback font will be used while loading……
+解决：给@font-face加上font-display: auto;
+
+## 2024 1 30
+html中设置select的选中项，有三种方法：
+1. html中设置option为selected
+2. js中设置select.value = option的value【设置value只能在js中完成】
+3. js中设置option.selected = true;
