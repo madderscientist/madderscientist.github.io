@@ -121,11 +121,11 @@ setTimeout、setInterval它们的内在运行机制决定了 时间间隔参数 
 audioContext.destination默认是扬声器，如果用audio.start()但没connect到destination就会自动连接。
 启用摄像头和麦克风并且做音频滤波的一个好例子：https://developer.mozilla.org/zh-CN/docs/Web/API/AudioContext/createMediaStreamSource
 
-# 2023 7 3
+## 2023 7 3
 #define SREG     *(volatile unsigned long *) 0x5c
 在嵌入式系统编程中，一般要求程序员能够利用C语言访问固定的内存地址。(volatile unsigned long *)强转为指针，最前面的\*表示引用，所以SREG就是寄存器值的引用。为了防止编译器优化，用volatile
 
-# 2023 7 7
+## 2023 7 7
 双标的数组构造函数
 JS中各种Array的创建，如果参数是Array，则复制构造。如果是ArrayBuffer，那就是引用。
 使用ArrayBuffer对象作为其他类型化数组对象的构造函数参数时，它们也会使用ArrayBuffer对象作为其内部缓冲区，并且它们之间存在直接的联系。这意味着当你更改ArrayBuffer对象中的数据时，所有与其共享的类型化数组对象都将反映这些更改。
@@ -152,7 +152,7 @@ function test(){
 ```
 但如果用temp = new Uint8Array(reader.result).slice();就可以两次正常。因此猜测不是复制构造。
 
-# 2023 7 8
+## 2023 7 8
 html元素的“data-*”属性：
 比如
 ```js
@@ -180,7 +180,7 @@ btn[data-antother='4']::before {  // 选择器可以访问
 这里用了后代选择器，选择了所有有mode属性的父层级下的mode类
 https://developer.mozilla.org/zh-CN/docs/Learn/HTML/Howto/Use_data_attributes
 
-# 2023 7 9
+## 2023 7 9
 AudioBuffer.getChannelData()返回的数组是引用的！
 AudioBuffer是音频底层数据
 ```js
@@ -193,13 +193,13 @@ source.connect(audioCtx.destination);
 source.start();
 ```
 
-# 2023 7 15
+## 2023 7 15
 stm32C8T6 usart1波特率最小1200，而zet6最小600
 
 关于ArrayBuffer，这是真的底层，一个元素一个字节(8bit)。所以用Float32Array和Uint8Array解析可以得到不同的数组，表现在长度和每个数不一样。
 AudioBuffer内部是Float32Array的二维数组，元素范围为[-1,1]
 
-# 2023 7 16
+## 2023 7 16
 将采样率低的文件导入AudioContext，会根据线性插值变为AudioContext对应的采样率。
 fft的采样率同样跟随AudioContext，如果采样率为200, fftsize为150，那么从原数据平均间隔200/150个数据选取一个用于fft，而这个数据从插值算法来。
 用fft分析一段数据？如下。事实证明是不行的，analysernode只能实时分析，所以source没有start获取不了数据（指结果都是0）（实测结果）。
@@ -239,7 +239,7 @@ xhr.onload = function() {
 xhr.send();
 ```
 
-# 2023 7 20
+## 2023 7 20
 AudioContext.currentTime是只读，用source.start()时会自动更新
 每个AudioBufferSourceNode的start()只能调用一次。多次调用会报错**Failed to execute 'start' on 'AudioBufferSourceNode': cannot call start more than once.**
 所以要实现播放器，每次暂停后播放或跳转播放都是创建了新的AudioBufferSourceNode。例子如下：
@@ -359,26 +359,26 @@ fft分析是一直进行的，分析的频率是多少？
 
 用offlineaudiocontext也解决不了。虽然分析做了，但是一直覆盖，最后留在Float32Array中的是最后一刻的fft结果。s
 
-# 2023 7 21
+## 2023 7 21
 smoothingTimeConstant的作用：
 这一次频域结果（这一次调用getFloatFrequencyData的结果）=上一次频域结果（上一次getFloatFrequencyData的结果）\*smoothingTimeConstant+这一次频域计算结果\*(1-smoothingTimeConstant)。
 这解释了今天的实验：在音频播放完成后调用getFloatFrequencyData，频谱越来越低。且是调用一次低一次，下降趋势和调用时间间隔无关。这是因为内部有两个存储，当前fft计算结果在analysernode的Float32Array中，而上次调用getFloatFrequencyData的结果也存储了（我不知道在哪），Float32Array一直在更新，但是平滑只发生在调用getFloatFrequencyData时，将两个存储加权平均并返回。音频播放结束，analysernode内部的Float32Array都是0，所以加权结果越来越低。
 
 这两天和web audio api battle的结果是，要实现对每个时刻的fft分析，还是找专门的fft库好一点。analysernode的设计方向非常奇怪，似乎只是为了实时分析而生。作为用户无法控制其行为。
 
-# 2023 7 22
+## 2023 7 22
 开梯子用不了bing的解决：换成cn.bing.com。国际版用不了了。只能国内。
 <audio src="a.mp3"></audio>看不到ui，只要写成<audio src="a.mp3" controls></audio>就行了
 奇怪，这竟然没有跨域问题
 
-# 2023 7 23
+## 2023 7 23
 css中calc(100% - 25px)没有空格解析不了
 bing还是用不了，发抽
 
-# 2023 7 24
+## 2023 7 24
 blockly大部分都配置好了，注意点写在了代码注释里
 
-# 2023 7 25
+## 2023 7 25
 树莓派搭建mc服务器
 用sdkman配置java环境，省去环境变量一坨
 ```bash
@@ -410,13 +410,13 @@ https://blog.51cto.com/u_15127670/4095785 指出了如何修改主频
 
 针对usart修改可以更简单：在串口初始胡启用时钟前用RCC_PCLK2Config(RCC_HCLK_Div4);把usart1的频率改为18M，就可以用300波特率了
 
-# 2023 7 27
+## 2023 7 27
 在JavaScript中，&&运算符的行为可能与一些其他编程语言不同。它不总是返回true或false。
 &&运算符在JavaScript中被称为逻辑与运算符。它的行为是这样的：
 - 如果第一个操作数是falsy（即，它的值为false，0，""，null，undefined，或NaN），那么&&运算符将返回第一个操作数的值。
 - 如果第一个操作数是truthy（即，它的值不是falsy），那么&&运算符将返回第二个操作数的值。
 
-# 2023 8 8
+## 2023 8 8
 思考了一下空间定位虚空钢琴。视觉定位可以用mediapipe，python的挺好用。有空要了解一下底层（如果可能的话）；惯性定位有积分漂移，不知道怎么解决，可以用MPU6050；弯曲传感器可以自制，但是似乎不方便用在手上的每个关节。想用掌心的红外摄像头，但是似乎把姿态限制得比较死。
 淘宝搜“小摄像头”和“微型摄像头”都不行，搜small摄像头可以找到fpv摄像头，大概是能找到的最小的摄像头。
 
@@ -424,7 +424,7 @@ blockly的variable category的toolbox虽然什么都没写，但是就是有一�
 https://github.com/mit-cml/blockly-plugins/tree/main/block-lexical-variables
 这个是appinventor变量的实现
 
-# 2023 8 9
+## 2023 8 9
 关于nodejs环境
 您好，这是Bing。很高兴您对文件夹下的nodejs环境感兴趣。😊
 文件夹下的nodejs环境是指在一个特定的项目文件夹中安装和使用nodejs，而不是在全局的系统中安装和使用nodejs。这样做的好处是可以避免不同的项目之间对nodejs版本和依赖的冲突，也可以方便地将项目打包和部署。
@@ -461,12 +461,12 @@ https://github.com/mit-cml/blockly-plugins/tree/main/block-lexical-variables
 通过这种方式，你的项目文件夹中包含了一个独立的Node.js环境，你可以将整个项目文件夹复制到另一台电脑上，并在没有全局Node.js安装的情况下继续开发。请确保将Node.js的二进制文件和依赖项包含在你的项目中，并在你的命令中使用正确的相对路径引用它们。
 需要注意的是，这种自包含的Node.js环境只适用于你的项目，其他全局环境中的Node.js并不会收到影响。这样你可以在不同的环境中进行开发，而无需安装全局的Node.js。
 
-# 2023 8 11
+## 2023 8 11
 开始学USB协议，为以后的项目（midi键盘、鼠标键盘）做准备！
 首先要有宏观理解：https://blog.csdn.net/jimaofu0494/article/details/109233087
 然后看细的：https://blog.csdn.net/weiaipan1314/category_10697813.html
 
-# 2023 8 13
+## 2023 8 13
 STM32F1系列PB3，PB4，PA13，PA14，PA15用作普通IO口的特殊配置
 记得之前遇到过，今天又遇到了就记一下。
 b站移动的头图，是用 图层+transform 实现的，检测鼠标移动，给不同图层不同的transform。
@@ -494,7 +494,7 @@ html里面可以执行module，具体做法是：
 2. 加了module的script和没加script引入js的方法不一样，不支持files协议，因为跨域问题无法加载js文件。所以必须开端口变成http协议。可以用liveServer插件实现。
 3. 如果用普通的script加载内部有module的js，会报错：“Cannot use import statement outside a module”
 
-# 2023 8 14
+## 2023 8 14
 nodejs里面有两个模块化标准：CommonJS和ESM。前者是用require引入模块的，后者是用es6的module引入的，更好，浏览器中也支持。nodejs默认按CommonJS执行js文件，如果要用ESM则添加package.json，内容如下：
 ```json
 {"type":"module"}
@@ -1192,3 +1192,710 @@ html中设置select的选中项，有三种方法：
 1. html中设置option为selected
 2. js中设置select.value = option的value【设置value只能在js中完成】
 3. js中设置option.selected = true;
+
+## 2024 2 12
+无感foc和有感foc: 指的是传感器。做有感的好
+### 参考资料：
+1. https://vq8wu6s7px.feishu.cn/docx/CrKrdOtekoFoLVx3dG4ckJLancd
+
+### FOC硬件：
+1. 供电：用XC6206：3.3V输出，最大200mA，最大输入为6V。很适合STM32F103C8T6和ESP的运行电流
+
+    同类型：
+    PW6206：最大电流仅有100mV，但耐压范围超大，如果有12V转的需求可以用
+    AMS1117：SRM32最小系统板多用。但是输入电压需要高些
+    ME6206：比XC便宜一点点，但是找不到贴近200mA的型号
+
+不对，还要给as5600供电，总输入设置为12V。还是用AMS1117，最大18V输入，1A输出
+
+2. 磁编码器：AS5600，貌似配套的径向磁铁都是6mm直径。买3个。https://blog.csdn.net/xiaoyuanwuhui/article/details/118970127。100mA
+3. 电机：买不到便宜的，估计要拆限位。暂定8元的电机，b站有拆限位教程。买3个。还要m2螺丝
+4. MCU：用stm32f103C8T6。发现平替：gb32？买一个试试。3.3V
+5. 电机驱动：DRV8313。但是用这个方法不会测量电流。用的是电压控制，近似的。https://www.zhihu.com/question/429826103 https://blog.csdn.net/jdhfusk/article/details/120646346 所以没有电流环就是开环控制 8-65V，最大3A。用12V的输入
+替代品：AT8313
+6. 通信：先做USART的，成功了再学can。关于和AS5600通信，使用软件i2c。这样看来用C6T6就行了。如果GB32能用，就用硬件i2c
+7. 晶振。8M，因为用HSI达不到稳定的72M。三脚陶瓷谐振器CSTCE8M00G52-R0内置了负载电容，可以不用再接电容
+8. 电流采样：INA240A1: 20倍；偏置采样电阻：0.05Ω，则3.3V对应电流：1.65A。足够带动电机了。
+
+## 2024 2 17
+关于“静态成员变量”：
+- C++中可以从实例和类访问static声明的变量，前提是没有同名的动态成员变量。如果有同名的非静态成员变量，在用实例访问的时候编译器会优先匹配动态的，而若没有则编译为用类名访问的。
+- js中直接取消了从实例访问static的方式，从实例不能直接访问static。
+
+关于C++的大括号：https://www.cnblogs.com/zyk1113/p/13452493.html（C++很怪啊很怪）
+见到int y{10}不要吃惊，省略了等号
+
+### 关于复制构造
+太久没用C++了……复制构造都忘了。以下是一个复制构造的例子：
+```cpp
+class Myclass {
+public:
+	Myclass() {
+		cout<<"construct\n";
+	}
+	Myclass(Myclass &o) {
+		cout<<"copy construct\n";
+	}
+};
+
+Myclass temp(Myclass obj) {
+	cout<<"temp\n";
+	return obj;
+}
+
+int main(){
+    Myclass myobj;  // 输出construct
+    temp(myobj);
+    /* 再输出
+    copy construct
+    temp
+    copy construct
+    */
+    return 0;
+}
+```
+
+写这个例子的时候我想到了一种写法（匿名对象），但是报错：
+```cpp
+temp(Myclass());    // [错误] cannot bind non-const lvalue reference of type 'Myclass&' to an rvalue of type 'Myclass'
+```
+
+这个错误是由于函数参数的类型不匹配导致的。报错报的是复制构造函数，相当于要执行Myclass obj = Myclass()。
+**函数传参(Myclass& obj) 表示参数 obj 是一个非常量左值引用（non-const lvalue reference）类型的对象。这意味着函数期望接受一个可以被修改的左值作为参数。**
+当使用 temp(Myclass()) 调用函数时，Myclass() 表达式创建了一个**临时的右值对象**（rvalue），而非左值。右值是一个临时的、不可修改的值，不能直接绑定到**非常量左值引用**。
+
+解决方法：改成常量左值引用，使之能接受**常量左值**、**非常量左值**和**右值**作为参数。具体来说是复制构造函数传参写成 (const Myclass&)：
+```cpp
+class Myclass {
+public:
+	Myclass() {
+		cout << "construct\n";
+	}
+	Myclass(const Myclass& o) {     // 修改了这里！
+		cout << "const copy construct\n";
+	}
+};
+Myclass temp(Myclass obj) {
+	cout << "temp\n";
+	return obj;
+}
+int main() {
+	temp(Myclass());
+	return 0;
+}
+/* 输出
+construct
+temp
+const copy construct
+*/
+```
+少了传参的一次复制构造，为什么？——编译器进行了另一种优化，称为复制消除（Copy Elision），允许编译器在某些情况下避免不必要的复制构造函数调用。根据C++标准的规定，编译器可以进行复制消除，即使代码中存在显式的复制构造函数调用。
+
+**复制构造就应该写const！！！**
+
+但是一旦用const修饰了Myclass& obj，那便**不能修改obj的任何属性**。如果要调用obj的函数，为了保证这一点（指不修改属性），需要将**函数也用const修饰**，具体表现为在大括号前面加const。用const修饰的函数内部不能改变this的属性。那我非要修改值怎么办？比如计数被复制了几次。——可以**在成员变量前加上“mutable”**。
+
+    如果只将temp的传参改为const Myclass& 不行，问题出在返回时的复制构造。只改temp需要改成：const Myclass& temp(const Myclass&)
+
+如果不用const，还有一种改法，思路是绕开复制构造：
+
+### 左值和右值：
+左值就是写在赋值左边的。右值分为两种：纯右值(prvalue)和将亡值(xvalue)。将亡值比如temp函数的返回值，是马上会被销毁的东西。右值不能取地址，也就不能引用。但是C++11给出了**右值引用(T&&)**，让将亡值将继续存活。
+```cpp
+Myclass& x = Myclass(); // 不行，必须写成const Myclass&
+Myclass&& x = std::move(Myclass()); // 使用右值引用
+Myclass&& x = Myclass();// 右值给右值引用可以不显式调用move
+
+Myclass temp;
+Myclass&& x = std::move(temp);      // 左值赋值给右值引用必须调用move
+```
+在此基础上就有了以下操作：
+```cpp
+Myclass temp(Myclass&& obj) {
+    // 函数内obj就是左值，调用重载函数触发的是传参为(&)的而非(&&)的
+	cout<<"temp\n";
+	return obj;
+}
+int main(){
+	temp(Myclass());    // 对下文进行补充：编译器会执行std::move(Myclass())。传给temp的是右值引用
+	return 0;
+}
+/* 这样就能编译了。结果是：
+construct
+temp
+copy construct
+*/
+```
+编译器会自动对临时对象应用所谓的移动语义（std::move）。移动语义是一种优化技术，它允许在不进行任何内存复制的情况下将资源从一个对象转移到另一个对象。
+move函数所做的**只是拿到一个左值或右值，然后都将其返回为右值引用，以不触发任何拷贝函数**。
+右值引用可以像左值引用一样操作，相比常量左值引用，可以修改属性。**右值引用变量的属性会被编译器识别成左值**。
+注意，右值赋值给右值引用是可以直接做的，不用显式调用std::move；而左值给右值引用必须调用。
+
+### 小总结：左右值的关系
+常量左值引用（const T&）适用于需要传递参数并且不需要修改被引用对象的情况，而右值引用（T&&）主要用于实现移动语义和完美转发，可用于修改、移动或操纵被引用的对象。常量左值引用可以绑定到左值和右值，而右值引用只能绑定到右值（但是用move就可以绑定左值了）。
+补充：当使用右值引用类型初始化左值引用时，右值引用会被折叠为左值引用：
+```cpp
+int&& x = 9;
+int& y = x;
+```
+
+### 万能引用
+传参为右值引用的函数写成模板：
+```cpp
+template<typename T>
+void test(T && v);
+```
+这样就能直接传参左值了(当然右值本来就可以传)：
+```cpp
+Myclass c;
+test(c);
+```
+为什么？实际上T被识别为C&，所以v的类型是C&&&，根据**引用折叠**，变成C&。在这个机制下，左右值可以直接传入test函数，左值不需要用std::move。
+
+    引用折叠：& &&会变为&；&& &&会变为&&。
+
+当然也能用auto&&实现模版的功能。
+
+### 完美转发
+万能引用带来一个问题：传入的右值引用在函数内部其实已经是左值了（因为在内存有了位置），这意味着在函数内部我不知道传入的到底是左值还是右值。
+解决办法是在test中用std::forward<T>(v)。如果test的传参是左值，forward之后就是左值；否则右值。
+
+### 杂项
+cpp的函数声明可以在函数之中，这样就是局部可用。为了避免二义性，Myclass myclass();最好不要出现，因为不知道是函数声明还是实例化。
+
+## 2024 2 19
+DRV8313的使用：
+根据博客 https://www.cnblogs.com/ningmeng484/p/12056935.html，输出就是对输入的功率跟随。
+传统使用推挽实现功率输出，需要配置两路幅值相反的PWM，以上桥臂为例，如果是高电平，则下桥臂是低电平，输出为有驱动能力的高电平；如果上桥臂为低电平，则下桥臂是高电平，输出为有驱动能力的低电平。只看上桥臂和输出，则输出是有驱动能力的上桥臂电压。同时还有一些细节，比如死区控制。这些可以在STM32高级定时器中完成配置。
+DRV8313所起的作用就是省去了下桥臂和死区等繁杂的细节。只需要给出没有驱动能力的上桥臂状态，就可以输出有驱动能力的跟随电压，无需关心死区等。其内部就是三组推挽电路，根据输入的上桥臂生成下桥臂和死区管理，所以使用DRV8313还是要注意SVPWM的时序控制，减少内部MOS管的翻转次数。
+
+七段式SVPWM的优点：谐波分量小。https://www.zhihu.com/tardis/zm/art/412521405?source_id=1005
+
+## 2024 2 24
+FOC程序流程：硬件上，PWM设置为上升下降的三角模式，同时设置在达到顶点和底点的触发更新事件（RCR=0），且更新事件绑定TRGO，触发两路ADC采样。I2C由于怕出问题，同时为了提高速度，使用非阻塞、中断模式，中断优先级最高。
+注入组ADC使用：需要等待转换完成。这样做是不是太浪费性能了？
+https://github.com/chenzt2020/foc_learning/blob/main/drive_1.pwm%2Badc/current.h
+HAL_ADCEx_InjectedPollForConversion等待注入组ACD结束
+
+两个思路：
+1. 全部放到更新中断中。优点是只要设置优先级高于串口，就不会被串口打断。缺点是这个中断似乎优点久了。
+2. 全部放到main函数中，不管计时器，全部用软件触发。不行，因为PWM的更新时刻是离散的，得保持同步。所以是全部放到main中，adc1和adc2和as5600用中断置标志位。优点和缺点与1相反。
+
+用方案1吧。采用C with class，将main.c改为main.cpp，就可以了。
+PWM设置为模式1，即CNT小于CMP为高电平，这样CMP和占空比就是正比关系了。
+
+### 总结下keil使用C++
+- 关于main之外可以执行什么：只能执行全局变量的定义与声明。但是这些语句执行的顺序是不定的。可以用“构造函数”的方法让语句执行在main之前。
+- C++类的静态量**一定**要在类外初始化，且只能**一次**。
+- 将main.c换成main.cpp，编译器改成version6，去掉microLIB的勾选，选择C++11，就可以使用了！
+- 去掉了microLIB就不能对printf重定向了，所以有必要了解一下sprintf()和strlen：
+    - sprintf(char* 存到哪, "格式化字符串", [其他参数])
+    - strlen(存到哪)获取字符串长度，需include string.h。如果用sizeof则返回数组总长度而不是到\0的长度。
+    - 串口换行是\r\n，两个char
+- 我喜欢用hpp文件，注意类型要选择Text Document File(同.h的类型)，不能选C++ Source，因为这个决定怎么被编译。选择source file就和include .c一样了，会出现重定义。比如类的静态量定义在source file类型的hpp文件中。
+
+## 2024 2 25
+### ADC的速度
+ADC的速度由2个参数决定，它是采样时间和转换时间之和：
+   即：TCONV = 采样时间 +12.5个ADC时钟周期
+在STM32中，ADC的采样时间是由用户程序在一组预定的数值中选择，按照ADC的时钟周期计算，共有8种选择：
+   1.5、7.5、13.5、28.5、41.5、55.5、71.5和239.5
+按最小的1.5个时钟周期的采样时间计算，最短的TCONV等于14个时钟周期，如果ADC的时钟频率是14MHz，则ADC的速度为每秒100万次。
+
+## 2024 2 26
+关于keil在vscode中的配置"未定义的标识符"：在.vscode文件中新建settings.json，内容为：
+```json
+{
+    "C_Cpp.intelliSenseEngine": "Tag Parser"
+}
+```
+这样会导致无法解析变量。所以正常项目还是用default好
+
+## 2024 3 9
+有关宏定义
+```cpp
+#define ABS(x) ((x) > 0 ? (x) : (-x))
+int32_t y0 = 128;
+int32_t y1 = 64;
+int32_t dy = -ABS(y1 - y0);
+```
+单片机上得到的结果是dy=192，在电脑上跑结果是正确的。
+因为展开后变成了“:(-y1-y0)”。正确写法：
+```cpp
+#define ABS(x) ((x) > 0 ? (x) : -(x))
+```
+为什么在电脑上跑是对的？因为单片机上其实有两个ABS的定义：
+```cpp
+// main.h中
+#define ABS(x) ((x) > 0 ? (x) : (-x))
+// 出问题的文件中
+#ifndef ABS
+#define ABS(x) ((x) > 0 ? (x) : -(x))
+#endif
+```
+于是正确的写法被pass了……而复制到电脑上运行只复制了出问题的文件
+
+## 2024 3 11
+算术移位和逻辑移位的比较（均为补码操作）：
+当一个【有效的】左移最高位和数据最高位一致时，算术左移和逻辑左移一样，均为右补0，不一致时，算术左移溢出，无意义！
+    什么是“有效”：对于有符号数，左移之后符号位和之前一样
+逻辑右移很简单，只要将二进制数整体右移，左边补0即可 ，算术右移，左侧均补符号位，即正数补0，负数补1。
+对verilog的有符号数操作：
+只有算式右边全为有符号数，运算才会自动补齐所需的bit数，n+n=n+1（加法需要多一位），n*n=2n
+reg类型被作为无符号数看待？在verilog2001之后就不是了
+```verilog
+reg signed [7:0] a, b;
+reg signed [3:0] c;
+reg signed [7:0] sum1, sum4;
+. . .
+// same width. can be applied to signed and unsigned(常规无符号数加法器)
+sum1 = a + b;
+// automatic sign extension（c被自动扩展符号位到8位）
+sum4 = a + c;
+```
+只有当所有右手边的变量具有signed数据类型属性的时候，扩展符号位才被执行。否则，所有的变量都只扩展0
+
+## 2024 4 5
+word公式换行对齐：https://zhuanlan.zhihu.com/p/439988361
+在unicode模式下（这点很重要！不然直接卡死），公式末尾输入#，就可以换行了
+在要对齐的等号后面输入&就能对齐
+
+## 2024 5 6
+ipynb合并：
+```bash
+nbmerge a.ipynb b.ipynb -o c.ipynb
+```
+网上大部分用的是">"，会有编码问题
+
+## 2024 6 2
+设置Windows用utf-8:
+搜索区域->右侧其他日期、时间和区域设置->更改日期、时间或数字格式->管理->更改系统区域设置->beta版
+为什么有这个问题？在vscode中，尽管设置了`set PYTHONIOENCODING=utf-8 && python -u`，但还是有中文乱码问题：
+```python
+print("中文")   # 可以正常输出
+import os
+os.system("ipconfig")   # 中文不正常
+```
+可知是cmd的编码问题。换成utf-8就都正常了。
+后记：
+- PVZ的窗口变成乱码了
+- 插入的U盘的中文名变成乱码了
+- 思源黑体变得很奇怪
+
+## 2024 6 9
+python多行注释小技巧
+```py
+"""
+codes
+#"""
+```
+只要注释第一行，就可以启用注释里的代码！
+
+## 2024 6 22
+安装pop_os:
+1. 下载pop_os的iso并且用rufus写入U盘。提示：您选择了一个ISOHybrid镜像文件，但此文件与ISO/File复制模式不兼容。因此强制使用DD镜像写入模式。——不管，继续写。
+2. 电脑调整至boot（三星的笔记本在开机的时候按F2），关闭security boot，选择最长的模式，关闭fast boot，然后选择启动盘。
+3. 用于老电脑的系统，所以直接clean install。不要选择全盘加密！不然每次都要解开，没必要。全盘加密与否只在安装时可选，要更改只能重装。
+4. 没有独立显卡，所以Hybrid Graphics就不调了。
+5. setting-firmware升级
+6. 换源。用可视化的方式：
+```sh
+sudo nautilus
+```
+打开文件管理器，然后找到/etc/apt/source.list，复制清华源ubuntu的内容，保存后sudo apt update、sudo apt upgrade
+7. 摄像机：sudo apt install guvcview或者Cheese
+8. Settings -> Power -> enable Show battery percentage
+9. 安装QQ linux 3（直接搜到的是2，不能用）
+
+## 2024 8 9
+wsl突然pip网络寄了（无法使用主机代理），查了半天发现clash没开LAN
+在微信小程序上使用tensorflow，分为以下步骤：
+1. 将onnx转为tfjs：
+    采用[回答](https://stackoverflow.com/a/75969999/26740342)的方法，除了回答中install的指令，实际运行时还缺少tensorflow2.15.0+以及其他库，遇到问题就pip install即可。在[onnx2t](https://github.com/PINTO0309/onnx2tf)中有如何将onnx转为tfjs的指令。
+    tfjs转成的有两个文件，一个是json表明了结构，还有一个类似'group1-shard1of1.bin'的文件保存了权值，但是loadGraphModel只填了json的路径，如何加载权值呢？其实json中有一个值：weightsManifest，其中记录了权值文件名。所以要修改权值文件名一定要修改json文件！在官方的loadGraphModel文档也提到：“weightPathPrefix (string) Path prefix for weight files, by default this is calculated from the path of the model JSON file.”所以只要loadGraphModel(json文件的路径)就好了
+2. 配置tfjs环境。参考[tfjs-wechat](https://github.com/tensorflow/tfjs-wechat)中的做法。可以参考的第三方链接是：https://cloud.tencent.com/developer/article/1543753。简要总结一下：
+    小程序添加tensorflowJS插件(tfjsPlugin)。在微信开放平台中。然后再app.json添加插件，添加方法见github项目页，记得把版本号改成最新的。
+    项目中：
+    npm install @tensorflow/tfjs-core
+    npm install @tensorflow/tfjs-converter
+    npm install @tensorflow/tfjs-backend-webgl
+    npm install @tensorflow/tfjs-backend-cpu
+    npm install fetch-wechat
+    然后小程序内构建npm，忽略警告。
+
+## 2024 8 18
+原来VSCODE在写C/CPP时说“检测到 #include 错误。请更新 includePath。”是因为C++拓展配置的事cl.exe，而不是我的mingw没配置好
+
+
+## 2024/9/6
+cqhttp实现了OneBot协议，而Nonebot是一个基于OneBot协议的机器人框架。
+[go-cqhttp不行了](https://github.com/Mrs4s/go-cqhttp/issues/2471)，因为官方的围追堵截。但是官方提出了一套接口。
+LiteLoaderQQNT就是用NTQQ内核的，支持各种插件，其中有个插件叫做LLOneBot，实现了onebot的标准，即充当了cqhttp的角色。
+NapCat基于LLOneBot，但是可以无头（不用electron），适用于小内存。用的是xvfb-run
+
+那NapCat和LLOneBot有什么关系？https://www.xiaojiaozi.top/2024/07/21/ntQQ/，人机合一就是机器人运行时人可以在同一台电脑上用
+
+## 2024/9/11
+wx.canvasToTempFilePath在PC上有问题。
+设置导出范围为canvas或者ctx的大小时，只截取一部分保存，结果是一样的。
+canvas.width为800，但是经过css的缩放，在屏幕上看起来是和框一样宽的。手机上保存正常。电脑上保存，如果设置destWidth=undefined，则导出的只有599，且内容对应于800像素中的599大小。如果设置destWidth为canvas.width，则导出的有1158（不同图片的缩放大小不同），但内容不变。
+PC上屏幕宽度为414，pixelRatio=1.4479。于是发现导出的图片的宽度和canvas.width的比例为pixelRatio。所以有以下调整：
+```js
+let dstW = canvas.width;
+let dstH = canvas.height;
+// PC系统要单独处理
+if (wx.getDeviceInfo().system.toLowerCase().startsWith("windows")) {
+    // 保证输出的尺寸正确
+    const pixR = wx.getWindowInfo().pixelRatio;
+    dstW /= pixR;
+    dstH /= pixR;
+}
+```
+这下输出的尺寸正确了，但是截取的尺寸还是不对。怎么办呢？
+我试着改变截取的宽度和高度，小了确实在截取，大了（即使超过画布大小）则锁定截取599像素。那不同的电脑输出的是否相同呢？如果相同，只要缩放画布内容即可；如果不同，那关系是什么？
+结果是：不同。另一台电脑上，只截取517像素。于是发现了关系：414(屏幕宽度)*1.4479(像素比)=599(实际截取的宽度)，这就是实际可以导出的画布的最大宽度。
+
+## 2024/9/18
+Zotero使用：
+- 按shift再拖动就可以移位置，而不是复制
+- 右栏设置标签，左下角分配颜色后才会显示标签列中
+
+## 2024/10/8
+vscode配置verilog格式化，直接在设置里面搜verilog fromat，然后下载https://github.com/0qinghao/istyle-verilog-formatter，配置好exe的位置即可。--style=kr是我喜欢的类型
+
+## 2024/10/14
+补aaencode的原理。有了颜色就知道原理了。
+```js
+// "/.../"是正则表达式的语法糖。和"new RegExp(...)"等价。正则表达式本质还是Object，后面的['_']取了一个不存在的键值对，所以变量ﾟωﾟﾉ=undefined
+ﾟωﾟﾉ= /｀ｍ´）ﾉ ~┻━┻ //*´∇｀*/ ['_'];
+// o和ﾟｰﾟ和_都是变量名，值为3
+o=(ﾟｰﾟ) =_=3;
+// c和ﾟΘﾟ都是变量名，值为0
+c=(ﾟΘﾟ) =(ﾟｰﾟ)-(ﾟｰﾟ);
+// (ﾟДﾟ是变量名，o^_^o运算结果是3，所以(ﾟДﾟ和ﾟΘﾟ值为3
+(ﾟДﾟ) =(ﾟΘﾟ)= (o^_^o)/ (o^_^o);
+/* 对象(ﾟДﾟ):{
+    ﾟΘﾟ: "_",
+    ﾟωﾟﾉ: "a",
+    ﾟДﾟﾉ: "e",
+    ﾟｰﾟﾉ: "d",
+    1: "f",
+    c: "c",
+    o: "o"
+}*/
+(ﾟДﾟ)={ﾟΘﾟ: '_' ,ﾟωﾟﾉ : ((ﾟωﾟﾉ==3) +'_') [ﾟΘﾟ] ,ﾟｰﾟﾉ :(ﾟωﾟﾉ+ '_')[o^_^o -(ﾟΘﾟ)] ,ﾟДﾟﾉ:((ﾟｰﾟ==3) +'_')[ﾟｰﾟ] };
+(ﾟДﾟ) [ﾟΘﾟ] =((ﾟωﾟﾉ==3) +'_') [c^_^o];
+(ﾟДﾟ) ['c'] = ((ﾟДﾟ)+'_') [ (ﾟｰﾟ)+(ﾟｰﾟ)-(ﾟΘﾟ) ];
+(ﾟДﾟ) ['o'] = ((ﾟДﾟ)+'_') [ﾟΘﾟ];
+// c o n s t r u c t o r
+(ﾟoﾟ)=(ﾟДﾟ) ['c']+(ﾟДﾟ) ['o']+(ﾟωﾟﾉ +'_')[ﾟΘﾟ]+ ((ﾟωﾟﾉ==3) +'_') [ﾟｰﾟ] + ((ﾟДﾟ) +'_') [(ﾟｰﾟ)+(ﾟｰﾟ)]+ ((ﾟｰﾟ==3) +'_') [ﾟΘﾟ]+((ﾟｰﾟ==3) +'_') [(ﾟｰﾟ) - (ﾟΘﾟ)]+(ﾟДﾟ) ['c']+((ﾟДﾟ)+'_') [(ﾟｰﾟ)+(ﾟｰﾟ)]+ (ﾟДﾟ) ['o']+((ﾟｰﾟ==3) +'_') [ﾟΘﾟ];
+// 赋值 3['constructor']['constructor']，得到的是函数的构造函数，下面记为F
+(ﾟДﾟ) ['_'] =(o^_^o) [ﾟoﾟ] [ﾟoﾟ];
+// r e t u r n
+(ﾟεﾟ)=((ﾟｰﾟ==3) +'_') [ﾟΘﾟ]+ (ﾟДﾟ) .ﾟДﾟﾉ+((ﾟДﾟ)+'_') [(ﾟｰﾟ) + (ﾟｰﾟ)]+((ﾟｰﾟ==3) +'_') [o^_^o -ﾟΘﾟ]+((ﾟｰﾟ==3) +'_') [ﾟΘﾟ]+ (ﾟωﾟﾉ +'_') [ﾟΘﾟ];
+// 这里是嵌套了两层，其实就是F( F('return "console.log("rock")"') (1)) ('_');套了两层，可能是为了增加复杂度。直接写F("代码")即可
+(ﾟｰﾟ)+=(ﾟΘﾟ);
+(ﾟДﾟ)[ﾟεﾟ]='\\'; (ﾟДﾟ).ﾟΘﾟﾉ=(ﾟДﾟ+ ﾟｰﾟ)[o^_^o -(ﾟΘﾟ)];
+(oﾟｰﾟo)=(ﾟωﾟﾉ +'_')[c^_^o];(ﾟДﾟ) [ﾟoﾟ]='\"';
+(ﾟДﾟ) ['_'] ( (ﾟДﾟ) ['_'] (ﾟεﾟ+(ﾟДﾟ)[ﾟoﾟ]+ (ﾟДﾟ)[ﾟεﾟ]+(ﾟΘﾟ)+ (ﾟｰﾟ)+ (o^_^o)+ (ﾟДﾟ)[ﾟεﾟ]+(ﾟΘﾟ)+ ((ﾟｰﾟ) + (ﾟΘﾟ))+ ((ﾟｰﾟ) + (o^_^o))+ (ﾟДﾟ)[ﾟεﾟ]+(ﾟΘﾟ)+ ((ﾟｰﾟ) + (ﾟΘﾟ))+ ((o^_^o) +(o^_^o))+ (ﾟДﾟ)[ﾟεﾟ]+(ﾟΘﾟ)+ ((o^_^o) +(o^_^o))+ (o^_^o)+ (ﾟДﾟ)[ﾟεﾟ]+(ﾟΘﾟ)+ ((ﾟｰﾟ) + (ﾟΘﾟ))+ ((ﾟｰﾟ) + (o^_^o))+ (ﾟДﾟ)[ﾟεﾟ]+(ﾟΘﾟ)+ ((ﾟｰﾟ) + (ﾟΘﾟ))+ (ﾟｰﾟ)+ (ﾟДﾟ)[ﾟεﾟ]+(ﾟΘﾟ)+ (ﾟｰﾟ)+ ((ﾟｰﾟ) + (ﾟΘﾟ))+ (ﾟДﾟ)[ﾟεﾟ]+((ﾟｰﾟ) + (ﾟΘﾟ))+ ((o^_^o) +(o^_^o))+ (ﾟДﾟ)[ﾟεﾟ]+(ﾟΘﾟ)+ ((ﾟｰﾟ) + (ﾟΘﾟ))+ (ﾟｰﾟ)+ (ﾟДﾟ)[ﾟεﾟ]+(ﾟΘﾟ)+ ((ﾟｰﾟ) + (ﾟΘﾟ))+ ((ﾟｰﾟ) + (o^_^o))+ (ﾟДﾟ)[ﾟεﾟ]+(ﾟΘﾟ)+ (ﾟｰﾟ)+ ((ﾟｰﾟ) + (o^_^o))+ (ﾟДﾟ)[ﾟεﾟ]+((ﾟｰﾟ) + (ﾟΘﾟ))+ (c^_^o)+ (ﾟДﾟ)[ﾟεﾟ]+(ﾟｰﾟ)+ ((o^_^o) - (ﾟΘﾟ))+ (ﾟДﾟ)[ﾟεﾟ]+(ﾟΘﾟ)+ ((o^_^o) +(o^_^o))+ ((o^_^o) - (ﾟΘﾟ))+ (ﾟДﾟ)[ﾟεﾟ]+(ﾟΘﾟ)+ ((ﾟｰﾟ) + (ﾟΘﾟ))+ ((ﾟｰﾟ) + (o^_^o))+ (ﾟДﾟ)[ﾟεﾟ]+(ﾟΘﾟ)+ (ﾟｰﾟ)+ (o^_^o)+ (ﾟДﾟ)[ﾟεﾟ]+(ﾟΘﾟ)+ ((ﾟｰﾟ) + (ﾟΘﾟ))+ (o^_^o)+ (ﾟДﾟ)[ﾟεﾟ]+(ﾟｰﾟ)+ ((o^_^o) - (ﾟΘﾟ))+ (ﾟДﾟ)[ﾟεﾟ]+((ﾟｰﾟ) + (ﾟΘﾟ))+ (ﾟΘﾟ)+ (ﾟДﾟ)[ﾟoﾟ]) (ﾟΘﾟ)) ('_');
+```
+浏览器为了安全考虑，不允许直接运行eval一类的东西。
+new Function()和Function()等价，传入字符串返回函数。eval是传入字符串直接运行，都是运行字符串的方法。setTimeout的第一个参数传入字符串也能运行
+
+## 2024 11 7
+rust编译为wasm不需要额外的编译器！C/C++编译为wasm需要emcc！
+
+## 2024 11 9
+musescore插件开发
+musescore4还没做插件开发的面板，所以要调试只能用文件。
+```js
+import FileIO 3.0
+MuseScore {
+    ...
+    FileIO {
+        id: outfile
+        source: "D:/Desktop/log.log"
+        onError: console.log(msg)
+    }
+    onRun: {
+        outfile.write("Hello World!\n");
+    }
+    ...
+}
+```
+
+## 2024 11 17
+navigator.mediaDevices.getUserMedia竟然在手机上用不了？明明MDN都写了是baseline。后来发现手机浏览器必须https才能用，不管是LiveServer还是python -m http.server 8888都是http协议。
+
+windows开https：
+1. 安装openssl：https://slproweb.com/products/Win32OpenSSL.html，需要添加环境变量
+2. 安装npm的http-server(python的http.server疑似有些弱小)：
+```bash
+npm install --global http-server
+http-server -S -C cert.pem
+```
+3. 生成证书：
+```bash
+openssl req -new -x509 -keyout key.pem -out cert.pem -days 365 -nodes
+```
+有要填的东西全部回车跳过
+4. 启动服务
+```bash
+http-server -S -C cert.pem
+```
+
+于是手机上终于用起来了。
+
+## 2024 11 22
+tauri android配置还得回到android的项目文件夹，比如:
+
+### 无标题无状态栏
+修改res/values/themes，变成：
+```xml
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Theme.freqintime" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:windowNoTitle">true</item>
+    </style>
+</resources>
+```
+
+### 横屏
+修改src-tauri/gen/android/app/src/main/AndroidManifest.xml：
+activity中加“android:screenOrientation="landscape"”
+
+### 权限
+网页调用了麦克风，还是得在manifest中授权：
+```
+<uses-permission android:name="android.permission.RECORD_AUDIO" />
+<uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+```
+
+https://blog.csdn.net/qq_50675668/article/details/134198813
+
+## 2024 11 24
+试图在琴房RX580的电脑上配置GPU环境。结论：失败。
+AMD的深度学习环境是ROCm，ROCm只有linux有，所以准备在WSL上配置。首先下载了Ubuntu24.02，配置好了一切准备装ROCm才发现只支持Ubuntu22.04。这才想起来先看官方文档。RX580不支持，但是网上有成功的案例，我猜其实是可以的（后来才发现跑的是tensorflow）。于是重来，驱动装好了，告诉我硬件不支持。
+试着去找找魔改版？ROCm 3.5.1之后AMD就放弃了对RX580的支持，但是pytorch的ROCm从6.1开始（也许不是一个东西）。不过懒得折腾了（花了一下午）。
+
+## 2024 11 25
+关于编码：先用GBK写一个中文txt，然后用UTF-8打开，是菱形问号。虽然此时并不提示文件未保存，但如果这个时候保存文件，UTF-8会把解析失败的替换成特定内容，从而改变了原始内容，再用GBK读取就会有问题。
+
+## 2024 12 2
+pytorch的初始化是每个层的构造函数中写的，叫reset_parameters()，
+
+## 2025 2 8
+bat语法：
+- echo on: 开启回显（默认），回显就是命令输出在cmd中，下一行出现运行结果
+- @: @置于语句前则该条语句不会回显（无视echo on）
+- echo off: 执行改语句后关闭回显，如果之前是echo on那么这句话也会回显
+- @echo off: 这样就一句话都不会显示了，一般写在第一句
+- 管道符: ‘|’
+- 转义符号: ‘^’。如果管道命令在字符串中就要用^|，不然|会被当做转义字符而不是字符串中的一个字符
+- title 设置标题，指cmd窗口名
+- goto: 先写一个“:label”，再“goto label”
+- %变量名%: 引用
+- set 变量=值。中间不要有空格。注意延迟赋值问题：
+```bat
+::输出为1
+@echo off
+set a=1
+set a=2 & echo %a%
+```
+问题的原因是整句话一起被解析。
+如果要输出为2，要么分两行写，要么用开启延时赋值和!变量名!：
+```bat
+::输出为2
+@echo off&setlocal enabledelayedexpansion
+set a=1
+set a=2 & echo !a!
+```
+- if: if 条件 () else () 注意整个if即使换行（括号处）也会被视为一行语句，所以要用上面的延时赋值。
+    关系符号：equ gtr geq lss leq neq
+    与：用两个if
+    或：使用if嵌套，或者使用额外变量标记结果，再判断该变量
+    非：条件前加not
+- for %%i in (elements) do command2
+    elements用空格键、跳格键、逗号、分号或等号分隔，类似列表
+    如果填路径就是遍历，但是要加/d：for /d %%i  in (路径) do command
+    也可以是(*)，代表bat文件所在目录
+    for /l %%i  in (start,step,end) do command类似range
+
+关于for：还是处理“列表”的方法：
+```bat
+for /f "tokens=2-5 delims=:" %%a in ('ipconfig ^| findstr "IPv6"') do (
+    echo %%a:%%b:%%c:%%d
+)
+```
+命名的话%%后面只能接一个ascii字符，且后面的按照ascii递增赋值。对于"z"，下一个就是"{":
+```bat
+for /f "tokens=2,* delims=:" %%z in ('ipconfig ^| findstr "IPv6"') do (
+    echo %%z:%%{
+)
+```
+终于知道怎么从ipconfig中提取ipv6:
+```bat
+@echo off
+setlocal enabledelayedexpansion
+
+for /f "tokens=2,* delims=:" %%a in ('ipconfig ^| findstr "IPv6"') do (
+    set IPV6=%%a:%%b
+    @rem 去除开头空格，delims只能指定一个字符，不然用“: ”了
+    set IPV6=!IPV6:~1!
+    @rem 选择第一项 只能循环里面break实现
+    goto firstmatch
+)
+
+:firstmatch
+echo %IPV6%
+```
+
+总之写好了：
+```bat
+:: 一定不能用utf-8编码!
+@echo off
+setlocal enabledelayedexpansion
+title DDNS
+
+set DOMAIN=gg.6v7.top
+
+@REM :loop
+@rem 取消了循环，改为在taskschd.msc中设置定时任务。大写REM就是注释的循环任务
+
+@rem 获取本纪当前ipv6地址
+set IPV6=0
+@rem ipv6地址中都是冒号，所以用冒号分割后要取后面所有
+for /f "tokens=2,* delims=:" %%a in ('ipconfig ^| findstr "IPv6"') do (
+    @rem findstr返回每一行，/f将其解析为一行一行，每一行再经过delims分割，取第二项后后面所有
+    @rem 两个百分号后面的变量名只能是一个ascii字符，且变量名递增顺延分配tokens的每一项。
+    set IPV6=%%a:%%b
+    @rem 去除开头空格，delims只能指定一个字符，不然用“: ”了
+    set IPV6=!IPV6:~1!
+    @rem 选择第一项，只能循环里面break实现，findstr没有只匹配第一个的选项
+    goto firstmatchipv6
+)
+
+:firstmatchipv6
+
+@rem 找到dns当前的ipv6地址
+set find=0
+set dnsip=1
+for /f "tokens=2 delims= " %%a in ('nslookup %DOMAIN% dns1.hichina.com') do (
+    set "dnsip=%%a"
+    if "%find%" == "1" goto foundcurrent
+    if "!dnsip!" == "%DOMAIN%" (
+        set find=1
+    )
+)
+
+:founddnsip
+
+@rem 更新dns
+if "%find%" == "1" if "%dnsip%" == "%IPV6%" goto nextloop
+echo %date% %time%
+echo Updating dnsIP: %dnsip% to currentIP:%IPV6%
+curl -X POST https://dyn.6v7.top:9443/ddns -H "Content-Type: application/json" -d "{\"name\":\"gg\",\"token\":\"J73t1nJRTaYMzA\",\"type\":\"AAAA\",\"value\":\"%IPV6%\"}"
+
+if %errorlevel% == 0 (
+    echo Successs!
+) else (
+    echo NetworkError
+)
+
+:nextloop
+echo updated
+@rem 休眠5分钟
+@REM timeout /t 300 /nobreak
+@REM goto loop
+```
+
+## 2025 02 22
+删除远程仓库的最新提交
+```bash
+git log # 能看到最新的提交
+git reset --soft HEAD~
+git log # 此时应该没有最新的提交了
+git push origin main --force # 大功告成！
+```
+大文件建议提交到release
+
+## 2025 03 22
+现有的mingw（还是版本10）用debug编译stringstream会报错，寻思换一个更新的GCC（最新版14）。从GitHub下载，解压，配置环境变量——结果cout都会`segment fault`！（插一嘴，路径中不能有中文）
+找了半天在()[https://stackoverflow.com/questions/76631846/c-segmentation-fault-on-hello-world-cin-and-cout]发现了线索：“The problem was a Julia libstdc++-6.dll file that was being loaded before the mingw64 one. If you have a similar problem, make sure to comb through your PATH variables. The Visual Studio Code debug console also tells you what files are being loaded.”
+然而我的Julia路径在mingw后面，都在用户变量中。最后一句话让我想到去查看编译细节，用C++插件编译时可以看到链接dll的信息，赫然发现一个Qt的libstdc++，而Qt的mingw的path在我的系统变量中。
+关于PATH：Windows会将用户变量的PATH添加到系统变量PATH的后面，所以系统环境变量优先（但是变量是用户覆盖系统）。于是把Qt的path删了（或移到后面），一切恢复正常！
+之前的mingw是RedPandaDev自带的，观察了其编译指令：
+- Debug
+```bash
+g++.exe "绝对位置/file.cpp" -o "绝对位置/file.exe" -finput-charset=UTF-8 fexec-charset=UTF-8 -Ofast -Wall -Wextra -g3 -pipe
+```
+- Release:
+```bash
+g++.exe "绝对位置/file.cpp" -o "绝对位置/file.exe" -finput-charset=UTF-8 fexec-charset=UTF-8 -O2 -pipe -s -static
+```
+
+## 2025 04 24
+Python修饰器是语法糖：
+```
+def x(param):
+    def wrap():
+        dosometing_before()
+        x = param()
+        dosometing_after()
+        return x
+    return wrap
+
+@x
+# 定义一个callable的东西，比如函数，比如重载了__call__的类
+def y():
+```
+修饰器的作用相当于：
+```
+def y()
+y = x(y)
+```
+
+
+LLM每次请求都是无记忆的，那记忆只能土法加入：将历史和当前请求“拼”在一起输入LLM
+https://blog.csdn.net/a9992972515/article/details/143884446
+RAG就是把知识库建立向量数据库，然后根据输入的prompt查询相似的，再提取出这些内容，和prompt整合给LLM。查询是为了解决LLM限制输入长度的，一般用topk，相当于先进行了一次简单的注意力。
+总之无论是“记忆”还是“拓展知识”，最后都是prompt的组合，并不是LLM本身的功能。
+
+LLM反正就是文字交流，所以一些框架也就做些边角工作，比如langchain我看主要作用：
+- prompt模板，感觉没用，一些字符串的干活
+- 输入格式要求自动添加
+- 输出解析
+
+## 2025 04 26
+关于LLM的结构
+- KV缓存：因为推理时要根据之前的所有输出，而之前的编码是不会变的，所以可以缓存下来。
+
+绝对位置编码为什么用cos和sin？有人说就像整数的二进制表示，每个位置表示为d位的整数，每一位在位置维度上看就是有周期性的，且位越低变化越快。三角函数与此类似。然后为什么用cos和sin，实际上把两个看成一组，内积值就之和位置差距有关。
+相对位置编码RoPE
+如何理解Transformer论文中的positional encoding，和三角函数有什么关系？ - warmup的回答 - 知乎
+https://www.zhihu.com/question/347678607/answer/3349672379
+
+
+tokenizer就是切词，常见的是BPE，原理是合并常见组合为新“词”，分词策略是贪心，升级一下就是WordPiece。最后得到的是一个双向映射表，一个“词”对应一个数字
+然后查表，输入是数字，输出是向量，称为Embedding。这是和后面的Transformer一起训练的：https://www.zhihu.com/question/663835334
+模型输出的直接就是数字，然后差token的表还原为句子。原始输出是所有token的概率，选topk，然后按概率选择，以有一定的随机性。所以对相同LLM使用相同的prompt有不同的结果。
+
+LLM的训练分为如下阶段：
+1. 预训练，就是预测下一个token，为了保持因果，所以要用mask遮住训练集当前预测位置之后的。模型就可以续写了。
+2. 指令微调（Supervised Fine-Tuning, SFT）。为了让模型理解指令而不是续写指令。训练数据是“问题-回答”
+3. 强化学习机制。SFT后的模型可以输出多个回答，然后人工排序，用这些数据训练一个评估结果好坏的“奖励模型”，然后反过来优化SFT后的模型。用奖励模型相当于生成了更多人工标注。
+
+LLM的输出是一个N维的向量，其中N是词典大小，用交叉熵训练。
+
+进一步微调：在Q和V的投影矩阵上加LoRA，即并行一个两次线性变换
+
+Deepseek的思维链疑似是数据集带来的。https://zhuanlan.zhihu.com/p/21706980653。在deepseek的api中这两部分是两个字段，但是在开源版本，思考过程是放在`<think>`中的（疑似prompt要求）。https://help.apiyi.com/deepseek-reasoner-api-thinking-process-guide.html
+https://www.jianshu.com/p/f8e239d81a67
+
+## 2025 05 01
+让cmd开启ANSI 转义序列（颜色）的支持：用管理员运行
+```bash
+reg add HKCU\Console /v VirtualTerminalLevel /t REG_DWORD /d 1 /f
+```
