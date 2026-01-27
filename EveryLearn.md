@@ -1899,3 +1899,144 @@ https://www.jianshu.com/p/f8e239d81a67
 ```bash
 reg add HKCU\Console /v VirtualTerminalLevel /t REG_DWORD /d 1 /f
 ```
+
+## 2025 5 13
+关于typst和latex，函数与宏：
+- latex用宏实现自定义功能，所谓宏就是C的#define，预处理时展开作为代码的一部分，因此往往有“副作用”（写C语言也饱受宏的折磨啊！），而且代码展开后非常复杂。宏之所以有用是因为在C中没有template，所以为了兼容各种类型而不是定义一堆函数，宏就很有用了。
+- typst用的是函数，也是C++推崇的，由于有作用域的限制，因此里面的代码不会影响到后面的。但是函数是运行时。
+
+## 2025 5 27
+一个快速读取函数
+```cpp
+template<typename T> inline void rd(
+    T& x) {
+    char c = getchar();
+    x = 0;
+    while (c > '9' || c < '0')  {
+        c = getchar();
+    }
+    while (c <= '9' && c >= '0')  {
+        x = (x << 3) + (x << 1) + (c & 15);
+        c = getchar();
+    }
+}
+template<typename T1, typename T2, typename ...Args>   inline void rd(T1& x,
+        T2& xx, Args& ... arg)  {
+    rd(x);
+    rd(xx, arg...);
+}
+```
+
+## 2025 8 15
+获取了ipv6但外网无法用ipv6访问：光猫的Ipv6Spi关掉
+开的端口无法被外部ipv6访问：防火墙增加入站规则，开放端口
+
+## 2025 8 23
+进powershell不进入base（加快速度）：
+`conda config --set auto_activate_base false`
+
+## 2025 8 27
+- ASGI：Asynchronous Server Gateway Interface，ASGI继承自WSGI，面向的是异步Python领域，是WSGI的超集。ASGI应用程序是一个单一的、异步的可调用对象，包含三个参数：
+    - scope：包含了连接信息的字典
+    - send：允许应用程序向客户端发送事件消息的异步可调用对象
+    - recive：允许应用程序从客户端接收事件消息的异步可调用对象
+- Uvicorn: 按照ASGI要求实现的服务器：`uvicorn.run(app, host="0.0.0.0", port=8000)`。每次收到一个请求都会调用一次`app`函数，`app`函数的参数为ASGI要求的三个参数。Uvicorn做的就是后台进行消息解析、管理与分发。代码中用if处理各种情况。
+- fastAPI：把手写`app`省了。基本用法：
+    ```py
+    @app.put("/items/{item_id}")
+    def update_item(item_id: int, item: Item):
+        return {"item_name": item.name, "item_id": item_id}
+    ```
+    这里形参名称`item_id`要和上面一致，原理是`**kwargs`解包字典传参。
+    此外还会自动生成调用文档。
+
+
+## 2025 8 28
+使用huggingface一系列库，进行大模型微调:
+1. AutoModelForSequenceClassification等：对encoder结构可以自动加linear改变输出形状。
+2. Lora: 用peft库。lora节省的显存主要是中间梯度不需要存下来，而是用完即弃。反向传播计算量不会减少。
+3. Trainer: 训练的封装类，要更换损失函数需要重载，或者model.forward返回值有loss字段
+
+为什么Decoder-only大行其道？
+1. 为什么Encoder-only不行：
+    1. Encoder-only的训练方式MLM（即BERT预测遮住的token）难以scaling(意为模型变大收益增长慢)
+    2. 生成式必须有Decoder的迭代过程
+2. 为什么Encoder-Decoder不行：
+    1. 注意力矩阵的秩：双向的Attention矩阵（Encoder使用）来自n\*d和d\*n的乘积，秩一定小于等于d；而单项的由于有掩码强制变为三角矩阵，所以满秩。理论上满秩信息量更大。
+    2. 
+
+hugging face 模型文件：
+- tokenizer.json: HF的新格式，包括下面两条的内容
+- vocab.json: 老格式/第三方实现
+- merges.txt: 老格式。包含了vocab中length>1的token的组合方式
+
+分词器介绍：
+https://huggingface.co/learn/llm-course/en/chapter6/5?fw=pt
+tokenizer的目标不是找到词边界？而是类似霍夫曼编码，找到代价最下表示原文的最小集合
+tokenizer训练其实就是基于统计的编码算法，训练的目的是得到词表
+为什么不用HMM分词？因为HMM没有明确的词表，不能编码
+
+## 2025 8 29
+Transformers 库
+1. `pipleline` 函数：传入任务名称，下载默认的模型到本地，并推理
+2. `Dataset` 类：底层是pyarrow，二维数组但列优先，可以行列取值
+
+https://0809zheng.github.io/2021/08/11/reformer.html
+share QK
+    也就是Q和K的投影矩阵为同一个，所以要禁自相关。在LSH attention中share了才能求hash
+LSH attention
+    随机投影哈希：$h(x) = argmax [xR; -xR]$
+    其中 $R \in R^{d \times b/2}$，$x \in R^d$，$xR \in R^1={b/2}$，分号为matlab的拼合，即最终是 $R^b$
+    argmax取的是最大元素的序号，$h(x) \in [1, b]$
+    用论文里bucket的说法：
+    记R的第i列为向量 $\vec{r}_i$，其和 $-\vec{r}_i$ 的法平面将空间分为两部分。
+    矩阵相乘为内积，相当于x和每一组 $\{\vec{r}_i, -\vec{r}_i\}$ 做内积，取argmax意为看看更靠近谁。
+    其实理解为和第几个向量更靠近就好了。所以x一定要模长归一化。
+    这样就得到了空间中相近的点了：`buckets[h(x)].append(x)`，这些点是softmax后较大的元素
+    实际应用时，进行多轮LSH，对相同buckets的取并集。
+    如果几乎都在一个bucket中，此时LSH就没用，所以强行分块，取几个进行attention。
+
+RevNet
+    已经不是resnet了，魔改了结构也不知道全貌下怎么用。
+
+微调：加全连接训练最好不冻结原模型参数，而是端到端直接全部调整。数据量很小还是只训练加的层好了
+
+
+## 2025 9 2
+DQN目标网络的作用是计算 $r+k*Q(s,a)$，这个是确定性大一些的，所以是目标
+当前网络直接得到Q，这个更加不确定。为了让不确定的当前网络逼近确定的目标网络，需要多轮更新当前网络。之所以要多轮，因为学习率小，用batch+epoch更新才能向目标稳步前进，即所谓“训练稳定”。
+当前网络的上限就是“知道下一步Q的”目标网络，所以逼近了一会就要用更好的当前网络去更新目标网络。
+
+那很早之前的经验，可以在后面用吗？不推荐。因为很早之前的经验 $(s_t, a_t, r_t, s_{t+1})$ 中的a_t和s_{t+1}是在那时的policy中得到的。比如现在这种经验几乎不会被遇到，但用这个训练相当于让模型更侧重这一点，导致更应该被关注的路径被忽略，进而训练缓慢甚至顾此失彼。
+
+这和offline RL有关。下面从深度学习的角度解释一下数据分布和训练的关系。
+假设训练数据服从N(n,p)，实际数据服从N(m,q)，训练的目标其实是所有数据的损失最小（损失期望最小就是有限情况下的总和最小）。然而神经网络只是逼近，不可能处处损失为0。所以得到的模型应该是最小化了n附近的输入的损失，因为数量多。而实际分布最多的却是m附近的，导致实际损失期望比训练集上损失期望大。
+再从泛化性上讲。密集的数据可以让模型在那一片区域上更接近实际映射，而稀疏的地方容易过拟合到仅有的数据点上。如果实际数据分布的疏密与训练集恰好相反，那就会在过拟合的地方密集采样，造成较大误差。这也就是遇到新数据时的泛化性问题，如果新数据容易出现在密集训练的地方，就会被泛化到。
+迁移到offline强化学习上，学着学着我的决策分布就和示例的不一样了，这相当于实际分布，可以套用上面两点。
+
+同理，用别人的经验训练DQN也有分布飘逸的问题。
+
+PPO
+时序差分（TD）：
+广义优势估计（GAE）https://misaka0502.github.io/2025/04/23/gae/
+
+## 2025 9 5
+- 单样本比例检验
+    假设某变量服从二项分布B(1,p)（抽一个），现在抽了一批样本（容量为n），1的比例为$\hat{p}$，请问假设合理吗
+    其实就是求P(\hat{p}|n,p)。但是求二项分布太麻烦了还有组合数，于是用中心极限定理用正态分布近似，N(np,np(p-1))
+    要求的是$\hat{p}$的分布，所以除以n得到$\hat{p}~N(p, \frac{p(p-1)}{n})$，然后看看在不在95%置信区间内
+- 卡方检测
+    其实就是相对MSE，因为MSE有平方，且误差假设为正态分布，所以叫卡方
+    独立性检验的期望怎么算？实际为$P(A \cap B)$，假设独立则变为$P(A) P(B)$，所以用右侧算期望
+
+## 2025 9 7
+安装intel xpu torch。https://pytorch-extension.intel.com/
+跟着要求更新驱动，新建一个conda环境运行给出的pip指令
+
+查看版本
+Get-WmiObject Win32_VideoController | Where-Object {$_.Name -like "*Arc*"} | Select-Object Name, DriverVersion
+
+## 2025 11 12
+mingw
+选ucrt的，是高版本、长期维护（不要选msvcrt）
+64 位 MinGW 只能用 SEH（32位可选Dwarf）
