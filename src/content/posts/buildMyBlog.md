@@ -1,0 +1,96 @@
+---
+title: 建站！!
+description: 我是如何构建我的博客的
+pubDate: 2026-05-11
+heroImage: ../../assets/blog-placeholder-2.jpg
+tags: [技术]
+---
+
+学了前端后，一直想建一个自己的网站。奈何一没文章二没设计，一直停留在幻想阶段。今年终于发了自己的第一篇论文，于是提上日程。
+
+- 梦中情站：https://blog.bsgun.cn/
+- 这个简约的也不错：https://qmmms.github.io/
+
+## 浅尝辄止的HEXO
+> Hexo的中文文档一坨狗屎，非常过时（还是得看英文或繁中的）<br>最后放弃了该技术路径
+
+不想污染全局，选择局部安装：
+```sh
+pnpm install hexo
+npx hexo init
+```
+但是报错：``\madderscientist.github.io\ not empty, please run `hexo init` on an empty folder and then copy your files into it``。而非空的文件夹里面是什么呢？是`hexo`本体啊！(乐)
+
+于是用 `npx hexo init --help` 查看参数，最终使用：
+```sh
+mkdir tmp
+npx hexo init ./tmp/ --no-install
+```
+之所以不install，是因为稍后要将内容移出tmp文件夹，且我要用pnpm。还有一个参数是 `--no-clone`，但是非clone得到的hexo版本不是最新的。
+
+把文件移出tmp文件夹前，先把`package.json` `pnpm-lock.yaml` 和 `node_modules` 都删了；这些依赖在 `tmp/packages.json` 中都有，而用了 `pnpm` 也会尽可能复用。移出来后再次 `pnpm install` 即可完成局部安装。
+
+这样就得到了最小依赖安装！
+
+### 自定义主题
+> 参考:
+> - https://butterfly.zhheo.com/loading.html
+> - https://www.cnblogs.com/yyhh/p/11058985.html
+
+默认的主题可以卸了: `pnpm uninstall hexo-theme-landscape`
+
+学了一些基本知识:
+[Hexo默认使用layout布局](https://hexo.io/zh-cn/docs/templates.html)，具体来说，是将内容渲染为 `body` 这个量，然后交给 `layout.xxx`，而 `layout.xxx` 中往往有一个接收 `body` 的区域。
+也可以完全绕开。有以下实现方法：
+1. 在 `index.xxx` 开头用 `front-matter` 的格式写 `layout: false`。这样就不会套模板
+2. 不要存在 `layout/layout.xxx` 文件。比如butterfly主题就是这么做的，此时需要手动继承
+3. 以下划线开头的文件夹会被忽略，适合放公用成分。
+
+除了 `body` 还有许多内置的变量。比如下面可以生成所有文章标题：
+```njk
+{% for post in site.posts.toArray() %}
+  <li><a href="{{ post.path }}">{{ post.title }}</a></li>
+{% else %}
+  <li>暂无文章</li>
+{% endfor %}
+```
+
+但是以字符串模板的形式写网页……都2026年了，这也太落后了；连官方文档都一股年代味。对着空荡荡的Hexo项目，我没有一点做下去的动力。
+
+## 决定使用Astro
+Astro在安装的时候好感度就拉满了。没有全局安装，自动新建文件夹，避开了hexo的全部雷点。
+
+编写html的方式也非常舒服。Astro使用 `import` 来复用组件——简直太优雅、太可读了。相比于用 `njk` 编写模板逻辑，果然还是直接写 `js` 更舒服；而相比于 `ejs`，还是把逻辑全部放在一起、并且用 `ts` 更清楚！
+
+## 基础的修改
+
+### 字体
+创建项目后，默认使用了本地的字体。然而依托ghPage建站，往往面临响应速度的问题。于是换成了系统原生字体栈。
+
+然后又找到了一款非常耐看的字体——霞鹜文楷！于是用了[cdn的链接](https://github.com/CMBill/lxgw-wenkai-web)，并设置其为首选。
+
+### 公式和 mermaid 的支持
+使用 `remark-math` 和 `rehype-katex` 以支持公式渲染。但仅仅加入这两个插件会导致：虽然公式成功渲染，但后面紧跟原始公式字符串。这需要引入一个css:
+```html
+<link rel="stylesheet" crossorigin="anonymous"
+  href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css"
+  integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV"
+/>
+```
+
+看了许多文章都是直接在 `BaseHead` 里面引入的，这违反了Astro的“按需加载”理念。解决方法是判断选然后字符串内是否有 `class="katex"`，有则加入（不过会误伤，比如这篇文章）。
+
+Mermaid的支持：`rehype-mermaid` 是静态渲染，需要装 `playwright` 和一个浏览器（竟然不能用已有的Edge），而且渲染结果会以文件的形式存储。出于洁癖我放弃了这个做法。于是使用了运行时渲染的 `astro-mermaid`，虽然 `mermaid.js` 比较大，但是这个库也是按需加载的，渲染结果也不会在目录里拉屎，非常好！
+
+### 基本信息的替换（实现CSS继承）
+将默认的链接替换掉。知乎的SVG是官网上直接下载、然后删掉了一些路径得到的；B站的是修改的阿里图标库的SVG。
+
+页头和页尾都有 social links，完全可以封装成组件。但这带来一个问题：页头和页尾对link的样式不一样。由于Astro默认是样式隔离的：即：虽然写的是 `div {...}` 但编译后会变成 `div[xxx] {...}`，导致无法作用到子组件。解决方法是用 `:global()` 包裹CSS选择器，这样就不会加作用域属性哈希。但是要注意，在非 shadow dom 时，无论 `<style>` 写哪都是全局作用域，所以一定要加上父选择器的限定，比如：
+```css
+.parent-class :global(.child-class) {}
+```
+编译后会变成
+```css
+.parent-class[data-astro-cid-xx1xxxxx] .child-class {}
+```
+此时 `parent-class` 是局部作用域，而 `child-class` 虽然是全局的选择器，但是被父选择器限定为只能作用于子组件，这样就实现了样式的继承。

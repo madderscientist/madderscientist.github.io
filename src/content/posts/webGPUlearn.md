@@ -1,4 +1,10 @@
-记录了WebGPU的学习路线。先复习了WebGL，然后聚焦于WebGPU实现计算。
+---
+title: WebGPU学习
+description: 记录了WebGPU的学习路线。先复习了WebGL，然后聚焦于WebGPU实现计算
+pubDate: 2026-01-27
+heroImage: ../../assets/blog-placeholder-3.jpg
+tags: [技术]
+---
 
 # WebGL着色器
 ## 顶点着色器
