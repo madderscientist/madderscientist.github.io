@@ -6,7 +6,21 @@ import SocialLinks from "./SocialLinks.astro";
 
 <header>
 	<nav>
-		<h2><a href="/">{SITE_TITLE}</a></h2>
+		<div class="logos">
+			<h2><a href="/" style="padding:0;">{SITE_TITLE}</a></h2>
+			<a href="/rss.xml" aria-label="RSS Feed">
+				<svg
+					width="1em"
+					height="1em"
+					viewBox="0 0 24 24"
+					fill="none"
+					aria-hidden="true"
+					><path
+						d="M5 19a1 1 0 1 0 0-2a1 1 0 0 0 0 2Zm-1-8a9 9 0 0 1 9 9h2C15 14.477 9.523 9 3 9v2Zm0-7a16 16 0 0 1 16 16h2C22 10.059 13.941 2 4 2v2Z"
+						fill="currentColor"></path>
+				</svg>
+			</a>
+		</div>
 		<div class="internal-links">
 			<HeaderLink href="/">Home</HeaderLink>
 			<HeaderLink href="/posts">Blog</HeaderLink>
@@ -22,29 +36,34 @@ import SocialLinks from "./SocialLinks.astro";
 		background: white;
 		box-shadow: 0 2px 8px rgba(var(--black), 5%);
 	}
-	h2 {
-		margin: 0;
-		font-size: 1.5em;
-	}
-
-	h2 a,
-	h2 a.active {
-		text-decoration: none;
-	}
 	nav {
 		display: flex;
 		align-items: center;
 		justify-content: space-between;
+		:global(a), :global(a.active) {
+			text-decoration: none;
+			color: var(--black);
+			padding: 0.75em 0.6em;
+		}
 	}
-	nav :global(a) {
-		padding: 1em 0.5em;
-		color: var(--black);
-		border-bottom: 4px solid transparent;
-		text-decoration: none;
+	.logos {
+		display: flex;
+		flex-wrap: nowrap;
+		align-items: center;
+		gap: 0.5em;
+		h2 {
+			margin: 0;
+			font-size: 1.5em;
+		}
 	}
-	nav :global(a.active) {
-		text-decoration: none;
-		border-bottom-color: var(--accent);
+	.internal-links {
+		font-size: 1.2em;
+		:global(a) {
+			border-bottom: 4px solid transparent;
+		}
+		:global(a.active) {
+			border-bottom-color: var(--accent);
+		}
 	}
 
 	nav :global(.social-links) {
@@ -53,7 +72,7 @@ import SocialLinks from "./SocialLinks.astro";
 		justify-content: center;
 	}
 
-	@media (max-width: 600px) {
+	@media (max-width: 640px) {
 		nav :global(.social-links) {
 			display: none;
 		}

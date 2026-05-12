@@ -94,3 +94,6 @@ Mermaid的支持：`rehype-mermaid` 是静态渲染，需要装 `playwright` 和
 .parent-class[data-astro-cid-xx1xxxxx] .child-class {}
 ```
 此时 `parent-class` 是局部作用域，而 `child-class` 虽然是全局的选择器，但是被父选择器限定为只能作用于子组件，这样就实现了样式的继承。
+
+### 404页面
+直接写一个 `/pages/404.astro` 即可。曾经尝试用 `[...404].astro`，但是在静态部署的时候，需要提供 `getStaticPaths` 方法；而404处理的是不存在的路由，无法穷举，用不了这个方法。所以只能依赖部署方的自动识别。
