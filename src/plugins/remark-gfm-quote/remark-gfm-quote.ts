@@ -113,10 +113,10 @@ function handleNode(config: Config) {
         } else {
             // 标题只取第一行，后续内容保留在段落中
             title = FilterTitle(text.value.substring(0, titleEnd));
+            if (!title) return;
             text.value = text.value.substring(titleEnd + 1);
         }
 
-        if (!title) return;
         const { displayTitle, checkedTitle } = config.titleTextMap(title);
 
         blockquote.children.unshift({

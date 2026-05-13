@@ -6,7 +6,7 @@ heroImage: ../../assets/blog-placeholder-2.jpg
 tags: [理论]
 ---
 
-> 是阅读论文《Neural Belief Propagation Auto-Encoder for Linear Block Code Design》需要的前置知识。
+> 是阅读论文《Neural Belief Propagation Auto-Encoder for Linear Block Code Design》需要的前置知识。<br>
 > 主要参考：https://www.zhangzhenhu.com/probability_model/8.消元法.html
 
 在一般有向概率图下，观测到某节点集A的状态，求某节点B的状态的分布，基本做法是：
