@@ -101,7 +101,9 @@ img {
 	border-radius: 8px;
 }
 ul, ol {
-	list-style-position: inside;
+	margin-bottom: 1em;
+	margin-left: 1em;
+	text-indent: 0.4em;
 }
 code {
 	padding: 2px 5px;

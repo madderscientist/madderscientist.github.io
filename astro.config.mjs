@@ -1,5 +1,5 @@
 // @ts-check
-import { defineConfig, logHandlers } from 'astro/config';
+import { defineConfig } from 'astro/config';
 import mdx from '@astrojs/mdx';
 import sitemap from '@astrojs/sitemap';
 import pagefind from 'astro-pagefind';
@@ -7,6 +7,9 @@ import pagefind from 'astro-pagefind';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import mermaid from 'astro-mermaid';	// 动态渲染
+import remarkSingleLineNoLineNumbers from './src/plugins/remark-single-line-no-line-number/remark-single-line-no-line-number.js';
+import { rehypeHeadingIds } from '@astrojs/markdown-remark';
+import rehypeAnchor from './src/plugins/rehype-anchor/rehype-anchor.js';
 
 import expressiveCode from 'astro-expressive-code';
 import { pluginLineNumbers } from '@expressive-code/plugin-line-numbers'
@@ -41,11 +44,24 @@ export default defineConfig({
 		}),
 		mdx(), sitemap(), pagefind()],
 	markdown: {
-		remarkPlugins: [remarkMath],
-		rehypePlugins: [rehypeKatex],
+		remarkPlugins: [
+			remarkMath,
+			remarkSingleLineNoLineNumbers
+		],
+		rehypePlugins: [
+			rehypeKatex,
+			rehypeHeadingIds,
+			rehypeAnchor
+		],
 	},
 	// 不用本地字体; global.css里用系统原生字体栈
 	devToolbar: {
 		enabled: false
+	},
+	vite: {
+		esbuild: {
+			// 移除生产环境下的 console 和 debugger
+			drop: process.env.NODE_ENV === 'production' ? ["console", "debugger"] : [],
+		},
 	}
 });

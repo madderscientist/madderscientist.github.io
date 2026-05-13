@@ -1,0 +1,23 @@
+/* 应该全局启用 */
+.anchor-link {
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    text-decoration: none;
+    padding: 0 4px;
+    font-weight: normal;
+    color: #888;
+}
+
+*:hover>.anchor-link {
+    opacity: 0.6;
+}
+
+.anchor-link:hover {
+    opacity: 1 !important;
+    color: #0066cc;
+}
+
+/* 为锚点滚动留出空间 */
+:target {
+    scroll-margin-top: 2rem;
+}

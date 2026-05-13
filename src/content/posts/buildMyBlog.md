@@ -119,7 +119,7 @@ Mermaid的支持：`rehype-mermaid` 是静态渲染，需要装 `playwright` 和
 4. 运行 `pnpm preview` 就可以看到效果了！
 
 为了在 `pnpm dev` 中看到效果，观察了一下源码。`astro-pagefind` 只是做了一个集成，源码很少。发现会用 debug 级别输出了目录，暂时调整为 info 级别，可以看到对路径做了一层代理：将 `/pagefind/` 的路由指向了 `/dist/`：
-```ascii
+```ansi frame="none"
 [pagefind] Serving pagefind from xxx\madderscientist.github.io\dist
 ```
 所以要 `pnpm dev`，需要先 `pnpm build`。如果失败的话可以建立一个链接：
@@ -157,4 +157,14 @@ New-Item -ItemType SymbolicLink -Path .\public\pagefind -Target .\dist\pagefind
 
 ## 细节的修改
 ### 标题链接复制
-鼠标放在文章标题上，浮现一个link的图标，点击后改变链接（加上“#xxx”）。观察到本来就产生了id
+鼠标放在文章标题上，浮现一个link的图标，点击后改变链接（加上“#xxx”）。观察到本来就产生了id，但是时机为 `rehype` 之后：
+```txt
+By default, Astro injects id attributes after your rehype plugins have run.
+```
+
+不过也提供了[解决方法](https://docs.astro.build/en/guides/markdown-content/#heading-ids)：只要先使用
+```js  showLineNumbers
+import { rehypeHeadingIds } from '@astrojs/markdown-remark';
+```
+
+后面的 `rehype` 插件就可以拿到 `node.properties.id` 了。后面的代码写在了 [plugins/rehype-anchor](../../plugins/rehype-anchor) 中。

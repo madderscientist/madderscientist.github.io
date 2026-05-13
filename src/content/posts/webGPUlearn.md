@@ -175,12 +175,11 @@ fn main(
 ```
 
 总结 `@compute` 的 `main` 可以接收的参数：
-- `@builtin(workgroup_id)`：当前工作组编号（vec3<u32>），用于区分不同组。
-
-- `@builtin(num_workgroups)`：本次 dispatch 派发的工作组总数（vec3<u32>），有时用于边界判断。
-- `@builtin(local_invocation_id)`：当前线程在本组内的空间索引（vec3<u32>）
-- `@builtin(local_invocation_index)`：当前线程在本组内的线性索引（u32），等价于 local_id.x + local_id.y * size.x + local_id.z * size.x * size.y。
-- `@builtin(global_invocation_id)`：全局线程编号（vec3<u32>），直接表示当前线程在本次dispatch中所有线程中的唯一编号，等价于 workgroup_id * workgroup_size + local_invocation_id。
+- `@builtin(workgroup_id)`：当前工作组编号（`vec3<u32>`），用于区分不同组。
+- `@builtin(num_workgroups)`：本次 dispatch 派发的工作组总数（`vec3<u32>`），有时用于边界判断。
+- `@builtin(local_invocation_id)`：当前线程在本组内的空间索引（`vec3<u32>`）
+- `@builtin(local_invocation_index)`：当前线程在本组内的线性索引（`u32`），等价于 local_id.x + local_id.y * size.x + local_id.z * size.x * size.y。
+- `@builtin(global_invocation_id)`：全局线程编号（`vec3<u32>`），直接表示当前线程在本次dispatch中所有线程中的唯一编号，等价于 workgroup_id * workgroup_size + local_invocation_id。
 
 最后，需要将WGSL编译成可运行的GPU程序。JS端这样写：
 ```js
