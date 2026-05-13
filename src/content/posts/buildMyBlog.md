@@ -153,7 +153,27 @@ New-Item -ItemType SymbolicLink -Path .\public\pagefind -Target .\dist\pagefind
 使用 `Giscus`，[参考](https://blog.moewah.com/posts/astro-blog-comment-system-integration-guide/)
 
 ### 语法拓展
-`remark-directive`
+主要是 GitHub 风格的 admonition。自己手写了一个，效果如下：
+
+> [!NOTE]
+> 语法为 `[!NOTE]`
+
+> [!IMPORTANT]
+> 语法为 `[!IMPORTANT]`
+
+> [!WARNING]
+> 语法为 `[WARNING]`
+
+> [!CAUTION]
+> 语法为 `[CAUTION]`
+
+> [!TIP]
+> 语法为 `[!TIP]`
+
+> 原始 `blockquote` 长这样，换行最好用`<br>`<br>
+> 编写过程中的技巧：`remark` 插件中要用 `process.stdout.write` 写输出（而不是 `console.log`）
+
+其余的语法拓展不如直接在 MDX 里写，拓展 md 语法还是太鸡肋了。
 
 ## 细节的修改
 ### 标题链接复制

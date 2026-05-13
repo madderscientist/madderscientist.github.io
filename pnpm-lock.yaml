@@ -51,7 +51,7 @@ importers:
         specifier: ^6.0.0
         version: 6.0.0
       sharp:
-        specifier: ^0.34.3
+        specifier: ^0.34.5
         version: 0.34.5
       unist-util-visit:
         specifier: ^5.1.0

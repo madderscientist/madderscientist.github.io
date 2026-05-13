@@ -7,9 +7,10 @@ import pagefind from 'astro-pagefind';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import mermaid from 'astro-mermaid';	// 动态渲染
-import remarkSingleLineNoLineNumbers from './src/plugins/remark-single-line-no-line-number/remark-single-line-no-line-number.js';
+import remarkGithubAlerts from './src/plugins/remark-gfm-quote/remark-gfm-quote';	// GitHub风格提示框
+import remarkSingleLineNoLineNumbers from './src/plugins/remark-single-line-no-line-number/remark-single-line-no-line-number';
 import { rehypeHeadingIds } from '@astrojs/markdown-remark';
-import rehypeAnchor from './src/plugins/rehype-anchor/rehype-anchor.js';
+import rehypeAnchor from './src/plugins/rehype-anchor/rehype-anchor';
 
 import expressiveCode from 'astro-expressive-code';
 import { pluginLineNumbers } from '@expressive-code/plugin-line-numbers'
@@ -46,7 +47,8 @@ export default defineConfig({
 	markdown: {
 		remarkPlugins: [
 			remarkMath,
-			remarkSingleLineNoLineNumbers
+			remarkSingleLineNoLineNumbers,
+			remarkGithubAlerts
 		],
 		rehypePlugins: [
 			rehypeKatex,
