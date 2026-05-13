@@ -52,3 +52,11 @@ const { title, description, image = FallbackImage } = Astro.props;
 <meta property="twitter:title" content={title} />
 <meta property="twitter:description" content={description} />
 <meta property="twitter:image" content={new URL(image.src, Astro.url)} />
+
+<script type="module">
+	await import('/pagefind/pagefind-highlight.js');
+	new PagefindHighlight({ highlightParam: "highlight" });
+	// 跳转到高亮的搜索结果
+	const highlighted = document.querySelector('.pagefind-highlight');
+	highlighted?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+</script>

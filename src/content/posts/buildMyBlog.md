@@ -15,14 +15,14 @@ tags: [技术]
 > Hexo的中文文档一坨狗屎，非常过时（还是得看英文或繁中的）<br>最后放弃了该技术路径
 
 不想污染全局，选择局部安装：
-```sh
+```sh title="/madderscientist.github.io" frame="terminal"
 pnpm install hexo
 npx hexo init
 ```
-但是报错：``\madderscientist.github.io\ not empty, please run `hexo init` on an empty folder and then copy your files into it``。而非空的文件夹里面是什么呢？是`hexo`本体啊！(乐)
+但是报错：``\madderscientist.github.io\ not empty, please run `hexo init` on an empty folder and then copy your files into it``。而非空的文件夹里面是什么呢？是 `hexo` 本体啊！(乐)
 
 于是用 `npx hexo init --help` 查看参数，最终使用：
-```sh
+```sh title="/madderscientist.github.io" frame="terminal"
 mkdir tmp
 npx hexo init ./tmp/ --no-install
 ```
@@ -97,3 +97,64 @@ Mermaid的支持：`rehype-mermaid` 是静态渲染，需要装 `playwright` 和
 
 ### 404页面
 直接写一个 `/pages/404.astro` 即可。曾经尝试用 `[...404].astro`，但是在静态部署的时候，需要提供 `getStaticPaths` 方法；而404处理的是不存在的路由，无法穷举，用不了这个方法。所以只能依赖部署方的自动识别。
+
+### 代码块高亮
+使用 `astro-expressive-code` 替代了内置的代码块，好处是：可以轻松实现行号、复制，这是纯 Shiki 难以实现的。
+
+
+## 进阶的修改【持续中】
+
+### 页面过渡
+即切换页面的时候一些不变的组件不要闪烁，就像SPA一样。
+
+一个方案是使用 `swup`，就像主题FireFly一样；第二个方案是使用官方自带的 [`<ClientRouter />`](https://docs.astro.build/zh-cn/guides/view-transitions/)，但是官方也在文档里说，由于浏览器API越来越强大，可以考虑直接用第三种方案—— [`View Transitions API`](https://developer.mozilla.org/zh-CN/docs/Web/API/View_Transition_API/Using)。
+
+目前采用的是最后一种纯CSS的方式，改动最小。
+
+### 文章搜索
+使用 [`astro-pagefind`](https://github.com/shishkin/astro-pagefind)。具体做法是：
+1. `pnpm add astro-pagefind`，根据 REAMDE 配置。
+2. 根据最新的README，使用pagefind自带的UI（写法见下）
+3. 运行 `pnpm build`，插件会自动进行索引
+4. 运行 `pnpm preview` 就可以看到效果了！
+
+为了在 `pnpm dev` 中看到效果，观察了一下源码。`astro-pagefind` 只是做了一个集成，源码很少。发现会用 debug 级别输出了目录，暂时调整为 info 级别，可以看到对路径做了一层代理：将 `/pagefind/` 的路由指向了 `/dist/`：
+```ascii
+[pagefind] Serving pagefind from xxx\madderscientist.github.io\dist
+```
+所以要 `pnpm dev`，需要先 `pnpm build`。如果失败的话可以建立一个链接：
+```powershell title="管理员权限 /madderscientist.github.io" frame="terminal"
+New-Item -ItemType SymbolicLink -Path .\public\pagefind -Target .\dist\pagefind
+```
+
+`astro-prefind` 的文档几乎等于没有。去查了 `pagefind` 文档才找到一些有用的——比如[高亮](https://pagefind.app/docs/highlighting/)。此时UI为：
+```astro
+<PagefindConfig instance="search" preload="false" highlight-param="highlight" />
+<!-- <pagefind-searchbox instance="search" show-sub-results="true"></pagefind-searchbox> -->
+<pagefind-modal-trigger instance="search" shortcut="/" ></pagefind-modal-trigger>
+<pagefind-modal instance="search"></pagefind-modal>
+```
+
+观察到 `dist/pagefind/pagefind-highlight.js` 已经存在，直接用：
+```html
+<script type="module">
+	await import('/pagefind/pagefind-highlight.js');
+	new PagefindHighlight({ highlightParam: "highlight" });
+	// 【自己加的】跳转到高亮的搜索结果
+	document.querySelector('.pagefind-highlight')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+</script>
+```
+还可以在html标签上写 `data-pagefind-body` 设置要索引哪里。只设置在了posts的内容上。
+
+### 文章目录
+`remark-sectionize`
+
+### 评论
+使用 `Giscus`，[参考](https://blog.moewah.com/posts/astro-blog-comment-system-integration-guide/)
+
+### 语法拓展
+`remark-directive`
+
+## 细节的修改
+### 标题链接复制
+鼠标放在文章标题上，浮现一个link的图标，点击后改变链接（加上“#xxx”）。观察到本来就产生了id

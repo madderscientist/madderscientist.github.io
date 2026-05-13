@@ -8,7 +8,7 @@ tags: [技术]
 
 # WebGL着色器
 ## 顶点着色器
-进行坐标变换的，最终目的是赋值给内置的全局变量 `gl_Position`赋上一个`vec4`类型的四维齐次坐标值。如果最后一维不是1会自动归一化。
+进行坐标变换的，最终目的是赋值给内置的全局变量 `gl_Position` 赋上一个 `vec4` 类型的四维齐次坐标值。如果最后一维不是1 会自动归一化。
 
 对每个顶点都运行一次。如何实现每个顶点？涉及attribute的模式2，会对每次取到值执行该函数。
 
@@ -17,7 +17,7 @@ tags: [技术]
 还有一些支线，比如给 `gl_PointSize` 这个内置全局量赋值。这两个是WEBGL1拥有的一切。WebGL2还有几个，甚至有只读量。
 
 ## 片元着色器
-进行颜色分配的，最终目标是赋值给内置的全局变量 `gl_FragColor` 赋上一个`vec4`类型的RGBA颜色值。
+进行颜色分配的，最终目标是赋值给内置的全局变量 `gl_FragColor` 赋上一个 `vec4` 类型的RGBA颜色值。
 
 ## 流程
 1. 运行顶点着色器，输入为顶点attributes、全局变量uniform，得到所有顶点的gl_Position和对应的varying变量。
@@ -34,9 +34,9 @@ tags: [技术]
 
 attributes的内容有两个来源（互斥）。两个来源的切换api：`gl.enableVertexAttribArray` / `disableVertexAttribArray`。
 1. 直接赋值，默认这个模式
-2. 从一个buffer按照规律一个个读取，相关api为：`gl.vertexAttribPointer`，用于规定怎么读取（从那开始，一次读取多少、什么格式等）。gl有一个指针 `gl.ARRAY_BUFFER`，固定从这个指针指向的buffer中读取，所以还有一个api是`bind`，用于将该指针指向实际的buffer。
+2. 从一个buffer按照规律一个个读取，相关api为：`gl.vertexAttribPointer`，用于规定怎么读取（从那开始，一次读取多少、什么格式等）。gl有一个指针 `gl.ARRAY_BUFFER`，固定从这个指针指向的buffer中读取，所以还有一个api是 `bind`，用于将该指针指向实际的buffer。
 
-模式二下，按照什么顺序读取？默认情况下按照自然顺序从前向后；但是三角形面元其实有很多顶点重合，为了复用这些顶点，需要有一个方法让顶点数据可以反复被用到。这个功能由`gl.ELEMENT_ARRAY_BUFFER`实现。类似于`gl.ARRAY_BUFFER`，这也是个指针，但是里面存储的是取点的顺序，会执行类似下面的逻辑：
+模式二下，按照什么顺序读取？默认情况下按照自然顺序从前向后；但是三角形面元其实有很多顶点重合，为了复用这些顶点，需要有一个方法让顶点数据可以反复被用到。这个功能由 `gl.ELEMENT_ARRAY_BUFFER` 实现。类似于 `gl.ARRAY_BUFFER`，这也是个指针，但是里面存储的是取点的顺序，会执行类似下面的逻辑：
 ```js
 for (const idx of gl.ELEMENT_ARRAY_BUFFER) {
     // 根据idx，ARRAY_BUFFER从找值
@@ -75,7 +75,7 @@ WebGPU则使用*渲染管线*管理配置。
 WebGL获取变量使用的是变量名；varying在两个着色器内需要相同的名字。
 WebGPU完全通过index或offset获取
 
-WebGL用`vertexAttribPointer`规定从哪、怎么取数据；而WebGPU只在创建pipeline时规定如何取，具体数据之后再说。
+WebGL用 `vertexAttribPointer` 规定从哪、怎么取数据；而WebGPU只在创建pipeline时规定如何取，具体数据之后再说。
 
 WebGL的内置变量变成了 `@builtin()` 前缀，变量名可以改了。
 
@@ -104,8 +104,7 @@ fn main(
     @builtin(workgroup_id) workgroup_id: vec3<u32>, // 本次dispatch中工作组的编号
     @builtin(local_invocation_id) local_id: vec3<u32>   // 本工作组中该线程的编号
     ...
-// 最终需要的量。比如顶点着色器需要得到一个顶点的坐标
-) -> @builtin(position) vec4<f32>
+) -> @builtin(position) vec4<f32> // 最终需要的量。比如顶点着色器需要得到一个顶点的坐标
 {
     // 函数体
 }
@@ -114,14 +113,14 @@ fn main(
 `main`的名字可以改，不过要和JS对应上。
 
 ## workgroup
-理解WGSL的逻辑需要理解GPU的并行。GPU可以同时并行很多个线程，每个线程都会独立运行`main`，且可以知道自己的编号，根据此编号，不同的线程处理不同的数据。比如有256个可以并行处理的数据，则线程1通过自己的编号`1`得知自己要处理第一个、线程N处理第N个，256个线程同时开工，仅用一次处理时间。
+理解WGSL的逻辑需要理解GPU的并行。GPU可以同时并行很多个线程，每个线程都会独立运行 `main`，且可以知道自己的编号，根据此编号，不同的线程处理不同的数据。比如有256个可以并行处理的数据，则线程1通过自己的编号 `1` 得知自己要处理第一个、线程N处理第N个，256个线程同时开工，仅用一次处理时间。
 
 但是一个一个线程管理效率太低，所以将一把线程打包成一个“工作组”—— `workgroup` 统一管理。想象许多工人组成一个车间，几个人是开不起来的，所有工人要一起开工、一起下班。**`workgroup` 就是WebGPU的最小调度单元**：一整组同时运行，全部运行完后再离场。这意味着如果有某个线程运行特别慢，就会让其他线程等待（“XXX什么时候完成我们什么时候放学”既视感）。所以要尽量给一组内的线程分配尽量均衡的任务。
 
 一个 `workgroup` 的大小N是可以自定的，就是WGSL中 `@workgroup_size(线程数)` 的传参，一般有上限“256”。此时，`main` 的参数 `@builtin(local_invocation_id) local_id: vec3<u32>` 就能
-给我们一个范围是 `[0, N-1]` 的编号，代表该线程的“工号”。注意，这里的数据类型是 `vec3`，所以其实编号是由三部分构成的，相当于工人们不仅可以排成一列，还可以排成方阵、多层方阵。如果我们设置 `@workgroup_size(X, Y, Z)`，则一共有 `XYZ` 个线程，每个线程的 `main` 收到的 `local_invocation_id` 就是自己在团体中的坐标`(x, y, z)`。没设置的维度默认为1。
+给我们一个范围是 `[0, N-1]` 的编号，代表该线程的“工号”。注意，这里的数据类型是 `vec3`，所以其实编号是由三部分构成的，相当于工人们不仅可以排成一列，还可以排成方阵、多层方阵。如果我们设置 `@workgroup_size(X, Y, Z)`，则一共有 `XYZ` 个线程，每个线程的 `main` 收到的 `local_invocation_id` 就是自己在团体中的坐标 `(x, y, z)`。没设置的维度默认为1。
 
-举个例子：输入一个长为16*16的图片数据`input`，计算他们的平方，放到`output`中，则可以写成：
+举个例子：输入一个长为16*16的图片数据 `input`，计算他们的平方，放到 `output` 中，则可以写成：
 ```wgsl
 // GPU中二维要转为一维
 @group(0) @binding(0) var<storage, read> input: array<f32, 256>;
@@ -139,7 +138,7 @@ fn main(
 ```
 这里写的 `@compute` 指的是函数专注于计算。
 
-当然，我们完全可以将`workgroup_size`设置为256，这样就不用变换了。此外，如果资源紧缺，也可以让一个线程处理两个像素：
+当然，我们完全可以将 `workgroup_size` 设置为256，这样就不用变换了。此外，如果资源紧缺，也可以让一个线程处理两个像素：
 ```wgsl
 @compute @workgroup_size(128)
 fn main(
@@ -154,7 +153,7 @@ fn main(
 ```
 
 ## dispatch
-如果输入256*256的图片，一个方法是让一组的每个线程处理256个数据，显然会过劳。因此可以设置多个工作组协作，比如第i个工作组处理第i行，一次派出256个工作组，每个工作组的第j个像素处理这一行的第j个像素。派出多少工作组由JS代码`dispatchWorkgroups(X,Y,Z)`指定，和workgroup类似，这里也能按照三个维度派遣，乘积表示总工作组的数目，每个工作组都能得到自己在**本次派遣**中的编号（不同dispatch之间是独立的），这个编号在 `main`的 `@builtin(workgroup_id) workgroup_id: vec3<u32>` 中。同一个工作组的线程得到的 `workgroup_id` 都是一样的。
+如果输入256*256的图片，一个方法是让一组的每个线程处理256个数据，显然会过劳。因此可以设置多个工作组协作，比如第i个工作组处理第i行，一次派出256个工作组，每个工作组的第j个像素处理这一行的第j个像素。派出多少工作组由JS代码 `dispatchWorkgroups(X,Y,Z)` 指定，和workgroup类似，这里也能按照三个维度派遣，乘积表示总工作组的数目，每个工作组都能得到自己在**本次派遣**中的编号（不同dispatch之间是独立的），这个编号在 `main` 的 `@builtin(workgroup_id) workgroup_id: vec3<u32>` 中。同一个工作组的线程得到的 `workgroup_id` 都是一样的。
 
 dispatch的工作组数目可以很大很大，GPU内部会自动调度工作组（理解为场地有限，只能等一部分组完成后再让其他组入场），但一次dispatch的工作组之间是不知道运行顺序的。
 
@@ -205,7 +204,7 @@ const bindGroup = device.createBindGroup({
     ],
 });
 ```
-两个buffer是已经填充了数据的GPU内存。由于程序在哪里找数据已经在WGSL里写得清清楚楚，因此这里直接用`getBindGroupLayout(0)` 获取了 `computePipeline`（是WGSL编译后的对象）定义的 `group(0)` 的数据接口（当然也可以自己写layout，不过要和WGSL对应）。下面的 `entries` 就是具体到哪个接口填充哪个数据了。
+两个buffer是已经填充了数据的GPU内存。由于程序在哪里找数据已经在WGSL里写得清清楚楚，因此这里直接用 `getBindGroupLayout(0)` 获取了 `computePipeline`（是WGSL编译后的对象）定义的 `group(0)` 的数据接口（当然也可以自己写layout，不过要和WGSL对应）。下面的 `entries` 就是具体到哪个接口填充哪个数据了。
 
 这里只是创建，还没交给程序。用下面的代码执行（不完整）：
 ```js
@@ -214,7 +213,7 @@ pass.setBindGroup(0, bindGroup);    // 把资源给程序
 pass.dispatchWorkgroups(256);       // 派遣256个工作组
 ```
 
-group 可以用于批量切换一组 binding 的内容。比如我还有另一张图片要处理，一个方案是直接将数据填充到已有的`inputBuffer`中，但这要求新数据大小和buffer一样。假如新图片大小是1024*256，用group会更好：
+group 可以用于批量切换一组 binding 的内容。比如我还有另一张图片要处理，一个方案是直接将数据填充到已有的 `inputBuffer` 中，但这要求新数据大小和buffer一样。假如新图片大小是1024*256，用group会更好：
 ```js
 const bindGroup2 = device.createBindGroup({
     label: '1024*256',
@@ -232,7 +231,7 @@ pass.dispatchWorkgroups(1024);      // 派遣1024个工作组
 GPU只是计算，内存分配、数据填充还是得JS来。GPU空间开辟使用 `device.createBuffer` 实现。
 
 填充数据有两种形式：
-1. 创建时就填充，之后动不了。缓冲区在GPU，所有权可以互斥地归属于CPU/GPU，从GPU到CPU使用 `buffer.getMappedRange`，其中`buffer`是使用`device.createBuffer`创建的。从CPU还给GPU使用`unmap`。CPU获得的是映射，可以直接用PCLe**直接读写**GPU。
+1. 创建时就填充，之后动不了。缓冲区在GPU，所有权可以互斥地归属于CPU/GPU，从GPU到CPU使用 `buffer.getMappedRange`，其中 `buffer` 是使用 `device.createBuffer` 创建的。从CPU还给GPU使用 `unmap`。CPU获得的是映射，可以直接用PCLe**直接读写**GPU。
     ```js
     const inputBuffer = device.createBuffer({
         label: "Kernel Info Buffer",

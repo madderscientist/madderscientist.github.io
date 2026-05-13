@@ -2,6 +2,7 @@
 import { SITE_TITLE } from "../consts";
 import HeaderLink from "./HeaderLink.astro";
 import SocialLinks from "./SocialLinks.astro";
+import PagefindConfig from "astro-pagefind/components/PagefindConfig.astro";
 ---
 
 <header>
@@ -26,6 +27,10 @@ import SocialLinks from "./SocialLinks.astro";
 			<HeaderLink href="/posts">Blog</HeaderLink>
 			<HeaderLink href="/about">About</HeaderLink>
 		</div>
+		<PagefindConfig instance="search" preload="false" highlight-param="highlight" />
+		<!-- <pagefind-searchbox instance="search" show-sub-results="true"></pagefind-searchbox> -->
+		<pagefind-modal-trigger instance="search" shortcut="/" ></pagefind-modal-trigger>
+		<pagefind-modal instance="search"></pagefind-modal>
 		<SocialLinks />
 	</nav>
 </header>
