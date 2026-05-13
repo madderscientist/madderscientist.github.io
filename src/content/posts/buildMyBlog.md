@@ -162,10 +162,10 @@ New-Item -ItemType SymbolicLink -Path .\public\pagefind -Target .\dist\pagefind
 > 语法为 `[!IMPORTANT]`
 
 > [!WARNING]
-> 语法为 `[WARNING]`
+> 语法为 `[!WARNING]`
 
 > [!CAUTION]
-> 语法为 `[CAUTION]`
+> 语法为 `[!CAUTION]`
 
 > [!TIP]
 > 语法为 `[!TIP]`
@@ -176,7 +176,7 @@ New-Item -ItemType SymbolicLink -Path .\public\pagefind -Target .\dist\pagefind
 其余的语法拓展不如直接在 MDX 里写，拓展 md 语法还是太鸡肋了。
 
 ## 细节的修改
-### 标题链接复制
+### 标题链接
 鼠标放在文章标题上，浮现一个link的图标，点击后改变链接（加上“#xxx”）。观察到本来就产生了id，但是时机为 `rehype` 之后：
 ```txt
 By default, Astro injects id attributes after your rehype plugins have run.

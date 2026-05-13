@@ -97,7 +97,7 @@ function handleNode(config: Config) {
         const text = paragraph.children?.[0];
         if (!text || text.type !== 'text') return;
 
-        let title: string;
+        let title: string | null = null;
         const titleEnd = text.value.indexOf('\n');
 
         if (titleEnd < 0) {
@@ -107,17 +107,17 @@ function handleNode(config: Config) {
                     paragraph.children.splice(1, 1);
                 } else return;
             }
-            title = text.value;
+            title = FilterTitle(text.value);
+            if (!title) return;
             paragraph.children.shift();
         } else {
             // 标题只取第一行，后续内容保留在段落中
-            title = text.value.substring(0, titleEnd);
+            title = FilterTitle(text.value.substring(0, titleEnd));
             text.value = text.value.substring(titleEnd + 1);
         }
 
-        const extractedTitle = FilterTitle(title.trimEnd());
-        if (!extractedTitle) return;
-        const { displayTitle, checkedTitle } = config.titleTextMap(extractedTitle);
+        if (!title) return;
+        const { displayTitle, checkedTitle } = config.titleTextMap(title);
 
         blockquote.children.unshift({
             type: 'paragraph',
