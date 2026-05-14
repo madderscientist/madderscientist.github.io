@@ -152,6 +152,8 @@ New-Item -ItemType SymbolicLink -Path .\public\pagefind -Target .\dist\pagefind
 ### 评论
 使用 `Giscus`，[参考](https://blog.moewah.com/posts/astro-blog-comment-system-integration-guide/)
 
+主题切换还没做
+
 ### 语法拓展
 主要是 GitHub 风格的 admonition。自己手写了一个，效果如下：
 

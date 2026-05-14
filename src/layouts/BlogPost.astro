@@ -6,6 +6,7 @@ import Footer from '../components/Footer.astro';
 import FormattedDate from '../components/FormattedDate.astro';
 import Header from '../components/Header.astro';
 import KatexStyle from '../components/KatexStyle.astro';
+import Giscus from '../components/Giscus.astro';
 
 type Props = CollectionEntry<'posts'>['data'];
 
@@ -83,6 +84,7 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
 					</KatexStyle>
 				</div>
 			</article>
+			<Giscus />
 		</main>
 		<Footer />
 	</body>
