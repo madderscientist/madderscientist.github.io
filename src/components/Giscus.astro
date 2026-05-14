@@ -1,24 +1,54 @@
 <div class="giscus"></div>
-<style>
-    .giscus {
-        margin: 2em auto;
-        max-width: 800px;
-        width: calc(100% - 2em);
-    }
-</style>
-<script src="https://giscus.app/client.js"
-        data-repo="madderscientist/madderscientist.github.io"
-        data-repo-id="R_kgDOKA2vgA"
-        data-category="Announcements"
-        data-category-id="DIC_kwDOKA2vgM4C83K7"
-        data-mapping="pathname"
-        data-strict="0"
-        data-reactions-enabled="1"
-        data-emit-metadata="0"
-        data-input-position="top"
-        data-theme="preferred_color_scheme"
-        data-lang="zh-CN"
-        data-loading="lazy"
-        crossorigin="anonymous"
-        async>
+<script is:inline>
+	function createGiscusScript(theme) {
+		const script = document.createElement("script");
+		script.src = "https://giscus.app/client.js";
+		script.setAttribute(
+			"data-repo",
+			"madderscientist/madderscientist.github.io",
+		);
+		script.setAttribute("data-repo-id", "R_kgDOKA2vgA");
+		script.setAttribute("data-category", "Announcements");
+		script.setAttribute("data-category-id", "DIC_kwDOKA2vgM4C83K7");
+		script.setAttribute("data-mapping", "pathname");
+		script.setAttribute("data-strict", "0");
+		script.setAttribute("data-reactions-enabled", "1");
+		script.setAttribute("data-emit-metadata", "0");
+		script.setAttribute("data-input-position", "top");
+		script.setAttribute("data-theme", theme);
+		script.setAttribute("data-lang", "zh-CN");
+		script.setAttribute("data-loading", "lazy");
+		script.setAttribute("crossorigin", "anonymous");
+		script.async = true;
+		return script;
+	}
+	// 初始加载 根据当前主题设置 Giscus 主题
+	(() => {
+		const initialTheme = document.documentElement.classList.contains("dark")
+			? "noborder_gray"
+			: "noborder_light";
+		const script = createGiscusScript(initialTheme);
+		document.currentScript.after(script);
+		// https://github.com/giscus/giscus/blob/main/ADVANCED-USAGE.md#parent-to-giscus-message-events
+		function sendMessage(message) {
+			const iframe = document.querySelector("iframe.giscus-frame");
+			if (!iframe?.contentWindow) return;
+			iframe.contentWindow.postMessage(
+				{ giscus: message },
+				"https://giscus.app",
+			);
+		}
+		// 监听 ThemeIcon 发出的事件，切换 Giscus 主题
+		document.addEventListener("theme-toggle", (event) => {
+			console.log("Theme toggled:", event.detail.theme);
+			sendMessage({
+				setConfig: {
+					theme:
+						event.detail.theme === "dark"
+							? "noborder_gray"
+							: "noborder_light",
+				},
+			});
+		});
+	})();
 </script>

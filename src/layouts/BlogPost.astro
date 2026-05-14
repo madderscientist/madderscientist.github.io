@@ -2,11 +2,10 @@
 import { Image } from 'astro:assets';
 import type { CollectionEntry } from 'astro:content';
 import BaseHead from '../components/BaseHead.astro';
-import Footer from '../components/Footer.astro';
 import FormattedDate from '../components/FormattedDate.astro';
-import Header from '../components/Header.astro';
 import KatexStyle from '../components/KatexStyle.astro';
 import Giscus from '../components/Giscus.astro';
+import BaseLayout from './BaseLayout.astro';
 
 type Props = CollectionEntry<'posts'>['data'];
 
@@ -32,9 +31,6 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
 				box-shadow: var(--box-shadow);
 			}
 			.prose {
-				width: 800px;
-				max-width: calc(100% - 2em);
-				margin: auto;
 				padding: 1em;
 				color: rgb(var(--gray-dark));
 			}
@@ -58,8 +54,7 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
 	</head>
 
 	<body>
-		<Header />
-		<main>
+		<BaseLayout>
 			<article data-pagefind-body>
 				<div class="hero-image">
 					{heroImage && <Image width={1020} height={510} src={heroImage} alt="" />}
@@ -71,7 +66,7 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
 							{
 								updatedDate && (
 									<div class="last-updated-on">
-										Last updated on <FormattedDate date={updatedDate} />
+										最后更新于 <FormattedDate date={updatedDate} />
 									</div>
 								)
 							}
@@ -79,13 +74,41 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
 						<h1>{title}</h1>
 						<hr />
 					</div>
-					<KatexStyle>
-						<slot />
-					</KatexStyle>
+					<div class="content">
+						<KatexStyle>
+							<slot />
+						</KatexStyle>
+					</div>
+
 				</div>
 			</article>
 			<Giscus />
-		</main>
-		<Footer />
+		</BaseLayout>
 	</body>
 </html>
+<style>
+.content {
+	h1, h2, h3, h4, h5, h6 {
+		position: relative;
+		width: fit-content;
+		&::after {
+			content: "";
+			display: block;
+			position: absolute;
+			height: 0.55em;
+			--left-offset: -0.3em;
+			left: var(--left-offset);
+			bottom: 0;
+			transform: translateY(-50%);
+			width: calc(100% - var(--left-offset));
+			background-color: rgba(221, 0, 255, 0.10);
+		}
+	}
+	h1::after {
+		border-left: rgba(221, 0, 255, 0.4) 5px solid;
+	}
+	h2::after {
+		border-left: rgba(221, 0, 255, 0.3) 4px solid;
+	}
+}
+</style>

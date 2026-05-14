@@ -1,19 +1,19 @@
 :root {
     /* tip */
     --borderColor-success: #1a7f37;
-    --background-success: #f0fff4;
+    --background-success: #1a7f3711;
     /* note */
     --borderColor-accent: #0969da;
-    --background-accent: #ecf5ff;
+    --background-accent: #096bda11;
     /* caution */
     --borderColor-danger: #cf222e;
-    --background-danger: #ffeff0;
+    --background-danger: #cf222e11;
     /* warning */
     --borderColor-attention: #9a6700;
-    --background-attention: #fff9ee;
+    --background-attention: #9a670011;
     /* important */
     --borderColor-done: #8250df;
-    --background-done: #f5efff;
+    --background-done: #8250df11;
 }
 
 blockquote.markdown-alert .markdown-alert-title {

@@ -2,6 +2,7 @@
 title: 建站！!
 description: 我是如何构建我的博客的
 pubDate: 2026-05-11
+updatedDate: 2026-05-14
 heroImage: ../../assets/blog-placeholder-2.jpg
 tags: [技术]
 ---
@@ -9,6 +10,7 @@ tags: [技术]
 学了前端后，一直想建一个自己的网站。奈何一没文章二没设计，一直停留在幻想阶段。今年终于发了自己的第一篇论文，于是提上日程。
 
 - 梦中情站：https://blog.bsgun.cn/
+- 和上面的差不多：https://blog.xiaohanys.top/
 - 这个简约的也不错：https://qmmms.github.io/
 
 ## 浅尝辄止的HEXO
@@ -104,6 +106,11 @@ Mermaid的支持：`rehype-mermaid` 是静态渲染，需要装 `playwright` 和
 
 ## 进阶的修改【持续中】
 
+### 布局
+默认的是纵向，但我喜欢三列式（和开头列出的博客网站一样）。相比于他们的，我把footer做成了横跨三列的，这样就可以在下面继续藏东西了。
+
+风格左抄右抄，学到了一些CSS的小技巧。
+
 ### 页面过渡
 即切换页面的时候一些不变的组件不要闪烁，就像SPA一样。
 
@@ -152,8 +159,6 @@ New-Item -ItemType SymbolicLink -Path .\public\pagefind -Target .\dist\pagefind
 ### 评论
 使用 `Giscus`，[参考](https://blog.moewah.com/posts/astro-blog-comment-system-integration-guide/)
 
-主题切换还没做
-
 ### 语法拓展
 主要是 GitHub 风格的 admonition。自己手写了一个，效果如下：
 
@@ -190,3 +195,21 @@ import { rehypeHeadingIds } from '@astrojs/markdown-remark';
 ```
 
 后面的 `rehype` 插件就可以拿到 `node.properties.id` 了。后面的代码写在了 [plugins/rehype-anchor](../../plugins/rehype-anchor) 中。
+
+### 浅色/深色 切换
+遵循Astro的官方tutorial，主题切换通过给 `html` 加上/去除 `class="dark"` 实现。由于嫌弃 `MutationObserver` 过于笨重，我使用事件驱动。
+
+需要切换的除了一般的颜色，还有：
+- `giscus` 评论组件：https://github.com/giscus/giscus/blob/main/ADVANCED-USAGE.md#parent-to-giscus-message-events
+- `pagefind` 搜索框：https://pagefind.app/docs/css-variables/#dark-mode
+- `expressive code` 代码块：https://expressive-code.com/guides/themes/#key-features。上面两个都监听`CustomEvent`，而这个自带监听，只需要做出如下配置：
+```js
+expressiveCode({
+	themes: ['catppuccin-latte', 'catppuccin-macchiato'],
+	useDarkModeMediaQuery: false,
+	themeCssSelector: (theme) => {
+		if (theme.name === 'catppuccin-macchiato') return '.dark';
+		return ':root';
+	},
+})
+```

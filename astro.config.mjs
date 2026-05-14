@@ -15,6 +15,7 @@ import rehypeAnchor from './src/plugins/rehype-anchor/rehype-anchor';
 import expressiveCode from 'astro-expressive-code';
 import { pluginLineNumbers } from '@expressive-code/plugin-line-numbers'
 import { pluginCollapsible } from 'expressive-code-collapsible';
+import { pluginLanguageBadge } from 'expressive-code-language-badge';
 
 // https://astro.build/config
 export default defineConfig({
@@ -29,18 +30,35 @@ export default defineConfig({
 		}),
 		expressiveCode({
 			themes: ['catppuccin-latte', 'catppuccin-macchiato'],
+			useDarkModeMediaQuery: false,
+			themeCssSelector: (theme) => {
+				if (theme.name === 'catppuccin-macchiato') return '.dark';
+				return ':root';
+			},
 			plugins: [
 				pluginLineNumbers(),
 				pluginCollapsible({
 					lineThreshold: 20,
 					previewLines: 16,
 				}),
+				pluginLanguageBadge({
+					textTransform: 'lowercase',
+					excludeLanguages: ['txt', 'raw'],
+					languageMap: {
+						cpp: 'C++',
+						csharp: 'C#',
+						ts: 'TypeScript',
+						js: 'JavaScript',
+						py: 'Python',
+						sh: 'Shell',
+					},
+				}),
 			],
 			defaultProps: {
 				showLineNumbers: true,	// 默认显示行号
 			},
 			styleOverrides: {
-				codeFontSize: '0.9rem'
+				codeFontSize: '0.9rem',
 			},
 		}),
 		mdx(), sitemap(), pagefind()],
