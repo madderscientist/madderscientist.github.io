@@ -6,6 +6,7 @@ import PagefindConfig from "astro-pagefind/components/PagefindConfig.astro";
 ---
 
 <nav>
+    <img src="/favicon.svg" alt="logo" width="128" height="128">
     <div class="logos">
         <h2><a href="/" style="padding:0;">{SITE_TITLE}</a></h2>
         <a href="/rss.xml" aria-label="RSS Feed">
@@ -71,6 +72,7 @@ import PagefindConfig from "astro-pagefind/components/PagefindConfig.astro";
             display: flex;
             flex-direction: column;
             align-items: center;
+            gap: 0.5em;
             height: 100%;
             position: relative;
             --bg-brightness: 1;
@@ -86,6 +88,9 @@ import PagefindConfig from "astro-pagefind/components/PagefindConfig.astro";
         :global(.dark) nav {
             --bg-brightness: 0.3;
             --bg-blur: 80px;
+            img {
+                filter: brightness(150%);
+            }
         }
         nav::after {
             z-index: -1;
@@ -145,9 +150,6 @@ import PagefindConfig from "astro-pagefind/components/PagefindConfig.astro";
                     width: 1em;
                 }
             }
-        }
-        html.dark .icon {
-            fill: rgb(var(--gray));
         }
     </style>
     <script>

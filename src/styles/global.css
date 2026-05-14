@@ -33,6 +33,7 @@
 }
 html.dark {
 	--background: #1E1E1E;
+	--c-bg-soft: hsla(var(--hue-theme) 20% 10% / 25%);
 	--black: 255, 255, 255;
 	--gray: 110, 118, 129;
 	--gray-light: 56, 58, 66;
