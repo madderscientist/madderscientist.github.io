@@ -59,18 +59,34 @@ const tocItems: TocItem[] = validHeadings
 	});
 ---
 
-<nav
-	id={id}
-	class="toc-wrapper"
-	aria-label={title}
-	style="height: 50%;"
->
-	<span class="toc-title">
+<nav id={id} class="toc-wrapper" aria-label={title} style="height: 50%;">
+	<span
+		class="toc-title"
+		onclick="window.scrollTo({ top: 0, behavior: 'smooth' })"
+	>
 		{title}
+		<svg
+			xmlns="http://www.w3.org/2000/svg"
+			width="16"
+			height="16"
+			viewBox="0 0 24 24"
+			><!-- Icon from Solar by 480 Design - https://creativecommons.org/licenses/by/4.0/ -->
+			<g
+				fill="none"
+				stroke="currentColor"
+				stroke-linecap="round"
+				stroke-width="1.5"
+				><path stroke-linejoin="round" d="m9 15.5l3-3l3 3m-6-4l3-3l3 3"
+				></path><path
+					d="M7 3.338A9.95 9.95 0 0 1 12 2c5.523 0 10 4.477 10 10s-4.477 10-10 10S2 17.523 2 12c0-1.821.487-3.53 1.338-5"
+				></path></g
+			></svg
+		>
 	</span>
+
 	<div class="toc-content toc-scroll-container" id={tocContentId}>
 		{
-			tocItems.length > 0 && (
+			tocItems.length > 0 &&
 				tocItems.map((item) => (
 					<a
 						href={`#${item.slug}`}
@@ -80,9 +96,9 @@ const tocItems: TocItem[] = validHeadings
 						title={item.text}
 					>
 						<div
-							class={`toc-badge${item.isTopLevel ? " toc-badge-index" : "toc-badge-dot"}`}
+							class={`toc-badge ${item.isTopLevel ? "toc-badge-index" : "toc-badge-dot"}`}
 						>
-							{item.isTopLevel ? item.index : "•"}
+							{item.isTopLevel ? item.index : ""}
 						</div>
 						<div
 							class={`toc-label ${item.level <= 1 ? "toc-label-primary" : "toc-label-secondary"}`}
@@ -91,7 +107,6 @@ const tocItems: TocItem[] = validHeadings
 						</div>
 					</a>
 				))
-			)
 		}
 		<div style="opacity: 0;" class="toc-active-indicator"></div>
 	</div>
@@ -225,7 +240,7 @@ const tocItems: TocItem[] = validHeadings
 
 		//== 目录点击 ==//
 		const handleClick = (event) => {
-			event.preventDefault();	// 拦截默认锚点跳转(不修改URL)
+			event.preventDefault(); // 拦截默认锚点跳转(不修改URL)
 			const targetId = decodeURIComponent(
 				event.currentTarget.getAttribute("href")?.substring(1) || "",
 			);

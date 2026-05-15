@@ -8,11 +8,11 @@ const today = new Date();
 	&copy; {today.getFullYear()} by 蔽夏. All rights reserved.
 	<SocialLinks />
 	<svg
-		class="totop"
 		viewBox="0 0 1024 1024"
 		p-id="7494"
 		width="40"
 		height="40"
+		onclick="window.scrollTo({ top: 0, behavior: 'smooth' })"
 		><path
 			d="M528.968975 162.41916c-4.493338-4.493338-10.600429-7.045463-16.969487-7.045463-6.370081 0-12.43317 2.552126-16.97051 7.045463L320.358797 337.024873c-9.335622 9.401114-9.335622 24.559349 0 33.938973 9.422603 9.358135 24.604374 9.358135 33.938973 0l157.700695-157.700695 157.699672 157.700695c4.668323 4.64581 10.818393 6.978948 17.013489 6.978948 6.064113 0 12.258185-2.333138 16.926508-6.978948 9.335622-9.379625 9.335622-24.537859 0-33.938973L528.968975 162.41916 528.968975 162.41916zM528.968975 162.41916"
 			></path><path
@@ -45,7 +45,7 @@ const today = new Date();
 	footer :global(.social-links a:hover) {
 		color: rgb(var(--gray-dark));
 	}
-	footer .totop {
+	footer svg {
 		position: absolute;
 		right: 1em;
 		top: 1em;
@@ -53,8 +53,3 @@ const today = new Date();
 		fill: rgb(var(--gray));
 	}
 </style>
-<script>
-	document.querySelector("footer .totop")?.addEventListener("click", () => {
-		window.scrollTo({ top: 0, behavior: "smooth" });
-	});
-</script>

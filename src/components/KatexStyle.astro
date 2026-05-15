@@ -12,5 +12,11 @@ hasMath = contentHTML.includes('class="katex"') || contentHTML.includes("class='
         integrity="sha384-n8MVd4RsNIU0tAv4ct0nTaAbDJwPJzDEaqSD1odI+WdtXRGWt2kTvGFasHpSy3SV"
         crossorigin="anonymous"
     />
+    <style>
+        .katex-display {
+            overflow-x: auto;
+            overflow-y: hidden;
+        }
+    </style>
 )}
 <slot />

@@ -4,10 +4,31 @@
 	height: 100%;
 	min-height: 0;
 	margin: 0.5em 0;
+	--toc-badge-bg: oklch(0.9 0.23 var(--hue-theme));
+	--toc-btn-hover: oklch(0.95 0.1 var(--hue-theme));
+}
+
+html.dark .toc-wrapper {
+	--toc-badge-bg: oklch(0.4 0.13 var(--hue-theme));
+	--toc-btn-hover: oklch(0.35 0.02 var(--hue-theme));
 }
 
 .toc-title {
 	font-weight: bold;
+	cursor: pointer;
+	width: fit-content;
+	display: flex;
+	align-items: center;
+	gap: 0.3em;
+
+	&::before {
+		content: "";
+		display: block;
+		width: 4px;
+		height: 0.8em;
+		border-radius: 2px;
+		background: var(--primary);
+	}
 }
 
 /* TOC 滚动容器 */
@@ -43,7 +64,7 @@
 	gap: 0.4em;
 	text-decoration: none;
 	color: inherit;
-	border-radius: 0.875em;
+	border-radius: 0.5em;
 	transition:
 		background-color 0.14s ease,
 		transform 0.14s ease,
@@ -55,17 +76,17 @@
 	overflow: hidden;
 	box-sizing: border-box;
 	position: relative;
-	padding: 0.2em 0.62em;
-	min-height: 2em;
+	padding-bottom: 0.2em;
+	padding-top: 0.2em;
 }
 
 .toc-item:hover {
 	background: color-mix(in oklab, var(--toc-btn-hover), transparent);
-	transform: translateX(1px);
+	transform: translateX(2px);
 }
 
-.toc-item:active {
-	background: color-mix(in oklab, var(--toc-btn-active), transparent);
+.toc-item.toc-level-0 {
+	padding-left: 0.5em;
 }
 
 .toc-item.toc-level-1 {
@@ -73,7 +94,7 @@
 }
 
 .toc-item.toc-level-2 {
-	padding-left: 3em;
+	padding-left: 2.2em;
 }
 
 .toc-label {
@@ -110,14 +131,21 @@
 
 .toc-badge-index {
 	background: var(--toc-badge-bg);
-	color: var(--btn-content);
 }
 
 .toc-badge-dot {
-	width: 0.48em;
-	height: 0.48em;
 	border-radius: 999px;
 	background: color-mix(in oklab, var(--primary) 26%, var(--line-color));
+}
+
+.toc-level-1 .toc-badge-dot {
+	width: 0.54em;
+	height: 0.54em;
+}
+
+.toc-level-2 .toc-badge-dot {
+	width: 0.4em;
+	height: 0.4em;
 }
 
 .toc-item.visible {
