@@ -111,13 +111,6 @@ Mermaid的支持：`rehype-mermaid` 是静态渲染，需要装 `playwright` 和
 
 风格左抄右抄，学到了一些CSS的小技巧。
 
-### 页面过渡
-即切换页面的时候一些不变的组件不要闪烁，就像SPA一样。
-
-一个方案是使用 `swup`，就像主题FireFly一样；第二个方案是使用官方自带的 [`<ClientRouter />`](https://docs.astro.build/zh-cn/guides/view-transitions/)，但是官方也在文档里说，由于浏览器API越来越强大，可以考虑直接用第三种方案—— [`View Transitions API`](https://developer.mozilla.org/zh-CN/docs/Web/API/View_Transition_API/Using)。
-
-目前采用的是最后一种纯CSS的方式，改动最小。
-
 ### 文章搜索
 使用 [`astro-pagefind`](https://github.com/shishkin/astro-pagefind)。具体做法是：
 1. `pnpm add astro-pagefind`，根据 REAMDE 配置。
@@ -154,7 +147,23 @@ New-Item -ItemType SymbolicLink -Path .\public\pagefind -Target .\dist\pagefind
 还可以在html标签上写 `data-pagefind-body` 设置要索引哪里。只设置在了posts的内容上。
 
 ### 文章目录
-`remark-sectionize`
+Firefly 主题使用的是动态构建，这会增加运行时负担（虽然几乎为0），爬虫也看不到。我选择构建时搭建 html 结构，运行时用js跟踪进度。
+
+静态构建的基本原理依赖以下函数：
+```js
+const { Content, headings, remarkPluginFrontmatter } = await render(post);
+```
+这里的 `Content` 是 Astro 内置的一个组件，而 `headings` 就是我们要用到的量：
+```ts
+export interface MarkdownHeading {
+    depth: number;	// <hx> 的 x
+    slug: string;	// 分配的 dom id
+    text: string;	// 内容
+}
+```
+由此可以在 build 时构建目录。
+
+而跟踪的原理是 `IntersectionObserver`，用于观察元素是否出现在视口中。里面有蛮多细节，具体代码可以参看 [StaticTOC](https://github.com/madderscientist/madderscientist.github.io/blob/main/src/components/StaticTOC.astro)。
 
 ### 评论
 使用 `Giscus`，[参考](https://blog.moewah.com/posts/astro-blog-comment-system-integration-guide/)
@@ -213,3 +222,10 @@ expressiveCode({
 	},
 })
 ```
+
+### 页面过渡
+即切换页面的时候一些不变的组件不要闪烁，就像SPA一样。
+
+一个方案是使用 `swup`，就像主题FireFly一样；第二个方案是使用官方自带的 [`<ClientRouter />`](https://docs.astro.build/zh-cn/guides/view-transitions/)，但是官方也在文档里说，由于浏览器API越来越强大，可以考虑直接用第三种方案—— [`View Transitions API`](https://developer.mozilla.org/zh-CN/docs/Web/API/View_Transition_API/Using)。
+
+目前采用的是最后一种纯CSS的方式，改动最小。

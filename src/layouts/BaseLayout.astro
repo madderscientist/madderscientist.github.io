@@ -34,7 +34,6 @@ const colCount = Math.max(2, columns);
         grid-template-columns: 1fr minmax(200px, var(--width-main)) 1fr;
         gap: calc(var(--gap-margin) * 3);
         min-height: 100vh;
-        margin-bottom: calc(var(--gap-margin) * 4);
         --side-width: 288px;
         & > aside {
             align-self: start;
@@ -45,7 +44,10 @@ const colCount = Math.max(2, columns);
             height: 100vh;
             transform: translateX(0);
             transition: transform 0.3s ease-out;
-            overflow: auto;
+            overflow: visible; /* 千万不能改别的否则滤镜会由明显边界 */
+        }
+        & > main {
+            z-index: 8;
         }
         .l_left {
             justify-self: right;

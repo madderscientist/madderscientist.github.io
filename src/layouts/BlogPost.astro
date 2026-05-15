@@ -7,7 +7,7 @@ import KatexStyle from '../components/KatexStyle.astro';
 import Giscus from '../components/Giscus.astro';
 import BaseLayout from './BaseLayout.astro';
 import StaticTOC from '../components/StaticTOC.astro';
-import type { MarkdownHeading } from '@astrojs/markdown-remark';
+import type { MarkdownHeading } from "astro";
 
 type Props = CollectionEntry<'posts'>['data'] & {
 	headings: MarkdownHeading[];

@@ -1,28 +1,26 @@
-.toc-wrapper,
-.static-toc {
-	display: block;
+.toc-wrapper {
+	display: flex;
+	flex-direction: column;
 	height: 100%;
-	max-height: 100%;
 	min-height: 0;
-	--primary: oklch(0.70 0.14 var(--hue-theme));
-	--content-meta: rgba(0, 0, 0, 0.7);
-	--line-color: rgba(0, 0, 0, 0.1);
-	--toc-badge-bg: oklch(0.95 0.025 var(--hue-theme));
-	--toc-btn-hover: oklch(0.28 0.04 var(--hue-theme));
-	--toc-btn-active: oklch(0.32 0.05 var(--hue-theme));
-	--toc-indicator-bg: oklch(0.28 0.04 var(--hue-theme));
-	--toc-item-active: oklch(0.35 0.07 var(--hue-theme));
+	margin: 0.5em 0;
+}
+
+.toc-title {
+	font-weight: bold;
 }
 
 /* TOC 滚动容器 */
 .toc-scroll-container {
-	height: 100%;
-	max-height: 100%;
+	flex: 1;
 	min-height: 0;
-	overflow-y: auto;
-	overflow-x: hidden;
+	position: relative !important;
+	overflow-y: auto !important;
+	overflow-x: hidden !important;
 	-webkit-overflow-scrolling: touch;
 	scroll-behavior: smooth;
+	padding-top: 0 !important;
+	padding-bottom: 1em;
 }
 
 /* TOC 内容容器 */
@@ -30,21 +28,19 @@
 	display: flex;
 	flex-direction: column;
 	gap: 0;
-	position: relative;
 	overflow: visible;
 	width: 100%;
 	max-width: 100%;
 	box-sizing: border-box;
 	contain: layout;
 	align-items: stretch;
-	padding: 0;
 }
 
 /* TOC 链接样式 */
 .toc-item {
 	display: flex;
 	align-items: center;
-	gap: 0.55em;
+	gap: 0.4em;
 	text-decoration: none;
 	color: inherit;
 	border-radius: 0.875em;
@@ -59,7 +55,7 @@
 	overflow: hidden;
 	box-sizing: border-box;
 	position: relative;
-	padding: 0.48em 0.62em;
+	padding: 0.2em 0.62em;
 	min-height: 2em;
 }
 
@@ -124,12 +120,6 @@
 	background: color-mix(in oklab, var(--primary) 26%, var(--line-color));
 }
 
-.toc-badge-dot-sm {
-	width: 0.34em;
-	height: 0.34em;
-	background: color-mix(in oklab, var(--primary) 16%, var(--line-color));
-}
-
 .toc-item.visible {
 	background: transparent;
 }
@@ -139,8 +129,7 @@
 	opacity: 1;
 }
 
-.toc-item.visible .toc-badge-dot,
-.toc-item.visible .toc-badge-dot-sm {
+.toc-item.visible .toc-badge-dot {
 	background: var(--primary);
 }
 
@@ -150,13 +139,10 @@
 	left: 0;
 	right: 0;
 	background: color-mix(in oklab, var(--primary) 10%, transparent);
-	border-radius: 0.875em;
+	border-radius: 0.5em;
 	transition: top 0.18s ease, height 0.18s ease, opacity 0.14s ease;
-	box-shadow: 0 8px 22px -10px color-mix(in oklab, var(--primary) 36%, transparent);
+	box-shadow: 0 8px 12px -10px color-mix(in oklab, var(--primary) 36%, transparent);
 	border: 1px solid color-mix(in oklab, var(--primary) 18%, transparent);
-	z-index: 0;
+	z-index: -1;
 	pointer-events: none;
 }
-
-/* ensure toc items render above the indicator */
-.toc-item { z-index: 99; }

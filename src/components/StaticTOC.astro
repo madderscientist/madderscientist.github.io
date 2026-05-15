@@ -1,9 +1,9 @@
 ---
-import type { MarkdownHeading } from "@astrojs/markdown-remark";
+import type { MarkdownHeading } from "astro";
 import "../styles/toc.css";
 
 interface Props {
-	headings: MarkdownHeading[];
+	headings: import('astro').MarkdownHeading[];
 	maxLevel?: number;
 	scrollOffset?: number;
 	title?: string;
@@ -61,13 +61,16 @@ const tocItems: TocItem[] = validHeadings
 
 <nav
 	id={id}
-	class="toc-wrapper static-toc toc-scroll-container"
+	class="toc-wrapper"
 	aria-label={title}
-	style="height: 50%; overflow: auto;"
+	style="height: 50%;"
 >
-	<div class="toc-content" id={tocContentId}>
+	<span class="toc-title">
+		{title}
+	</span>
+	<div class="toc-content toc-scroll-container" id={tocContentId}>
 		{
-			tocItems.length > 0 ? (
+			tocItems.length > 0 && (
 				tocItems.map((item) => (
 					<a
 						href={`#${item.slug}`}
@@ -77,7 +80,7 @@ const tocItems: TocItem[] = validHeadings
 						title={item.text}
 					>
 						<div
-							class={`toc-badge${item.isTopLevel ? " toc-badge-index" : ""}`}
+							class={`toc-badge${item.isTopLevel ? " toc-badge-index" : "toc-badge-dot"}`}
 						>
 							{item.isTopLevel ? item.index : "•"}
 						</div>
@@ -88,13 +91,8 @@ const tocItems: TocItem[] = validHeadings
 						</div>
 					</a>
 				))
-			) : (
-				<div class="toc-empty-state">
-					<p>{title}</p>
-				</div>
 			)
 		}
-
 		<div style="opacity: 0;" class="toc-active-indicator"></div>
 	</div>
 </nav>
@@ -153,16 +151,14 @@ const tocItems: TocItem[] = validHeadings
 		const lastActive = activeItems[activeItems.length - 1];
 
 		// 设置大小
-		const contentRect = tocContent.getBoundingClientRect();
-		const firstRect = firstActive.getBoundingClientRect();
-		const lastRect = lastActive.getBoundingClientRect();
-		indicator.style.top = `${firstRect.top - contentRect.top}px`;
-		indicator.style.height = `${lastRect.bottom - firstRect.top}px`;
 		indicator.style.opacity = "1";
+		indicator.style.top = `${firstActive.offsetTop}px`;
+		indicator.style.height = `${lastActive.offsetTop + lastActive.offsetHeight - firstActive.offsetTop}px`;
 
 		// 滚动以保持父容器中可见
 		const tocContainer = tocContent.closest(".toc-scroll-container");
 		if (!tocContainer) return;
+
 		// 没有滚动条
 		if (tocContainer.scrollHeight <= tocContainer.clientHeight + 1) return;
 
