@@ -106,9 +106,6 @@ const tocItems: TocItem[] = validHeadings
 <script is:inline define:vars={{ id, tocItems, scrollOffset, tocContentId }}>
 	let observer = null;
 	let rafId = null;
-	let tocFollowRafId = null;
-	let tocFollowTarget = 0;
-	let tocFollowContainer = null;
 	let tocRoot = null;
 
 	const getTocContent = () => document.getElementById(tocContentId);
@@ -117,31 +114,6 @@ const tocItems: TocItem[] = validHeadings
 		tocItems
 			.map((item) => document.getElementById(item.slug))
 			.filter((element) => element);
-
-	const startTocFollowAnimation = () => {
-		if (tocFollowRafId !== null || !tocFollowContainer) return;
-
-		const step = () => {
-			if (!tocFollowContainer) {
-				tocFollowRafId = null;
-				return;
-			}
-
-			const current = tocFollowContainer.scrollTop;
-			const diff = tocFollowTarget - current;
-
-			if (Math.abs(diff) < 0.5) {
-				tocFollowContainer.scrollTop = tocFollowTarget;
-				tocFollowRafId = null;
-				return;
-			}
-
-			tocFollowContainer.scrollTop = current + diff * 0.22;
-			tocFollowRafId = window.requestAnimationFrame(step);
-		};
-
-		tocFollowRafId = window.requestAnimationFrame(step);
-	};
 
 	const getVisibleHeadingIds = () => {
 		const headings = getHeadingElements();
@@ -181,9 +153,7 @@ const tocItems: TocItem[] = validHeadings
 	};
 
 	const updateActiveIndicator = (activeItems) => {
-		const indicator =
-			document.getElementById("toc-active-indicator") ||
-			getTocContent()?.querySelector(".toc-active-indicator");
+		const indicator = tocRoot.querySelector(".toc-active-indicator");
 		if (!indicator) return;
 
 		if (!activeItems.length) {
@@ -207,7 +177,7 @@ const tocItems: TocItem[] = validHeadings
 		const tocContainer = tocContent.closest(".toc-scroll-container");
 		if (!tocContainer) return;
 
-		// Keep active progress centered continuously while page is moving.
+		// Keep the active progress in view when scrolling changes the visible range.
 		if (tocContainer.scrollHeight <= tocContainer.clientHeight + 1) return;
 
 		const groupTop = firstActive.offsetTop;
@@ -220,9 +190,8 @@ const tocItems: TocItem[] = validHeadings
 		);
 		const targetScroll = Math.min(Math.max(desired, 0), maxScroll);
 
-		tocFollowContainer = tocContainer;
-		tocFollowTarget = targetScroll;
-		startTocFollowAnimation();
+		if (Math.abs(tocContainer.scrollTop - targetScroll) < 1) return;
+		tocContainer.scrollTop = targetScroll;
 	};
 
 	const updateActiveState = () => {
@@ -280,11 +249,6 @@ const tocItems: TocItem[] = validHeadings
 			window.cancelAnimationFrame(rafId);
 			rafId = null;
 		}
-		if (tocFollowRafId !== null) {
-			window.cancelAnimationFrame(tocFollowRafId);
-			tocFollowRafId = null;
-		}
-		tocFollowContainer = null;
 	};
 
 	const init = () => {
@@ -301,21 +265,6 @@ const tocItems: TocItem[] = validHeadings
 			link.removeEventListener("click", handleClick);
 			link.addEventListener("click", handleClick);
 		});
-
-		const tocScrollContainer = tocContent.closest(".toc-scroll-container");
-		if (tocScrollContainer) {
-			tocScrollContainer.removeEventListener(
-				"scroll",
-				scheduleActiveStateUpdate,
-			);
-			tocScrollContainer.addEventListener(
-				"scroll",
-				scheduleActiveStateUpdate,
-				{
-					passive: true,
-				},
-			);
-		}
 
 		// 如果页面正文有自己的滚动容器，也监听它
 		if (contentContainer && contentContainer instanceof Element) {
