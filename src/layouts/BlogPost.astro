@@ -6,10 +6,14 @@ import FormattedDate from '../components/FormattedDate.astro';
 import KatexStyle from '../components/KatexStyle.astro';
 import Giscus from '../components/Giscus.astro';
 import BaseLayout from './BaseLayout.astro';
+import StaticTOC from '../components/StaticTOC.astro';
+import type { MarkdownHeading } from '@astrojs/markdown-remark';
 
-type Props = CollectionEntry<'posts'>['data'];
+type Props = CollectionEntry<'posts'>['data'] & {
+	headings: MarkdownHeading[];
+};
 
-const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
+const { title, description, pubDate, updatedDate, heroImage, headings } = Astro.props;
 ---
 
 <html lang="zh">
@@ -83,6 +87,7 @@ const { title, description, pubDate, updatedDate, heroImage } = Astro.props;
 				</div>
 			</article>
 			<Giscus />
+			<StaticTOC slot="right" headings={headings} />
 		</BaseLayout>
 	</body>
 </html>

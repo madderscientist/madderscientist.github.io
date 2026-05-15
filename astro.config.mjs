@@ -43,7 +43,7 @@ export default defineConfig({
 				}),
 				pluginLanguageBadge({
 					textTransform: 'lowercase',
-					excludeLanguages: ['txt', 'raw'],
+					excludeLanguages: ['txt', 'raw', 'ansi'],
 					languageMap: {
 						cpp: 'C++',
 						csharp: 'C#',

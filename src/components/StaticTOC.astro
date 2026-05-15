@@ -1,0 +1,386 @@
+---
+import type { MarkdownHeading } from "@astrojs/markdown-remark";
+import "../styles/toc.css";
+
+interface Props {
+	headings: MarkdownHeading[];
+	maxLevel?: number;
+	scrollOffset?: number;
+	title?: string;
+	id?: string;
+}
+
+const {
+	headings = [],
+	maxLevel = 3,
+	scrollOffset = 0,
+	title = "Table of Contents",
+	id = "static-toc",
+} = Astro.props as Props;
+
+const tocContentId = `${id}-content`;
+
+const validHeadings: MarkdownHeading[] = headings.filter(
+	(heading): heading is MarkdownHeading =>
+		Boolean(heading.slug) && heading.depth > 0,
+);
+const minDepth = validHeadings.reduce(
+	(minimum: number, heading: MarkdownHeading) =>
+		Math.min(minimum, heading.depth),
+	10,
+);
+
+type TocItem = {
+	slug: string;
+	text: string;
+	level: number;
+	isTopLevel: boolean;
+	index: number | null;
+};
+
+let topLevelIndex = 1;
+const tocItems: TocItem[] = validHeadings
+	.filter((heading) => heading.depth < minDepth + maxLevel)
+	.map((heading: MarkdownHeading) => {
+		const depth = heading.depth;
+		const text = heading.text ?? "";
+		const slug = heading.slug ?? "";
+		const level = Math.min(Math.max(depth - minDepth, 0), 2);
+		const isTopLevel = depth === minDepth;
+		const index = isTopLevel ? topLevelIndex++ : null;
+
+		return {
+			slug,
+			text,
+			level,
+			isTopLevel,
+			index,
+		};
+	});
+---
+
+<table-of-contents
+	id="toc-wrapper"
+	class="toc-wrapper static-toc"
+	aria-label={title}
+	style="display:block; height: 50%; overflow: auto;"
+>
+	<div class="toc-scroll-container custom-scrollbar">
+		<div class="toc-content" id={`${id}-content`}>
+			{
+				tocItems.length > 0 ? (
+					tocItems.map((item) => (
+						<a
+							href={`#${item.slug}`}
+							class={`toc-item toc-level-${item.level}`}
+							data-heading-id={item.slug}
+							aria-label={item.text}
+							title={item.text}
+						>
+							<div
+								class={`toc-badge ${item.isTopLevel ? "toc-badge-index" : ""}`}
+							>
+								{item.isTopLevel ? item.index : ""}
+							</div>
+							<div
+								class={`toc-label ${item.level <= 1 ? "toc-label-primary" : "toc-label-secondary"}`}
+							>
+								{item.text}
+							</div>
+						</a>
+					))
+				) : (
+					<div class="toc-empty-state">
+						<p>{title}</p>
+					</div>
+				)
+			}
+
+			<div
+				id="toc-active-indicator"
+				style="opacity: 0;"
+				class="toc-active-indicator"
+			>
+			</div>
+		</div>
+	</div>
+</table-of-contents>
+<script define:vars={{ tocItems, scrollOffset, tocContentId }}>
+	let observer = null;
+	let rafId = null;
+	let tocFollowRafId = null;
+	let tocFollowTarget = 0;
+	let tocFollowContainer = null;
+
+	const getTocRoot = () => document.getElementById("toc-wrapper");
+	const getTocContent = () => document.getElementById(tocContentId);
+
+	const getContentContainer = () =>
+		document.querySelector(".custom-md") ||
+		document.querySelector(".prose") ||
+		document.querySelector(".markdown-content");
+
+	const getHeadingElements = () =>
+		tocItems
+			.map((item) => document.getElementById(item.slug))
+			.filter((element) => element);
+
+	const startTocFollowAnimation = () => {
+		if (tocFollowRafId !== null || !tocFollowContainer) return;
+
+		const step = () => {
+			if (!tocFollowContainer) {
+				tocFollowRafId = null;
+				return;
+			}
+
+			const current = tocFollowContainer.scrollTop;
+			const diff = tocFollowTarget - current;
+
+			if (Math.abs(diff) < 0.5) {
+				tocFollowContainer.scrollTop = tocFollowTarget;
+				tocFollowRafId = null;
+				return;
+			}
+
+			tocFollowContainer.scrollTop = current + diff * 0.22;
+			tocFollowRafId = window.requestAnimationFrame(step);
+		};
+
+		tocFollowRafId = window.requestAnimationFrame(step);
+	};
+
+	const getVisibleHeadingIds = () => {
+		const headings = getHeadingElements();
+		const visibleHeadingIds = [];
+
+		headings.forEach((heading) => {
+			const rect = heading.getBoundingClientRect();
+			const offset = scrollOffset || 0;
+			const isVisible =
+				rect.top - offset < window.innerHeight &&
+				rect.bottom - offset > 0;
+			if (isVisible) {
+				visibleHeadingIds.push(heading.id);
+			}
+		});
+
+		if (visibleHeadingIds.length === 0 && headings.length > 0) {
+			let closestHeading = null;
+			let minDistance = Number.POSITIVE_INFINITY;
+
+			headings.forEach((heading) => {
+				const distance = Math.abs(
+					heading.getBoundingClientRect().top - (scrollOffset || 0),
+				);
+				if (distance < minDistance) {
+					minDistance = distance;
+					closestHeading = heading.id;
+				}
+			});
+
+			if (closestHeading) {
+				visibleHeadingIds.push(closestHeading);
+			}
+		}
+
+		return visibleHeadingIds;
+	};
+
+	const updateActiveIndicator = (activeItems) => {
+		const indicator =
+			document.getElementById("toc-active-indicator") ||
+			getTocContent()?.querySelector(".toc-active-indicator");
+		if (!indicator) return;
+
+		if (!activeItems.length) {
+			indicator.style.opacity = "0";
+			return;
+		}
+
+		const tocContent = getTocContent();
+		if (!tocContent) return;
+
+		const firstActive = activeItems[0];
+		const lastActive = activeItems[activeItems.length - 1];
+		const contentRect = tocContent.getBoundingClientRect();
+		const firstRect = firstActive.getBoundingClientRect();
+		const lastRect = lastActive.getBoundingClientRect();
+
+		indicator.style.top = `${firstRect.top - contentRect.top}px`;
+		indicator.style.height = `${lastRect.bottom - firstRect.top}px`;
+		indicator.style.opacity = "1";
+
+		const tocContainer = tocContent.closest(".toc-scroll-container");
+		if (!tocContainer) return;
+
+		// Keep active progress centered continuously while page is moving.
+		if (tocContainer.scrollHeight <= tocContainer.clientHeight + 1) return;
+
+		const groupTop = firstActive.offsetTop;
+		const groupBottom = lastActive.offsetTop + lastActive.offsetHeight;
+		const groupCenter = (groupTop + groupBottom) / 2;
+		const desired = groupCenter - tocContainer.clientHeight / 2;
+		const maxScroll = Math.max(
+			0,
+			tocContainer.scrollHeight - tocContainer.clientHeight,
+		);
+		const targetScroll = Math.min(Math.max(desired, 0), maxScroll);
+
+		tocFollowContainer = tocContainer;
+		tocFollowTarget = targetScroll;
+		startTocFollowAnimation();
+	};
+
+	const updateActiveState = () => {
+		const tocRoot = getTocRoot();
+		if (!tocRoot) return;
+
+		const tocItemsElements = Array.from(
+			tocRoot.querySelectorAll(".toc-item"),
+		);
+		if (!tocItemsElements.length) return;
+
+		tocItemsElements.forEach((item) => item.classList.remove("visible"));
+
+		const visibleHeadingIds = getVisibleHeadingIds();
+		const activeItems = tocItemsElements.filter((item) => {
+			const headingId = item.dataset.headingId;
+			return headingId && visibleHeadingIds.includes(headingId);
+		});
+
+		activeItems.forEach((item) => item.classList.add("visible"));
+		updateActiveIndicator(activeItems);
+	};
+
+	const scheduleActiveStateUpdate = () => {
+		if (rafId !== null) {
+			window.cancelAnimationFrame(rafId);
+		}
+
+		rafId = window.requestAnimationFrame(() => {
+			rafId = null;
+			updateActiveState();
+		});
+	};
+
+	const handleClick = (event) => {
+		event.preventDefault();
+		const target = event.currentTarget;
+		const targetId = decodeURIComponent(
+			target.getAttribute("href")?.substring(1) || "",
+		);
+		const targetElement = document.getElementById(targetId);
+
+		if (targetElement) {
+			const targetTop =
+				targetElement.getBoundingClientRect().top +
+				window.pageYOffset -
+				scrollOffset;
+			window.scrollTo({ top: targetTop, behavior: "smooth" });
+		}
+	};
+
+	const cleanup = () => {
+		if (observer) {
+			observer.disconnect();
+			observer = null;
+		}
+		if (rafId !== null) {
+			window.cancelAnimationFrame(rafId);
+			rafId = null;
+		}
+		if (tocFollowRafId !== null) {
+			window.cancelAnimationFrame(tocFollowRafId);
+			tocFollowRafId = null;
+		}
+		tocFollowContainer = null;
+	};
+
+	const init = () => {
+		cleanup();
+
+		const tocRoot = getTocRoot();
+		const tocContent = getTocContent();
+		const contentContainer = getContentContainer();
+
+		if (!tocRoot || !tocContent) {
+			return;
+		}
+
+		const tocLinks = Array.from(tocRoot.querySelectorAll(".toc-item"));
+		tocLinks.forEach((link) => {
+			link.removeEventListener("click", handleClick);
+			link.addEventListener("click", handleClick);
+		});
+
+		const tocScrollContainer = tocContent.closest(".toc-scroll-container");
+		if (tocScrollContainer) {
+			tocScrollContainer.removeEventListener(
+				"scroll",
+				scheduleActiveStateUpdate,
+			);
+			tocScrollContainer.addEventListener(
+				"scroll",
+				scheduleActiveStateUpdate,
+				{
+					passive: true,
+				},
+			);
+		}
+
+		// 如果页面正文有自己的滚动容器，也监听它
+		if (contentContainer && contentContainer instanceof Element) {
+			contentContainer.removeEventListener(
+				"scroll",
+				scheduleActiveStateUpdate,
+			);
+			contentContainer.addEventListener(
+				"scroll",
+				scheduleActiveStateUpdate,
+				{
+					passive: true,
+				},
+			);
+		}
+
+		window.removeEventListener("scroll", scheduleActiveStateUpdate);
+		window.addEventListener("scroll", scheduleActiveStateUpdate, {
+			passive: true,
+		});
+		window.removeEventListener("resize", scheduleActiveStateUpdate);
+		window.addEventListener("resize", scheduleActiveStateUpdate, {
+			passive: true,
+		});
+
+		const headings = getHeadingElements();
+		observer = new IntersectionObserver(
+			() => {
+				updateActiveState();
+			},
+			{
+				rootMargin: `${-scrollOffset}px 0px 0px 0px`,
+				threshold: 0.1,
+			},
+		);
+
+		headings.forEach((heading) => observer?.observe(heading));
+		scheduleActiveStateUpdate();
+	};
+
+	if (document.readyState === "loading") {
+		document.addEventListener("DOMContentLoaded", init, { once: true });
+	} else {
+		init();
+	}
+
+	const tocElement = document.getElementById("toc-wrapper");
+	if (tocElement) {
+		tocElement.init = init;
+	}
+
+	document.addEventListener("astro:page-load", init);
+	document.addEventListener("swup:contentReplaced", init);
+	window.addEventListener("popstate", init);
+	window.addEventListener("beforeunload", cleanup);
+</script>

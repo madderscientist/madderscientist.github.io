@@ -14,6 +14,7 @@
 	--accent: #2337ff;
 	--accent-dark: #000d8a;
 	--accent-light: #2335ff11;
+	--c-a: var(--accent);
 	--black: 15, 18, 25;
 	--gray: 96, 115, 159;
 	--gray-light: 229, 233, 240;
@@ -34,6 +35,7 @@
 html.dark {
 	--background: #1E1E1E;
 	--c-bg-soft: hsla(var(--hue-theme) 20% 10% / 25%);
+	--c-a: darkmagenta;
 	--black: 255, 255, 255;
 	--gray: 110, 118, 129;
 	--gray-light: 56, 58, 66;
@@ -85,10 +87,10 @@ b {
 	font-weight: 700;
 }
 a {
-	color: var(--accent);
+	color: var(--c-a);
 }
 a:hover {
-	color: var(--accent);
+	color: var(--c-a);
 }
 p {
 	margin-bottom: 1em;
