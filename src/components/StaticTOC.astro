@@ -14,7 +14,7 @@ const {
 	headings = [],
 	maxLevel = 3,
 	scrollOffset = 0,
-	title = "Table of Contents",
+	title = "文章目录",
 	id = "static-toc",
 } = Astro.props as Props;
 
@@ -44,8 +44,8 @@ const tocItems: TocItem[] = validHeadings
 	.map((heading: MarkdownHeading) => {
 		const depth = heading.depth;
 		const text = heading.text ?? "";
-		const slug = heading.slug ?? "";
-		const level = Math.min(Math.max(depth - minDepth, 0), 2);
+		const slug = heading.slug;
+		const level = Math.min(depth - minDepth, 2);
 		const isTopLevel = depth === minDepth;
 		const index = isTopLevel ? topLevelIndex++ : null;
 
@@ -59,67 +59,60 @@ const tocItems: TocItem[] = validHeadings
 	});
 ---
 
-<table-of-contents
-	id="toc-wrapper"
-	class="toc-wrapper static-toc"
+<nav
+	id={id}
+	class="toc-wrapper static-toc toc-scroll-container"
 	aria-label={title}
-	style="display:block; height: 50%; overflow: auto;"
+	style="height: 50%; overflow: auto;"
 >
-	<div class="toc-scroll-container custom-scrollbar">
-		<div class="toc-content" id={`${id}-content`}>
-			{
-				tocItems.length > 0 ? (
-					tocItems.map((item) => (
-						<a
-							href={`#${item.slug}`}
-							class={`toc-item toc-level-${item.level}`}
-							data-heading-id={item.slug}
-							aria-label={item.text}
-							title={item.text}
+	<div class="toc-content" id={tocContentId}>
+		{
+			tocItems.length > 0 ? (
+				tocItems.map((item) => (
+					<a
+						href={`#${item.slug}`}
+						class={`toc-item toc-level-${item.level}`}
+						data-heading-id={item.slug}
+						aria-label={item.text}
+						title={item.text}
+					>
+						<div
+							class={`toc-badge${item.isTopLevel ? " toc-badge-index" : ""}`}
 						>
-							<div
-								class={`toc-badge ${item.isTopLevel ? "toc-badge-index" : ""}`}
-							>
-								{item.isTopLevel ? item.index : ""}
-							</div>
-							<div
-								class={`toc-label ${item.level <= 1 ? "toc-label-primary" : "toc-label-secondary"}`}
-							>
-								{item.text}
-							</div>
-						</a>
-					))
-				) : (
-					<div class="toc-empty-state">
-						<p>{title}</p>
-					</div>
-				)
-			}
+							{item.isTopLevel ? item.index : "•"}
+						</div>
+						<div
+							class={`toc-label ${item.level <= 1 ? "toc-label-primary" : "toc-label-secondary"}`}
+						>
+							{item.text}
+						</div>
+					</a>
+				))
+			) : (
+				<div class="toc-empty-state">
+					<p>{title}</p>
+				</div>
+			)
+		}
 
-			<div
-				id="toc-active-indicator"
-				style="opacity: 0;"
-				class="toc-active-indicator"
-			>
-			</div>
+		<div
+			id="toc-active-indicator"
+			style="opacity: 0;"
+			class="toc-active-indicator"
+		>
 		</div>
 	</div>
-</table-of-contents>
-<script define:vars={{ tocItems, scrollOffset, tocContentId }}>
+</nav>
+<script is:inline define:vars={{ id, tocItems, scrollOffset, tocContentId }}>
 	let observer = null;
 	let rafId = null;
 	let tocFollowRafId = null;
 	let tocFollowTarget = 0;
 	let tocFollowContainer = null;
+	let tocRoot = null;
 
-	const getTocRoot = () => document.getElementById("toc-wrapper");
 	const getTocContent = () => document.getElementById(tocContentId);
-
-	const getContentContainer = () =>
-		document.querySelector(".custom-md") ||
-		document.querySelector(".prose") ||
-		document.querySelector(".markdown-content");
-
+	// 文章中的标题元素
 	const getHeadingElements = () =>
 		tocItems
 			.map((item) => document.getElementById(item.slug))
@@ -233,9 +226,6 @@ const tocItems: TocItem[] = validHeadings
 	};
 
 	const updateActiveState = () => {
-		const tocRoot = getTocRoot();
-		if (!tocRoot) return;
-
 		const tocItemsElements = Array.from(
 			tocRoot.querySelectorAll(".toc-item"),
 		);
@@ -300,13 +290,11 @@ const tocItems: TocItem[] = validHeadings
 	const init = () => {
 		cleanup();
 
-		const tocRoot = getTocRoot();
+		tocRoot = document.getElementById(id);
 		const tocContent = getTocContent();
-		const contentContainer = getContentContainer();
+		const contentContainer = document.querySelector(".prose");
 
-		if (!tocRoot || !tocContent) {
-			return;
-		}
+		if (!tocRoot || !tocContent) return;
 
 		const tocLinks = Array.from(tocRoot.querySelectorAll(".toc-item"));
 		tocLinks.forEach((link) => {
@@ -355,32 +343,19 @@ const tocItems: TocItem[] = validHeadings
 
 		const headings = getHeadingElements();
 		observer = new IntersectionObserver(
-			() => {
-				updateActiveState();
-			},
+			updateActiveState,
 			{
 				rootMargin: `${-scrollOffset}px 0px 0px 0px`,
 				threshold: 0.1,
 			},
 		);
 
-		headings.forEach((heading) => observer?.observe(heading));
+		headings.forEach((heading) => observer.observe(heading));
 		scheduleActiveStateUpdate();
 	};
 
 	if (document.readyState === "loading") {
 		document.addEventListener("DOMContentLoaded", init, { once: true });
-	} else {
-		init();
-	}
-
-	const tocElement = document.getElementById("toc-wrapper");
-	if (tocElement) {
-		tocElement.init = init;
-	}
-
-	document.addEventListener("astro:page-load", init);
-	document.addEventListener("swup:contentReplaced", init);
-	window.addEventListener("popstate", init);
+	} else init();
 	window.addEventListener("beforeunload", cleanup);
 </script>
