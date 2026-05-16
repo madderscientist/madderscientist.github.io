@@ -7,6 +7,8 @@
 html {
 	--background: hsla(var(--hue-theme) 20% 98% / 1);
 	--c-bg-soft: hsl(var(--hue-theme) 20% 20% / 10%);
+	--c-card-bg: #fbfafb;
+	--c-card-bg-hover: color-mix(in srgb, var(--c-card-bg), white 100%);
 
 	--accent: #2337ff;
 	--accent-dark: #000d8a;
@@ -21,11 +23,15 @@ html {
 
 	--content-meta: rgba(0, 0, 0, 0.7);
 	--line-color: rgba(0, 0, 0, 0.1);
+
+	--badge-bg: oklch(0.9 0.23 var(--hue-theme));
 }
 
 html.dark {
 	--background: #1E1E1E;
 	--c-bg-soft: hsla(var(--hue-theme) 20% 10% / 25%);
+	--c-card-bg: #292C32;
+	--c-card-bg-hover: color-mix(in srgb, var(--c-card-bg), white 5%);
 
 	--c-a: darkmagenta;
 
@@ -37,4 +43,6 @@ html.dark {
 
     --content-meta: rgba(255, 255, 255, 0.7);
 	--line-color: rgba(255, 255, 255, 0.1);
+
+	--badge-bg: oklch(0.4 0.13 var(--hue-theme))
 }

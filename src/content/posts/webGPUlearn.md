@@ -1,9 +1,8 @@
 ---
 title: WebGPU学习
-description: 记录了WebGPU的学习路线。先复习了WebGL，然后聚焦于WebGPU实现计算
+description: 记录了WebGPU的学习路线。先复习了WebGL（需要有相关知识），然后聚焦于WebGPU实现计算加速（从概念开始）
 pubDate: 2026-01-27
-heroImage: ../../assets/blog-placeholder-3.jpg
-tags: [技术]
+tags: [技术, 前端]
 ---
 
 # WebGL着色器

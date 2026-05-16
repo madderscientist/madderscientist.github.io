@@ -12,6 +12,7 @@ export async function getStaticPaths() {
 type Props = CollectionEntry<'posts'>;
 
 const post = Astro.props;
+process.stdout.write(`Rendering post: ${post.id}\n`);
 const { Content, headings, remarkPluginFrontmatter } = await render(post);
 const param = {
 	...post.data,

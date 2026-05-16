@@ -2,8 +2,7 @@
 title: 信念传播
 description: 从概率图到LDPC信念传播
 pubDate: 2026-04-02
-heroImage: ../../assets/blog-placeholder-2.jpg
-tags: [理论]
+tags: [理论, 概率图]
 ---
 
 > 是阅读论文《Neural Belief Propagation Auto-Encoder for Linear Block Code Design》需要的前置知识。<br>

@@ -1,10 +1,11 @@
 ---
 title: 建站！!
-description: 我是如何构建我的博客的
+description: 我是如何构建我的博客的：手搓各种基本功能
 pubDate: 2026-05-11
 updatedDate: 2026-05-14
-heroImage: ../../assets/blog-placeholder-2.jpg
+heroImage: ../../assets/blog-placeholder.jpg
 tags: [技术]
+pinned: true
 ---
 
 学了前端后，一直想建一个自己的网站。奈何一没文章二没设计，一直停留在幻想阶段。今年终于发了自己的第一篇论文，于是提上日程。
@@ -110,6 +111,16 @@ Mermaid的支持：`rehype-mermaid` 是静态渲染，需要装 `playwright` 和
 默认的是纵向，但我喜欢三列式（和开头列出的博客网站一样）。相比于他们的，我把footer做成了横跨三列的，这样就可以在下面继续藏东西了。
 
 风格左抄右抄，学到了一些CSS的小技巧。
+
+原来 `<ul>` 自带默认缩进：
+```css
+ul {
+  margin-block-start: 1em;
+  margin-block-end: 1em;
+  padding-inline-start: 40px;
+}
+```
+所以在 `<ul>` 里面用 `flex` 等就会导致左侧出现莫名其妙的缩进。文章列表干脆不用列表了，直接 `div` 堆。
 
 ### 文章搜索
 使用 [`astro-pagefind`](https://github.com/shishkin/astro-pagefind)。具体做法是：

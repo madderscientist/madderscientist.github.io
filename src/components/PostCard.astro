@@ -1,0 +1,159 @@
+---
+import { getEntry } from "astro:content";
+import FormattedDate from "./FormattedDate.astro";
+import { Image } from "astro:assets";
+
+const { postid } = Astro.props as { postid: string };
+
+const post = await getEntry("posts", postid);
+if (!post) {
+    throw new Error(`Post with id ${postid} not found`);
+}
+
+if (!post.data.description) {
+    const content = post.body;
+    if (typeof content === "string") {
+        post.data.description = content.slice(0, 200).trim();
+    }
+}
+
+const width = post.data.heroImage ? "calc(100% - 280px)" : "92%";
+---
+
+<article class="postcard">
+    <!-- 左侧内容 -->
+    <div class="content" style={`width: ${width};`}>
+        <a href={`/posts/${post.id}/`} class="title">
+            {post.data.title}
+        </a>
+
+        <p class="desc">
+            {post.data.description}
+        </p>
+
+        <div class="meta">
+            <FormattedDate date={post.data.pubDate} />
+        </div>
+
+        {
+            post.data.tags?.length && (
+                <div class="tags">
+                    {post.data.tags.map((tag) => (
+                        <a class="tag" href={`/tags/${tag}/`}>
+                            #{tag}
+                        </a>
+                    ))}
+                </div>
+            )
+        }
+    </div>
+
+    <!-- 右侧图片 -->
+    {
+        post.data.heroImage && (
+            <a href={`/posts/${post.id}/`} class="media">
+                <Image
+                    src={post.data.heroImage}
+                    alt={post.data.title}
+                    loading="lazy"
+                    class="hero-img"
+                />
+            </a>
+        )
+    }
+</article>
+
+<style>
+    * {
+        transition: all 0.2s ease;
+    }
+    a {
+        text-decoration: none;
+    }
+    .postcard {
+        padding: 1em;
+        overflow: hidden;
+        position: relative;
+        background: var(--c-card-bg);
+        border-radius: 1em;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+        &:hover {
+            transform: translateY(-1px);
+            background: var(--c-card-bg-hover);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.12);
+        }
+    }
+
+    html.dark .postcard {
+    }
+
+    a.title {
+        margin: 0 0 0.4em;
+        font-size: 1.25em;
+        line-height: 1.2;
+        font-weight: bold;
+        width: 100%;
+
+        display: block;
+        color: var(--black);
+
+        &:hover {
+            color: var(--primary);
+        }
+    }
+
+    .desc {
+        color: var(--gray-light);
+        line-height: 1.1;
+        font-size: 0.95em;
+
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+
+        margin: 0.25em 0;
+    }
+
+    .meta {
+        font-size: 0.8em;
+        color: var(--content-meta);
+    }
+
+    .tags {
+        display: flex;
+        gap: 0.5em;
+    }
+
+    .tag {
+        font-size: 0.7em;
+        padding: 0.1em 0.5em 0.1em 0.6em;
+        text-align: left;
+        border-radius: 999px;
+        background: var(--badge-bg);
+        color: inherit;
+
+        &:hover {
+            transform: scale(108%);
+        }
+    }
+
+    /* 图片区域 */
+    .media {
+        position: absolute;
+        width: 260px;
+        right: 0.6em;
+        top: 0.6em;
+        bottom: 0.6em;
+        overflow: hidden;
+    }
+
+    .hero-img {
+        width: 100%;
+        height: 100%;
+        display: block;
+        object-fit: cover;
+        border-radius: 0.6em;
+        view-transition-name: hero-img;
+    }
+</style>

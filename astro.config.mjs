@@ -66,7 +66,7 @@ export default defineConfig({
 		remarkPlugins: [
 			remarkMath,
 			remarkSingleLineNoLineNumbers,
-			remarkGithubAlerts
+			remarkGithubAlerts,
 		],
 		rehypePlugins: [
 			rehypeKatex,

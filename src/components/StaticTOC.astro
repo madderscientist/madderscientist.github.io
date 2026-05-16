@@ -3,7 +3,7 @@ import type { MarkdownHeading } from "astro";
 import "../styles/toc.css";
 
 interface Props {
-	headings: import('astro').MarkdownHeading[];
+	headings?: import('astro').MarkdownHeading[];
 	maxLevel?: number;
 	scrollOffset?: number;
 	title?: string;

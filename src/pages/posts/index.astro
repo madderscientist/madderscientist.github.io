@@ -1,15 +1,16 @@
 ---
-import { Image } from 'astro:assets';
-import { getCollection } from 'astro:content';
-import BaseHead from '../../components/BaseHead.astro';
-import BaseLayout from '../../layouts/BaseLayout.astro';
-import FormattedDate from '../../components/FormattedDate.astro';
-import LeftNav from '../../components/LeftNav.astro';
-import { SITE_DESCRIPTION, SITE_TITLE } from '../../consts';
+import { getCollection } from "astro:content";
+import BaseHead from "../../components/BaseHead.astro";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import LeftNav from "../../components/LeftNav.astro";
+import PostCard from "../../components/PostCard.astro";
+import { SITE_DESCRIPTION, SITE_TITLE } from "../../consts";
 
-const posts = (await getCollection('posts')).sort(
-	(a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
-);
+const posts = (await getCollection("posts")).sort((a, b) => {
+	if (a.data.pinned && !b.data.pinned) return -1;
+	else if (!a.data.pinned && b.data.pinned) return 1;
+	return b.data.pubDate.valueOf() - a.data.pubDate.valueOf();
+});
 ---
 
 <!doctype html>
@@ -19,26 +20,27 @@ const posts = (await getCollection('posts')).sort(
 	</head>
 	<body>
 		<BaseLayout>
-			<LeftNav slot="left"/>
-			<section>
-				<ul>
-					{
-						posts.map((post) => (
-							<li>
-								<a href={`/posts/${post.id}/`}>
-									{post.data.heroImage && (
-										<Image src={post.data.heroImage} alt="" />
-									)}
-									<h4 class="title">{post.data.title}</h4>
-									<p class="date">
-										<FormattedDate date={post.data.pubDate} />
-									</p>
-								</a>
-							</li>
-						))
-					}
-				</ul>
-			</section>
+			<LeftNav slot="left" />
+			<div>
+				{
+					posts.map((post) => (
+						<PostCard postid={post.id} />
+					))
+				}
+			</div>
+			<style>
+				div {
+					list-style: none;
+					padding: 1em 0;
+					margin: 0;
+					display: flex;
+					flex-direction: column;
+					gap: 1em;
+					width: 100%;
+					box-sizing: border-box;
+					justify-content: center;
+				}
+			</style>
 		</BaseLayout>
 	</body>
 </html>
