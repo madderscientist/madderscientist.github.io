@@ -33,6 +33,8 @@ const { title, description, pubDate, updatedDate, heroImage, headings } =
 				display: block;
 				margin: 0 auto;
 				border-radius: 12px;
+				view-transition-name: hero-img;
+				box-shadow: 0px 4px 15px rgba(var(--gray), 0.5);
 			}
 			.prose {
 				padding: 0 1em;
@@ -47,6 +49,47 @@ const { title, description, pubDate, updatedDate, heroImage, headings } =
 			.date {
 				margin-bottom: 0.5em;
 				color: rgb(var(--gray));
+			}
+			article {
+				padding: 1em 0 0 0;
+			}
+			.content {
+				h1,
+				h2,
+				h3,
+				h4,
+				h5,
+				h6 {
+					position: relative;
+					width: fit-content;
+					&::after {
+						content: "";
+						display: block;
+						position: absolute;
+						height: 0.55em;
+						--left-offset: -0.3em;
+						left: var(--left-offset);
+						bottom: 0;
+						transform: translateY(-50%);
+						width: calc(100% - var(--left-offset));
+						background-color: rgba(221, 0, 255, 0.1);
+					}
+				}
+				h1::after {
+					border-left: rgba(221, 0, 255, 0.4) 5px solid;
+				}
+				h2::after {
+					border-left: rgba(221, 0, 255, 0.3) 4px solid;
+				}
+			}
+			/* 和 BaseLayout 的保持一致 */
+			@media screen and (max-width: 980px) {
+				article {
+					padding-top: 0;
+				}
+				.hero-image img {
+					border-radius: 0;
+				}
 			}
 		</style>
 	</head>
@@ -98,40 +141,3 @@ const { title, description, pubDate, updatedDate, heroImage, headings } =
 		</BaseLayout>
 	</body>
 </html>
-<style>
-	article {
-		padding: 1em 0 0 0;
-	}
-	.hero-image {
-		view-transition-name: hero-img;
-	}
-	.content {
-		h1,
-		h2,
-		h3,
-		h4,
-		h5,
-		h6 {
-			position: relative;
-			width: fit-content;
-			&::after {
-				content: "";
-				display: block;
-				position: absolute;
-				height: 0.55em;
-				--left-offset: -0.3em;
-				left: var(--left-offset);
-				bottom: 0;
-				transform: translateY(-50%);
-				width: calc(100% - var(--left-offset));
-				background-color: rgba(221, 0, 255, 0.1);
-			}
-		}
-		h1::after {
-			border-left: rgba(221, 0, 255, 0.4) 5px solid;
-		}
-		h2::after {
-			border-left: rgba(221, 0, 255, 0.3) 4px solid;
-		}
-	}
-</style>
