@@ -35,7 +35,7 @@ const { title, description, pubDate, updatedDate, heroImage, headings } =
 				border-radius: 12px;
 			}
 			.prose {
-				padding: 1em;
+				padding: 0 1em;
 				color: rgb(var(--gray-dark));
 			}
 			.title {
@@ -44,15 +44,9 @@ const { title, description, pubDate, updatedDate, heroImage, headings } =
 				text-align: center;
 				line-height: 1;
 			}
-			.title h1 {
-				margin: 0 0 0.5em 0;
-			}
 			.date {
 				margin-bottom: 0.5em;
 				color: rgb(var(--gray));
-			}
-			.last-updated-on {
-				font-style: italic;
 			}
 		</style>
 	</head>
@@ -74,6 +68,7 @@ const { title, description, pubDate, updatedDate, heroImage, headings } =
 				</div>
 				<div class="prose">
 					<div class="title">
+						<h1>{title}</h1>
 						<div class="date">
 							<FormattedDate date={pubDate} />
 							{
@@ -85,7 +80,6 @@ const { title, description, pubDate, updatedDate, heroImage, headings } =
 								)
 							}
 						</div>
-						<h1>{title}</h1>
 						<hr />
 					</div>
 					<div class="content">
@@ -95,7 +89,7 @@ const { title, description, pubDate, updatedDate, heroImage, headings } =
 					</div>
 				</div>
 			</article>
-			<Giscus />
+			<Giscus style="padding: 0 1em 2em 1em; box-sizing: border-box;" />
 			{
 				headings.length > 0 && (
 					<StaticTOC slot="right" headings={headings} />
@@ -106,7 +100,7 @@ const { title, description, pubDate, updatedDate, heroImage, headings } =
 </html>
 <style>
 	article {
-		padding: 1em 0;
+		padding: 1em 0 0 0;
 	}
 	.hero-image {
 		view-transition-name: hero-img;

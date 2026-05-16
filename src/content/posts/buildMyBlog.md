@@ -2,9 +2,9 @@
 title: 建站！!
 description: 我是如何构建我的博客的：手搓各种基本功能
 pubDate: 2026-05-11
-updatedDate: 2026-05-14
+updatedDate: 2026-05-17
 heroImage: ../../assets/blog-placeholder.jpg
-tags: [技术]
+tags: [技术, Astro]
 pinned: true
 ---
 
@@ -222,7 +222,7 @@ import { rehypeHeadingIds } from '@astrojs/markdown-remark';
 需要切换的除了一般的颜色，还有：
 - `giscus` 评论组件：https://github.com/giscus/giscus/blob/main/ADVANCED-USAGE.md#parent-to-giscus-message-events
 - `pagefind` 搜索框：https://pagefind.app/docs/css-variables/#dark-mode
-- `expressive code` 代码块：https://expressive-code.com/guides/themes/#key-features。上面两个都监听`CustomEvent`，而这个自带监听，只需要做出如下配置：
+- `expressive code` 代码块：[官方主题文档](https://expressive-code.com/guides/themes/#key-features)。上面两个都监听`CustomEvent`，而这个自带监听，只需要做出如下配置：
 ```js
 expressiveCode({
 	themes: ['catppuccin-latte', 'catppuccin-macchiato'],

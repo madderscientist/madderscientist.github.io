@@ -1,4 +1,11 @@
-<div class="giscus"></div>
+---
+interface Props {
+	style?: string;
+};
+const { style = "" } = Astro.props;
+---
+
+<div class="giscus" style={style}></div>
 <script is:inline>
 	function createGiscusScript(theme) {
 		const script = document.createElement("script");
