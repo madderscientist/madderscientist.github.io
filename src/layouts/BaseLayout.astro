@@ -26,7 +26,32 @@ const colCount = Math.max(2, columns);
     </aside>
 </div>
 <Footer />
-
+<div class="float-panel blur">
+    <button class="show-left">
+        <svg width="32" height="32" viewBox="0 0 24 24"
+            ><g fill="none" stroke="currentColor" stroke-width="1.6"
+                ><path
+                    d="M2 11c0-3.771 0-5.657 1.172-6.828C4.343 3 6.229 3 10 3h4c3.771 0 5.657 0 6.828 1.172C22 5.343 22 7.229 22 11v2c0 3.771 0 5.657-1.172 6.828C19.657 21 17.771 21 14 21h-4c-3.771 0-5.657 0-6.828-1.172C2 18.657 2 16.771 2 13z"
+                ></path><path
+                    id="sep"
+                    stroke-linecap="round"
+                    d="M5.5 10h6m-5 4h4m4.5 7V3"></path></g
+            ></svg
+        >
+    </button>
+    <button class="show-right">
+        <svg width="32" height="32" viewBox="0 0 24 24"
+            ><path
+                fill="none"
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="1.6"
+                d="M10 6h11m-11 6h11m-11 6h11M4 6h1v4m-1 0h2m0 8H4c0-1 2-2 2-3s-1-1.5-2-1"
+            ></path></svg
+        >
+    </button>
+</div>
 <style>
     .blog-root {
         --gap-margin: 12px;
@@ -56,6 +81,12 @@ const colCount = Math.max(2, columns);
             justify-self: left;
         }
     }
+    .float-panel {
+        display: none;
+        button {
+            display: none;
+        }
+    }
     @media screen and (max-width: 1440px) {
         .blog-root {
             gap: calc(var(--gap-margin) * 2);
@@ -73,6 +104,14 @@ const colCount = Math.max(2, columns);
             box-shadow: rgba(0, 0, 0, 0.2) 0px 12px 16px -4px;
             z-index: 10;
             overflow: auto;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+        .float-panel {
+            display: flex;
+            .show-right {
+                display: flex;
+            }
         }
     }
     @media screen and (max-width: 1000px) {
@@ -85,6 +124,76 @@ const colCount = Math.max(2, columns);
             left: 0;
             box-shadow: rgba(0, 0, 0, 0.2) 0px 12px 16px -4px;
             z-index: 10;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+        .float-panel .show-left {
+            display: flex;
         }
     }
+    .blog-root.left {
+        .l_left {
+            transform: translateX(0);
+        }
+    }
+    .blog-root.right {
+        .l_right {
+            transform: translateX(0);
+        }
+    }
+
+    .float-panel {
+        border-radius: 999px;
+        position: fixed;
+        z-index: 11;
+        left: 50%;
+        bottom: 0.4em;
+        transform: translateX(-50%);
+        align-items: center;
+        justify-content: space-around;
+        padding: 0 0.3em;
+    }
+    .float-panel button {
+        cursor: pointer;
+        color: var(--text);
+        background: none;
+        width: 48px;
+        height: 48px;
+        line-height: 0;
+        font-size: 28px;
+        align-items: center;
+        justify-content: center;
+    }
 </style>
+<script>
+    const _setupSidebar = () => {
+        const root = document.querySelector(".blog-root");
+        if (!root) return;
+        const toggleSidebar = (side: "left" | "right") => {
+            root.classList.toggle(side);
+            const remove = (e: PointerEvent) => {
+                if (
+                    !(e.target as HTMLElement).closest(`.l_${side}`) &&
+                    !(e.target as HTMLElement).closest(
+                        `.float-panel .show-${side}`,
+                    )
+                ) {
+                    root.classList.remove(side);
+                    document.removeEventListener("pointerdown", remove);
+                }
+            };
+            if (root.classList.contains(side))
+                document.addEventListener("pointerdown", remove);
+            else document.removeEventListener("pointerdown", remove);
+        };
+        document
+            .querySelector(".float-panel .show-left")
+            ?.addEventListener("click", () => toggleSidebar("left"));
+        document
+            .querySelector(".float-panel .show-right")
+            ?.addEventListener("click", () => toggleSidebar("right"));
+    };
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", _setupSidebar);
+    } else _setupSidebar();
+</script>
