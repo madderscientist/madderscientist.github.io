@@ -27,7 +27,7 @@ tags: [理论, 概率图]
 
 下面引入“因子图”的概念。用无向图解释。无向图里势函数是定义在最大团上的，比如三个变量节点构成的团是一个三角形相互依赖。这就不是树形了，解决方法是引入“因子节点”，也就是将三角转换为星形，中心为“因子节点”。因子节点的邻居构成团。
 
-“（广义）星三角变换”后就可以是树了。此时同类节点之间没有边，邻居都是异类。下面具体给出传递的消息是什么：
+“（广义）星三角变换” 后就可以是树了。此时同类节点之间没有边，邻居都是异类。下面具体给出传递的消息是什么：
 - 变量i传递给因子j的消息 $v_{ij}(x_i)$：也就是屏蔽了节点i往外的节点（积分积掉了）的概率。而这个概率是其 其余的邻居 $N(i) / j$ 给他的。因此值为：
     $$
     v_{ij}(x_i) = \prod_{k \in N(i) \setminus j} u_{ki}(x_i)
@@ -114,9 +114,9 @@ $$
 对于因子向节点传递消息：
 $$
 \begin{aligned}
-u_{ji}(x_i) = \sum_{x_{N(j) \setminus i}} \left(\phi(x_{N(j)}) \prod_{k \in N(j) \setminus i} v_{kj}(x_k) \right) \\
-u_{ji}(x_i = 0) = \sum_{x_{N(j) \setminus i}} \left(\phi(x_{N(j)\setminus i}, 0) \prod_{k \in N(j) \setminus i} v_{kj}(x_k) \right) \\
-u_{ji}(x_i = 1) = \sum_{x_{N(j) \setminus i}} \left(\phi(x_{N(j)\setminus i}, 1) \prod_{k \in N(j) \setminus i} v_{kj}(x_k) \right)
+u_{ji}(x_i) &= \sum_{x_{N(j) \setminus i}} \left(\phi(x_{N(j)}) \prod_{k \in N(j) \setminus i} v_{kj}(x_k) \right) \\
+u_{ji}(x_i = 0) &= \sum_{x_{N(j) \setminus i}} \left(\phi(x_{N(j)\setminus i}, 0) \prod_{k \in N(j) \setminus i} v_{kj}(x_k) \right) \\
+u_{ji}(x_i = 1) &= \sum_{x_{N(j) \setminus i}} \left(\phi(x_{N(j)\setminus i}, 1) \prod_{k \in N(j) \setminus i} v_{kj}(x_k) \right)
 \end{aligned}
 $$
 
@@ -134,9 +134,13 @@ $$ u_{ji}(1) = \sum_{\mathbf{x}_{N\setminus i} : \bigoplus x_k = 1} \prod_{k} v_
 构造“和”与“差”。这是推导中最关键的一步。我们不直接算 $u(0)$ 和 $u(1)$，而是算它们的和与差。
 
 - 两者之和（所有情况的总和）
-    $$ u_{ji}(0) + u_{ji}(1) = \sum_{\text{all } \mathbf{x}} \prod_{k} v_k(x_k) $$
+    $$
+    u_{ji}(0) + u_{ji}(1) = \sum_{\text{all } \mathbf{x}} \prod_{k} v_k(x_k)
+    $$
     由于求和是对所有可能的组合，乘积可以拆开：
-    $$ u_{ji}(0) + u_{ji}(1) = \prod_{k} \left( v_k(0) + v_k(1) \right) $$
+    $$
+    u_{ji}(0) + u_{ji}(1) = \prod_{k} \left( v_k(0) + v_k(1) \right)
+    $$
 
 - 两者之差（利用符号 trick）
     考虑这样一个乘积：$\prod_{k} (v_k(0) - v_k(1))$。
@@ -148,7 +152,9 @@ $$ u_{ji}(1) = \sum_{\mathbf{x}_{N\setminus i} : \bigoplus x_k = 1} \prod_{k} v_
 如果包含奇数个 1（即 $\bigoplus x_k = 1$），那么负号出现了奇数次，结果为**负**。
 
 所以，这个乘积展开后正好等于“偶校验项之和”减去“奇校验项之和”：
-$$ u_{ji}(0) - u_{ji}(1) = \prod_{k} \left( v_k(0) - v_k(1) \right) $$
+$$
+u_{ji}(0) - u_{ji}(1) = \prod_{k} \left( v_k(0) - v_k(1) \right)
+$$
 
 ### 3. 引入 LLR 和 tanh
 
@@ -159,32 +165,42 @@ $$ u_{ji}(0) - u_{ji}(1) = \prod_{k} \left( v_k(0) - v_k(1) \right) $$
 令 $L_k = \ln \frac{v_k(0)}{v_k(1)}$，则 $\frac{v_k(0)}{v_k(1)} = e^{L_k}$。
 
 我们来看 $\frac{v_k(0) - v_k(1)}{v_k(0) + v_k(1)}$ 等于什么：
-$$ \frac{v_k(0) - v_k(1)}{v_k(0) + v_k(1)} = \frac{\frac{v_k(0)}{v_k(1)} - 1}{\frac{v_k(0)}{v_k(1)} + 1} = \frac{e^{L_k} - 1}{e^{L_k} + 1} $$
+$$
+\frac{v_k(0) - v_k(1)}{v_k(0) + v_k(1)} = \frac{\frac{v_k(0)}{v_k(1)} - 1}{\frac{v_k(0)}{v_k(1)} + 1} = \frac{e^{L_k} - 1}{e^{L_k} + 1}
+$$
 
 根据双曲函数公式，这正是 $\tanh(L_k / 2)$：
-$$ \tanh\left(\frac{L_k}{2}\right) = \frac{e^{L_k} - 1}{e^{L_k} + 1} $$
+$$
+\tanh\left(\frac{L_k}{2}\right) = \frac{e^{L_k} - 1}{e^{L_k} + 1}
+$$
 
 ### 4. 综合推导
 
-现在回到 $L(u_{ji})$。
-我们计算 $\frac{u_{ji}(0) - u_{ji}(1)}{u_{ji}(0) + u_{ji}(1)}$：
-
-$$ \frac{u_{ji}(0) - u_{ji}(1)}{u_{ji}(0) + u_{ji}(1)} = \frac{\prod_{k} (v_k(0) - v_k(1))}{\prod_{k} (v_k(0) + v_k(1))} = \prod_{k} \left( \frac{v_k(0) - v_k(1)}{v_k(0) + v_k(1)} \right) $$
+现在回到 $L(u_{ji})$。我们计算 $\frac{u_{ji}(0) - u_{ji}(1)}{u_{ji}(0) + u_{ji}(1)}$：
+$$
+\frac{u_{ji}(0) - u_{ji}(1)}{u_{ji}(0) + u_{ji}(1)} = \frac{\prod_{k} (v_k(0) - v_k(1))}{\prod_{k} (v_k(0) + v_k(1))} = \prod_{k} \left( \frac{v_k(0) - v_k(1)}{v_k(0) + v_k(1)} \right)
+$$
 
 代入刚才的 $\tanh$ 结论：
-$$ \frac{u_{ji}(0) - u_{ji}(1)}{u_{ji}(0) + u_{ji}(1)} = \prod_{k} \tanh\left(\frac{L_k}{2}\right) $$
+$$
+\frac{u_{ji}(0) - u_{ji}(1)}{u_{ji}(0) + u_{ji}(1)} = \prod_{k} \tanh\left(\frac{L_k}{2}\right)
+$$
 
 另一方面，对于输出端，令 $L_{out} = L(u_{ji})$，同样有：
-$$ \frac{u_{ji}(0) - u_{ji}(1)}{u_{ji}(0) + u_{ji}(1)} = \frac{\frac{u_{ji}(0)}{u_{ji}(1)} - 1}{\frac{u_{ji}(0)}{u_{ji}(1)} + 1} = \frac{e^{L_{out}} - 1}{e^{L_{out}} + 1} = \tanh\left(\frac{L_{out}}{2}\right) $$
+$$
+\frac{u_{ji}(0) - u_{ji}(1)}{u_{ji}(0) + u_{ji}(1)} = \frac{\frac{u_{ji}(0)}{u_{ji}(1)} - 1}{\frac{u_{ji}(0)}{u_{ji}(1)} + 1} = \frac{e^{L_{out}} - 1}{e^{L_{out}} + 1} = \tanh\left(\frac{L_{out}}{2}\right)
+$$
 
 ### 5. 最终结果
 
 联立上面两式：
-
-$$ \tanh\left(\frac{L_{out}}{2}\right) = \prod_{k \in N(j) \setminus i} \tanh\left(\frac{L_k}{2}\right) $$
+$$
+\tanh\left(\frac{L_{out}}{2}\right) = \prod_{k \in N(j) \setminus i} \tanh\left(\frac{L_k}{2}\right)
+$$
 
 两边同时取反双曲正切 $\text{artanh}$（即 $\tanh^{-1}$），并乘以 2：
-
-$$ L(u_{ji}) = 2 \cdot \text{artanh} \left( \prod_{k \in N(j) \setminus i} \tanh\left(\frac{L(v_{kj})}{2}\right) \right) $$
+$$
+L(u_{ji}) = 2 \cdot \text{artanh} \left( \prod_{k \in N(j) \setminus i} \tanh\left(\frac{L(v_{kj})}{2}\right) \right)
+$$
 
 这就是论文中 Check Node 更新公式的完整由来。

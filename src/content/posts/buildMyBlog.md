@@ -15,7 +15,8 @@ pinned: true
 - 这个简约的也不错：https://qmmms.github.io/
 
 ## 浅尝辄止的HEXO
-> Hexo的中文文档一坨狗屎，非常过时（还是得看英文或繁中的）<br>最后放弃了该技术路径
+> Hexo的中文文档一坨狗屎，非常过时（还是得看英文或繁中的）
+> 最后放弃了该技术路径
 
 不想污染全局，选择局部安装：
 ```sh title="/madderscientist.github.io" frame="terminal"
@@ -198,16 +199,19 @@ export interface MarkdownHeading {
 > 语法为 `[!TIP]`
 
 > 原始 `blockquote` 长这样，换行最好用`<br>`<br>
+> 不够后来写了一个将 `<p>` 内的 `\n` 改为 `<br>` 的 [remark 插件](https://github.com/madderscientist/madderscientist.github.io/blob/main/src/plugins/remark-p-breaks/remark-p-breaks.js)，已经不用手写 `<br>` 哩（能兼容用`<br>`的情况）
 > 编写过程中的技巧：`remark` 插件中要用 `process.stdout.write` 写输出（而不是 `console.log`）
 
 其余的语法拓展不如直接在 MDX 里写，拓展 md 语法还是太鸡肋了。
 
+### 简记一下要注意的 md 格式
+- 块级公式： `$$\n{formula}\n$$`，`$` 不能和公式同行，不然会被 `katex` 插件视为行内公式
+- md内两个换行是一个 `<p>`，有段落间margin；而单个换行是段内换行，不会产生额外的间距
+
 ## 细节的修改
 ### 标题链接
 鼠标放在文章标题上，浮现一个link的图标，点击后改变链接（加上“#xxx”）。观察到本来就产生了id，但是时机为 `rehype` 之后：
-```txt
-By default, Astro injects id attributes after your rehype plugins have run.
-```
+> By default, Astro injects id attributes after your rehype plugins have run.
 
 不过也提供了[解决方法](https://docs.astro.build/en/guides/markdown-content/#heading-ids)：只要先使用
 ```js  showLineNumbers

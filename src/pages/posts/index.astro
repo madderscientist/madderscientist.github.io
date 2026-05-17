@@ -38,7 +38,14 @@ const posts = (await getCollection("posts")).sort((a, b) => {
 					gap: 1em;
 					width: 100%;
 					box-sizing: border-box;
-					justify-content: center;
+					justify-content: start;
+					min-height: 99vh;
+				}
+				/* 和 BaseLayout 的保持一致 */
+				@media screen and (max-width: 980px) {
+					div {
+						padding: 0.8em 1em;
+					}
 				}
 			</style>
 		</BaseLayout>

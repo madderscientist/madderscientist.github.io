@@ -9,6 +9,7 @@ import rehypeKatex from 'rehype-katex';
 import mermaid from 'astro-mermaid';	// 动态渲染
 import remarkGithubAlerts from './src/plugins/remark-gfm-quote/remark-gfm-quote';	// GitHub风格提示框
 import remarkSingleLineNoLineNumbers from './src/plugins/remark-single-line-no-line-number/remark-single-line-no-line-number';
+import remarkPBreaks from './src/plugins/remark-p-breaks/remark-p-breaks';
 import { rehypeHeadingIds } from '@astrojs/markdown-remark';
 import rehypeAnchor from './src/plugins/rehype-anchor/rehype-anchor';
 
@@ -67,6 +68,7 @@ export default defineConfig({
 			remarkMath,
 			remarkSingleLineNoLineNumbers,
 			remarkGithubAlerts,
+			remarkPBreaks,
 		],
 		rehypePlugins: [
 			rehypeKatex,
