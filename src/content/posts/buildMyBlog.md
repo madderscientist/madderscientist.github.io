@@ -4,7 +4,7 @@ description: 我是如何构建我的博客的：手搓各种基本功能
 pubDate: 2026-05-11
 updatedDate: 2026-05-17
 heroImage: ../../assets/blog-placeholder.jpg
-tags: [技术, Astro]
+tags: [技术, Astro, 前端]
 pinned: true
 ---
 
@@ -180,6 +180,9 @@ export interface MarkdownHeading {
 ### 评论
 使用 `Giscus`，[参考](https://blog.moewah.com/posts/astro-blog-comment-system-integration-guide/)
 
+### 即刻短文
+见 <a href="/posts/astroessaypage/">《Astro 即刻短文》</a>
+
 ### 语法拓展
 主要是 GitHub 风格的 admonition。自己手写了一个，效果如下：
 
@@ -198,13 +201,13 @@ export interface MarkdownHeading {
 > [!TIP]
 > 语法为 `[!TIP]`
 
-> 原始 `blockquote` 长这样，换行最好用`<br>`<br>
+> 原始 `blockquote` 长这样，换行用`<br>`<br>
 > 不够后来写了一个将 `<p>` 内的 `\n` 改为 `<br>` 的 [remark 插件](https://github.com/madderscientist/madderscientist.github.io/blob/main/src/plugins/remark-p-breaks/remark-p-breaks.js)，已经不用手写 `<br>` 哩（能兼容用`<br>`的情况）
 > 编写过程中的技巧：`remark` 插件中要用 `process.stdout.write` 写输出（而不是 `console.log`）
 
 其余的语法拓展不如直接在 MDX 里写，拓展 md 语法还是太鸡肋了。
 
-### 简记一下要注意的 md 格式
+#### 简记一下要注意的 md 格式
 - 块级公式： `$$\n{formula}\n$$`，`$` 不能和公式同行，不然会被 `katex` 插件视为行内公式
 - md内两个换行是一个 `<p>`，有段落间margin；而单个换行是段内换行，不会产生额外的间距
 

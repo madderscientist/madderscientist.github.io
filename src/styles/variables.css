@@ -7,7 +7,7 @@
 html {
 	--background: hsla(var(--hue-theme) 20% 98% / 1);
 	--c-bg-soft: hsl(var(--hue-theme) 20% 20% / 10%);
-	--c-card-bg: #fbfafb;
+	--c-card-bg: #fbfafbaa;
 	--c-card-bg-hover: color-mix(in srgb, var(--c-card-bg), white 100%);
 
 	--accent: #2337ff;
@@ -30,7 +30,7 @@ html {
 html.dark {
 	--background: #1E1E1E;
 	--c-bg-soft: hsla(var(--hue-theme) 20% 10% / 25%);
-	--c-card-bg: #292C32;
+	--c-card-bg: #292C32aa;
 	--c-card-bg-hover: color-mix(in srgb, var(--c-card-bg), white 5%);
 
 	--c-a: darkmagenta;

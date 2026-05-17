@@ -1,0 +1,56 @@
+---
+import { getCollection, render } from "astro:content";
+import BaseHead from "../components/BaseHead.astro";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import FormattedDate from "../components/FormattedDate.astro";
+import KatexStyle from "../components/KatexStyle.astro";
+
+const posts = (await getCollection("everyLearn")).sort(
+    (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
+);
+const contents = await Promise.all(
+    posts.map(async (post) => {
+        const { Content, headings, remarkPluginFrontmatter } =
+            await render(post);
+        return { Content, post };
+    }),
+);
+---
+
+<html lang="zh">
+    <head>
+        <BaseHead title="每天一个生活小妙招" description="技术日记" />
+        <style>
+            .cards-container {
+                padding: 1em 0;
+                display: flex;
+                flex-direction: column;
+                gap: 1em;
+            }
+            .card {
+                padding: 0.7em 1.4em;
+                overflow: hidden;
+                position: relative;
+                background: var(--c-card-bg);
+                border-radius: 1em;
+                box-shadow: 0 2px 6px var(--line-color);
+            }
+        </style>
+    </head>
+    <body>
+        <BaseLayout>
+            <KatexStyle>
+            <div class="cards-container" data-pagefind-body>
+                {
+                    contents.map(({ Content, post }, index) => (
+                        <div class="card">
+                            <FormattedDate date={post.data.pubDate} />
+                            <Content />
+                        </div>
+                    ))
+                }
+            </div>
+            </KatexStyle>
+        </BaseLayout>
+    </body>
+</html>
