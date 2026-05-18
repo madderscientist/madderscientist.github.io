@@ -19,8 +19,9 @@ if (!post.data.description) {
 ---
 
 <article class="postcard">
+    {post.data.pinned && <div class="pinned-badge">PINNED</div>}
     <!-- 左侧内容 -->
-    <div class={`content${!post.data.heroImage ? ' no-image' : ''}`}> 
+    <div class={`content${!post.data.heroImage ? " no-image" : ""}`}>
         <a href={`/posts/${post.id}/`} class="title">
             {post.data.title}
         </a>
@@ -81,6 +82,20 @@ if (!post.data.description) {
             background: var(--c-card-bg-hover);
             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.12);
         }
+    }
+
+    .pinned-badge {
+        font-size: 0.75em;
+        position: absolute;
+        top: 16px;
+        right: -32px;
+        background: var(--primary);
+        color: white;
+        padding: 0.3em 32px;
+        line-height: 1;
+        font-weight: bold;
+        transform: rotate(45deg);
+        z-index: 10;
     }
 
     .content {
