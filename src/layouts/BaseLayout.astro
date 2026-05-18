@@ -2,9 +2,15 @@
 import Footer from "../components/Footer.astro";
 import LeftNav from "../components/LeftNav.astro";
 // 侧边sticky，都到底了显示 footer
+
+export interface Props {
+    showRightSidebar?: boolean;
+}
+
+const { showRightSidebar = true } = Astro.props;
 ---
 
-<div class="blog-root">
+<div class={`blog-root ${!showRightSidebar ? "no-right" : ""}`}>
     <aside class="l_left">
         <slot name="left">
             <LeftNav />
@@ -25,33 +31,42 @@ import LeftNav from "../components/LeftNav.astro";
                     ></svg
                 >
             </button>
-            <button class="show-right">
-                <svg width="32" height="32" viewBox="0 0 24 24"
-                    ><path
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="1.6"
-                        d="M10 6h11m-11 6h11m-11 6h11M4 6h1v4m-1 0h2m0 8H4c0-1 2-2 2-3s-1-1.5-2-1"
-                    ></path></svg
-                >
-            </button>
+            {
+                showRightSidebar && (
+                    <button class="show-right">
+                        <svg width="32" height="32" viewBox="0 0 24 24">
+                            <path
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="1.6"
+                                d="M10 6h11m-11 6h11m-11 6h11M4 6h1v4m-1 0h2m0 8H4c0-1 2-2 2-3s-1-1.5-2-1"
+                            />
+                        </svg>
+                    </button>
+                )
+            }
         </div>
     </main>
-    <aside class="l_right">
-        <slot name="right" />
-    </aside>
+    {
+        showRightSidebar && (
+            <aside class="l_right">
+                <slot name="right" />
+            </aside>
+        )
+    }
 </div>
 <Footer />
 <style>
     .blog-root {
+        justify-content: center;
+        --side-width: 288px;
         --gap-margin: 12px;
         display: grid;
-        grid-template-columns: 1fr minmax(200px, var(--width-main)) 1fr;
+        grid-template-columns: var(--side-width) minmax(200px, var(--width-main)) var(--side-width);
         gap: calc(var(--gap-margin) * 2);
         min-height: 100vh;
-        --side-width: 288px;
         & > aside {
             align-self: start;
             position: sticky;
@@ -61,10 +76,11 @@ import LeftNav from "../components/LeftNav.astro";
             height: 100vh;
             transform: translateX(0);
             transition: transform 0.3s ease-out;
-            overflow: visible; /* 千万不能改别的否则滤镜会由明显边界 */
+            overflow: visible; /* 千万不能改别的否则滤镜会有明显边界 */
         }
         & > main {
-            z-index: 8;
+            position: relative;
+            z-index: 7; /* 不加可以让float-panel不被挡住；挡住是故意的 */
         }
         .l_left {
             justify-self: right;
@@ -73,13 +89,16 @@ import LeftNav from "../components/LeftNav.astro";
             justify-self: left;
         }
     }
+    .no-right > main {
+        grid-column: 2 / 4 !important;
+    }
     .float-panel {
         display: none;
         button {
             display: none;
         }
     }
-    @media screen and (max-width: 1300px) {
+    @media screen and (max-width: 1088px) {
         .blog-root {
             gap: calc(var(--gap-margin) * 1);
             grid-template-columns: 1fr minmax(200px, var(--width-main)) 0fr;
@@ -101,9 +120,10 @@ import LeftNav from "../components/LeftNav.astro";
             }
         }
     }
-    @media screen and (max-width: 980px) {
+    @media screen and (max-width: 800px) {
         .blog-root {
             display: block;
+            --side-width: min(85vw, 288px);
         }
         .blog-root > .l_left {
             position: fixed;
@@ -132,7 +152,7 @@ import LeftNav from "../components/LeftNav.astro";
     .float-panel {
         border-radius: 999px;
         position: sticky;
-        z-index: 11;
+        z-index: 99;
         margin-left: auto;
         margin-right: auto;
         margin-bottom: 0.5em;

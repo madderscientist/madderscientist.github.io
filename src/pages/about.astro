@@ -1,16 +1,44 @@
 ---
-import AboutHeroImage from '../assets/blog-placeholder.jpg';
-import Layout from '../layouts/BlogPost.astro';
+import BaseHead from '../components/BaseHead.astro';
+import BaseLayout from '../layouts/BaseLayout.astro';
 ---
 
-<Layout
-	title="About Me"
-	description="开盒我"
-	pubDate={new Date('2026-05-01')}
-	heroImage={AboutHeroImage}
-	headings={[]}
->
-	<p>
-		一个努力的普通人
-	</p>
-</Layout>
+<html lang="en">
+	<head>
+		<BaseHead title="About Me" description="Beshar's information" />
+		<style>
+			nav {
+				display: flex;
+				flex-direction: row;
+				align-items: center;
+				justify-content: space-around;
+				gap: 1em;
+				padding: 1em 0 0.3em 0;
+				margin: 0 2em 0 2em;
+				background: transparent;
+				border-bottom: 1px solid rgb(var(--gray));
+				a {
+					text-decoration: none;
+					color: currentColor;
+					font-weight: bold;
+					font-size: 1.3rem;
+				}
+			}
+		</style>
+	</head>
+	<body>
+		<BaseLayout showRightSidebar={false}>
+			<nav>
+				<a href="#self-intro">
+					Self Introduction
+				</a>
+				<a href="#publications">
+					Publications
+				</a>
+				<a href="#experience">
+					Experience
+				</a>
+			</nav>
+		</BaseLayout>
+	</body>
+</html>
