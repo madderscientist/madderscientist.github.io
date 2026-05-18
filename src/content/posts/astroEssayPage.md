@@ -11,7 +11,7 @@ tags: [技术, Astro, 前端]
 最终效果请看左侧导航栏的“日记”。
 
 # 格式约定
-每天的内容用一级标题划分，一级标题前三个数字代表了“年”“月”“日”，后面的保留作为 meta。例如：
+每天的内容用一级标题划分，一级标题前三个数字代表了“年”“月”“日”，后面的保留作为 meta，用于目录的显示（类似于摘要？）。例如：
 ```md
 # 2025 5 1 # 学习了一天
 ## 关于XXX
@@ -64,5 +64,94 @@ YYY是...
 2. `store.set` 传递的会交给 `defineCollection` 中的 `schema` 检查，有错误要自己捕获；默认的输出提供不了具体哪里有问题
 3. 输出用 `logger`
 
-# 样式
-待完善
+展示一些框架代码：
+```ts
+const everyLearnLoader = {
+	name: 'everylearn-loader',
+	load: async ({ store, parseData, renderMarkdown, logger, watcher }) => {
+		const filePath = './src/content/snippets/EveryLearn.md';
+		const absoluteFilePath = path.resolve(process.cwd(), filePath);
+
+		// 将解析逻辑封装，以支持初次加载和热更新
+		const syncData = async () => {
+            store.clear();
+            // 完成划分 略
+
+            for (const chunk of chunks) {
+                // 处理得到schema
+
+                // 存入 Astro 的 DataStore，传入 meta
+                try {
+                    const data = await parseData({ id, data: { pubDate, meta } });
+                    const rendered = await renderMarkdown(bodyContent);
+                    store.set({ id, data, body: bodyContent, rendered });
+                } catch(e) {
+                    logger.error(`Error occurred while processing chunk ${chunkIndex}: ${e} @${bodyContent}`);
+                }
+            }
+        };
+
+		// 初始化时调用一次
+		await syncData();
+
+		// 将此文件加入 Astro 的热更新监视器中
+		watcher?.on('change', async (changedPath) => {
+			// 将 Windows 路径里的 \ 替换为 / 以便容错比较 
+			if (changedPath.replace(/\\/g, '/') === absoluteFilePath.replace(/\\/g, '/')) {
+				logger.info(`Reloading EveryLearn.md due to changes`);
+				await syncData();
+			}
+		});
+	}
+} satisfies Loader;
+
+const everyLearn = defineCollection({
+	loader: everyLearnLoader,
+	schema: z.object({
+		pubDate: z.coerce.date(),
+		meta: z.string().optional(),
+	}),
+});
+```
+
+# 评论
+要给每一个日记加上评论区。暂时不打算做。
+
+# 时间线（目录）
+本来想写一个日期组件，展示哪些天有内容产出。但是记录其实很稀疏，用这种方式索引内容效率太低了；于是打算复用已经写好的TOC（感觉专门写一个时间线没有必要？）
+
+首先要准备toc的内容。目录要求简短，比如年份可以只保留后两位；且我希望年份为一级标题，具体日期为二级。所以只能自己构建：
+```ts
+const posts = (await getCollection("everyLearn")).sort(
+    (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
+);
+
+const anchors: Array<MarkdownHeading & { index: number }> = [];
+let lastYear = "";
+for (let i = 0; i < posts.length; i++) {
+    const post = posts[i];
+    const date = post.data.pubDate;
+    const year = String(date.getFullYear());
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    if (year !== lastYear) {
+        anchors.push({
+            depth: 1,
+            slug: String(year),
+            text: String(year),
+            index: -1,
+        });
+        lastYear = year;
+    }
+    anchors.push({
+        depth: 2,
+        slug: post.id,
+        text: `${year.slice(2)}/${month}/${day}${post.data.meta ? `: ${post.data.meta}` : ""}`,
+        index: i,
+    });
+}
+```
+
+由于插入了年份，因此增加了 `index` 属性，用来从 `posts` 中索引具体内容。具体创建html时，只需要遍历 `anchors` 即可。
+
+而CSS这里处理就比较随意了，简单用圆角矩形划分了一下范围。

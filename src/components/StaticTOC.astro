@@ -8,6 +8,7 @@ interface Props {
 	scrollOffset?: number;
 	title?: string;
 	id?: string;
+	style?: string;
 }
 
 const {
@@ -16,6 +17,7 @@ const {
 	scrollOffset = 0,
 	title = "文章目录",
 	id = "static-toc",
+	style = "height: 50%;",
 } = Astro.props as Props;
 
 const tocContentId = `${id}-content`;
@@ -59,7 +61,7 @@ const tocItems: TocItem[] = validHeadings
 	});
 ---
 
-<nav id={id} class="toc-wrapper" aria-label={title} style="height: 50%;">
+<nav id={id} class="toc-wrapper" aria-label={title} style={style}>
 	<span
 		class="toc-title"
 		onclick="window.scrollTo({ top: 0, behavior: 'smooth' })"

@@ -2,17 +2,44 @@
 import { getCollection, render } from "astro:content";
 import BaseHead from "../components/BaseHead.astro";
 import BaseLayout from "../layouts/BaseLayout.astro";
-import FormattedDate from "../components/FormattedDate.astro";
 import KatexStyle from "../components/KatexStyle.astro";
+import type { MarkdownHeading } from "astro";
+import StaticTOC from "../components/StaticTOC.astro";
 
 const posts = (await getCollection("everyLearn")).sort(
     (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
 );
+
+const anchors: Array<MarkdownHeading & { index: number }> = [];
+let lastYear = "";
+for (let i = 0; i < posts.length; i++) {
+    const post = posts[i];
+    const date = post.data.pubDate;
+    const year = String(date.getFullYear());
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    if (year !== lastYear) {
+        anchors.push({
+            depth: 1,
+            slug: String(year),
+            text: String(year),
+            index: -1,
+        });
+        lastYear = year;
+    }
+    anchors.push({
+        depth: 2,
+        slug: post.id,
+        text: `${year.slice(2)}/${month}/${day}${post.data.meta ? `: ${post.data.meta}` : ""}`,
+        index: i,
+    });
+}
+
 const contents = await Promise.all(
     posts.map(async (post) => {
         const { Content, headings, remarkPluginFrontmatter } =
             await render(post);
-        return { Content, post };
+        return { Content };
     }),
 );
 ---
@@ -27,30 +54,88 @@ const contents = await Promise.all(
                 flex-direction: column;
                 gap: 1em;
             }
+            .year-separator {
+                display: block;
+                margin: 0 0 -0.32em -0.2em;
+                font-size: 5em;
+                font-family:
+                    "Inter", "Lantinghei SC", "Microsoft YaHei", "MiSans",
+                    system-ui, sans-serif;
+                font-weight: 800;
+                /* 镂空渐变效果 */
+                line-height: 1;
+                color: transparent;
+                font-variant-numeric: slashed-zero tabular-nums;
+                mask-image: linear-gradient(#fff 40%, transparent);
+                -webkit-text-stroke: 1px var(--line-color);
+            }
             .card {
-                padding: 0.7em 1.4em;
+                padding: 0.6em 1.4em;
                 overflow: hidden;
                 position: relative;
-                background: var(--c-card-bg);
-                border-radius: 1em;
-                box-shadow: 0 2px 6px var(--line-color);
+                background: transparent;
+                border-radius: 0.5em;
+                box-shadow: 0 0 4px var(--line-color);
+            }
+            a {
+                text-decoration: none;
+                color: currentColor;
+            }
+            .post-date {
+                font-weight: bold;
+                font-size: 1.3em;
+                &::before {
+                    content: '';
+                    width: 4px;
+                    height: 0.6em;
+                    background-color: var(--primary);
+                    display: inline-block;
+                    margin-left: -0.3em;
+                }
             }
         </style>
     </head>
     <body>
         <BaseLayout>
             <KatexStyle>
-            <div class="cards-container" data-pagefind-body>
-                {
-                    contents.map(({ Content, post }, index) => (
-                        <div class="card">
-                            <FormattedDate date={post.data.pubDate} />
-                            <Content />
-                        </div>
-                    ))
-                }
-            </div>
+                <div class="cards-container" data-pagefind-body>
+                    {
+                        anchors.map((anchor) => {
+                            if (anchor.index === -1) {
+                                return (
+                                    <a
+                                        id={anchor.slug}
+                                        href={`#${anchor.slug}`}
+                                        class="year-separator"
+                                    >
+                                        {anchor.text}
+                                    </a>
+                                );
+                            }
+                            const { Content } = contents[anchor.index];
+                            return (
+                                <div id={anchor.slug} class="card">
+                                    <a
+                                        id={anchor.slug}
+                                        class="post-date"
+                                        href={`#${anchor.slug}`}
+                                    >
+                                        {anchor.text}
+                                    </a>
+                                    <Content />
+                                </div>
+                            );
+                        })
+                    }
+                </div>
             </KatexStyle>
+            <StaticTOC
+                slot="right"
+                headings={anchors}
+                maxLevel={2}
+                title="时间线"
+                style="height: 100%;"
+            />
         </BaseLayout>
     </body>
 </html>

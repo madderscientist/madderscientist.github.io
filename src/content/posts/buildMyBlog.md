@@ -12,7 +12,6 @@ pinned: true
 
 - 梦中情站：https://blog.bsgun.cn/
 - 和上面的差不多：https://blog.xiaohanys.top/
-- 这个简约的也不错：https://qmmms.github.io/
 
 ## 浅尝辄止的HEXO
 > Hexo的中文文档一坨狗屎，非常过时（还是得看英文或繁中的）

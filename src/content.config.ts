@@ -35,16 +35,16 @@ const everyLearnLoader = {
 			// 1. 读取大文件内容
 			const content = await fs.readFile(filePath, 'utf-8');
 			
-			// 2. 按照正则 `\n# 数字` 切割文件
-			const chunks = content.split(/(?=(?:^|\r?\n)#\s*[0-9])/);
+			// 2. 按照正则 `\n# 数字` 切割文件（将空白符限制为 \t 或空格，避免意外匹配到换行）
+			const chunks = content.split(/(?=(?:^|\r?\n)#[ \t]*[0-9])/);
 
 			// 用于在省略时继承上下文的记录状态
 			let currentYear = new Date().getFullYear();
 			let currentMonth = new Date().getMonth() + 1;
 			let chunkIndex = 0;
 			
-			// 标题格式: \n# 2024 05 20 # 可选的 meta 信息
-			const H1_REG = /(?:^|\r?\n)#\s*([0-9][0-9\s]*)(?:#(.*))?/;
+			// 标题格式限定在单行: \n# 2024 05 20 # 可选的 meta 信息
+			const H1_REG = /(?:^|\r?\n)#[ \t]*([0-9][0-9 \t]*)(?:#([^\r\n]*))?/;
 
 			store.clear(); // 刷新时清除旧数据，防止重复叠加
 
