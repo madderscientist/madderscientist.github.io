@@ -10,9 +10,9 @@ import FallbackImage from "../assets/blog-placeholder.jpg";
 import { SITE_TITLE } from "../consts";
 
 interface Props {
-	title: string;
-	description: string;
-	image?: ImageMetadata;
+    title: string;
+    description: string;
+    image?: ImageMetadata;
 }
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
@@ -27,10 +27,10 @@ const { title, description, image = FallbackImage } = Astro.props;
 <link rel="icon" href="/favicon.ico" />
 <link rel="sitemap" href="/sitemap-index.xml" />
 <link
-	rel="alternate"
-	type="application/rss+xml"
-	title={SITE_TITLE}
-	href={new URL("rss.xml", Astro.site)}
+    rel="alternate"
+    type="application/rss+xml"
+    title={SITE_TITLE}
+    href={new URL("rss.xml", Astro.site)}
 />
 <meta name="generator" content={Astro.generator} />
 
@@ -78,9 +78,16 @@ const { title, description, image = FallbackImage } = Astro.props;
 
 <!-- highlight -->
 <script type="module" is:inline>
-	await import('/pagefind/pagefind-highlight.js');
-	new PagefindHighlight({ highlightParam: "highlight" });
-	// 跳转到高亮的搜索结果
-	const highlighted = document.querySelector('.pagefind-highlight');
-	highlighted?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    await import("/pagefind/pagefind-highlight.js");
+    new PagefindHighlight({ highlightParam: "highlight" });
+    // 跳转到高亮的搜索结果
+    const highlighted = document.querySelector(".pagefind-highlight");
+    highlighted?.scrollIntoView({ behavior: "smooth", block: "center" });
 </script>
+
+<link
+    rel="preload"
+    href="https://cdn.jsdelivr.net/npm/@callmebill/lxgw-wenkai-web@1.522.0/style.css"
+    as="style"
+    onload="this.rel='stylesheet'"
+/>

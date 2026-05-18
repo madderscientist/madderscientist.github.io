@@ -1,4 +1,4 @@
-@import url("https://cdn.jsdelivr.net/npm/@callmebill/lxgw-wenkai-web@latest/style.css");
+/* @import url("https://cdn.jsdelivr.net/npm/@callmebill/lxgw-wenkai-web@latest/style.css"); 太慢了，放到html中了 */
 /* 过渡 */
 @view-transition {
 	navigation: auto;

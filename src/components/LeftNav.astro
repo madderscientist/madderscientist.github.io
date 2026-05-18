@@ -170,10 +170,11 @@ import PagefindConfig from "astro-pagefind/components/PagefindConfig.astro";
             :global(a.active) {
                 background-color: var(--c-bg-soft);
                 &::after {
-                    color: var(--gray);
-                    content: "⦁";
-                    text-align: center;
-                    width: 1em;
+                    content: "";
+                    width: 0.3em;
+                    height: 0.3em;
+                    border-radius: 1em;
+                    background-color: rgb(var(--gray-dark));
                 }
             }
         }
