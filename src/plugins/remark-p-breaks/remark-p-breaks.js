@@ -25,16 +25,19 @@ export default function remarkPBreaks() {
 				}
 				// 将换行分割成多个部分，中间插入 br 节点
 				for (let j = 0; j < lines.length; j++) {
-					if (!lines[j]) continue;
-					newChildren.push({
-						type: 'text',
-						value: lines[j]
-					});
+					if (lines[j]) {
+						newChildren.push({
+							type: 'text',
+							value: lines[j]
+						});
+					}
 					// 如果不是最后一行，插入 br 节点
 					if (j < lines.length - 1) {
-						// 如果下一个节点也是 br 就跳过
+						// 避免与下一个原本就是 <br> 的 HTML 节点重复
+						const isEndingNewline = (j === lines.length - 2 && !lines[lines.length - 1]);
 						const nextNode = node.children[i + 1];
-						if (nextNode && nextNode.type === 'html' && nextNode.value === '<br>') continue;
+						if (isEndingNewline && nextNode && nextNode.type === 'html' && nextNode.value === '<br>') continue;
+						
 						newChildren.push({
 							type: 'html',
 							value: '<br>'

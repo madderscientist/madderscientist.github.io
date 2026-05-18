@@ -201,7 +201,7 @@ export interface MarkdownHeading {
 > 语法为 `[!TIP]`
 
 > 原始 `blockquote` 长这样，换行用`<br>`<br>
-> 不够后来写了一个将 `<p>` 内的 `\n` 改为 `<br>` 的 [remark 插件](https://github.com/madderscientist/madderscientist.github.io/blob/main/src/plugins/remark-p-breaks/remark-p-breaks.js)，已经不用手写 `<br>` 哩（能兼容用`<br>`的情况）
+> 后来写了一个将 `<p>` 内的 `\n` 改为 `<br>` 的 [remark 插件](https://github.com/madderscientist/madderscientist.github.io/blob/main/src/plugins/remark-p-breaks/remark-p-breaks.js)，已经不用手写 `<br>` 哩（能兼容用`<br>`的情况）
 > 编写过程中的技巧：`remark` 插件中要用 `process.stdout.write` 写输出（而不是 `console.log`）
 
 其余的语法拓展不如直接在 MDX 里写，拓展 md 语法还是太鸡肋了。
