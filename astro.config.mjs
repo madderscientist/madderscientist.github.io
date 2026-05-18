@@ -24,6 +24,9 @@ export default defineConfig({
 	build: {
 		format: 'directory',	// 去掉html后缀
 	},
+	redirects: {
+		"/": "/posts",
+	},
 	integrations: [
 		mermaid({
 			theme: 'forest',

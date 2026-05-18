@@ -1,0 +1,352 @@
+---
+import { getCollection } from "astro:content";
+import BaseHead from "../components/BaseHead.astro";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import LeftNav from "../components/LeftNav.astro";
+import TagFilter from "../components/TagFilter.astro";
+import { SITE_DESCRIPTION, SITE_TITLE } from "../consts";
+
+const posts = (await getCollection("posts")).sort((a, b) => {
+    return b.data.pubDate.valueOf() - a.data.pubDate.valueOf();
+});
+
+const allTags = new Set<string>();
+posts.forEach((post) => {
+    if (post.data.tags) {
+        post.data.tags.forEach((tag) => allTags.add(tag));
+    }
+});
+const tags = Array.from(allTags);
+
+type PostItem = {
+    slug: string;
+    title: string;
+    date: Date;
+    tags: string[];
+};
+
+const processedPosts: PostItem[] = posts.map((post) => ({
+    slug: post.id,
+    title: post.data.title,
+    date: post.data.pubDate,
+    tags: post.data.tags || [],
+}));
+
+const postsByYear = processedPosts.reduce(
+    (acc, post) => {
+        const year = post.date.getFullYear();
+        if (!acc[year]) acc[year] = [];
+        acc[year].push(post);
+        return acc;
+    },
+    {} as Record<number, typeof processedPosts>,
+);
+
+const years = Object.keys(postsByYear)
+    .map(Number)
+    .sort((a, b) => b - a);
+
+function pad(num: number) {
+    return num.toString().padStart(2, "0");
+}
+---
+
+<!doctype html>
+<html lang="zh">
+    <head>
+        <BaseHead
+            title={`归档 - ${SITE_TITLE}`}
+            description={SITE_DESCRIPTION}
+        />
+        <style>
+            .archive-wrapper {
+                padding: 2em 0;
+                max-width: var(--width-main);
+                min-height: 99vh;
+                --gap: 1.5rem;
+            }
+            .year-block {
+                margin-bottom: 2rem;
+                position: relative;
+            }
+            .year-header {
+                display: grid;
+                grid-template-columns: 80px 24px 1fr;
+                align-items: center;
+                justify-items: center;
+                gap: var(--gap);
+            }
+            .year-text {
+                font-size: 2rem;
+                font-weight: 700;
+                color: var(--text-color);
+                justify-self: end;
+            }
+            .year-count {
+                font-size: 1rem;
+                color: var(--content-meta);
+                justify-self: start;
+            }
+            .year-node {
+                width: 14px;
+                height: 14px;
+                border: 3px solid var(--primary);
+                border-radius: 50%;
+                background: var(--bg-color, #fff);
+                position: relative;
+                z-index: 2;
+                cursor: pointer;
+                transition:
+                    transform 0.2s,
+                    background-color 0.2s;
+            }
+            .year-node:hover {
+                transform: scale(1.2);
+                background: color-mix(
+                    in oklab,
+                    var(--primary) 20%,
+                    var(--bg-color, #fff)
+                );
+            }
+
+            .timeline-group {
+                position: relative;
+                transition: max-height 0.3s ease-in-out;
+            }
+            .year-block.collapsed .timeline-group {
+                display: none;
+            }
+            .year-block.collapsed .year-node {
+                background: var(--primary);
+            }
+
+            .timeline-group::before {
+                content: "";
+                position: absolute;
+                top: -3.5rem;
+                bottom: 0;
+                left: calc(80px + var(--gap) + 11px);
+                width: 0;
+                border-left: 2px dashed
+                    color-mix(in oklab, var(--line-color) 80%, transparent);
+                z-index: 1;
+            }
+
+            .post-item {
+                display: grid;
+                grid-template-columns: 80px 24px minmax(0, 1fr) 25%;
+                align-items: center;
+                justify-items: center;
+                gap: var(--gap);
+                padding: 0.4rem 0.5rem;
+                margin: 0 -0.5rem;
+                border-radius: 0.5rem;
+                position: relative;
+                z-index: 2;
+                transition: background-color 0.2s;
+                text-decoration: none;
+                color: inherit;
+            }
+            .post-item:hover {
+                background: color-mix(
+                    in oklab,
+                    var(--primary) 15%,
+                    transparent
+                );
+                .post-title {
+                    color: var(--primary);
+                    transform: translateX(3px);
+                }
+                .post-node {
+                    width: 4px;
+                    height: 1.2rem;
+                    border-radius: 3px;
+                }
+            }
+            html.dark .post-item:hover {
+                background: color-mix(
+                    in oklab,
+                    var(--primary) 25%,
+                    transparent
+                );
+            }
+            .post-date {
+                font-size: 1rem;
+                color: var(--content-meta);
+                justify-self: end;
+            }
+            .post-node {
+                width: 6px;
+                height: 6px;
+                border-radius: 50%;
+                background: color-mix(
+                    in oklab,
+                    var(--primary) 70%,
+                    transparent
+                );
+                transition:
+                    height 0.2s ease,
+                    border-radius 0.2s ease,
+                    background-color 0.2s ease;
+            }
+            .post-title {
+                font-size: 1.1rem;
+                font-weight: 500;
+                color: var(--text-color);
+                transition:
+                    color 0.2s,
+                    transform 0.2s;
+                justify-self: start;
+                display: inline-block;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                max-width: 100%;
+            }
+
+            .post-tags {
+                justify-self: start;
+                display: flex;
+                flex-wrap: nowrap;
+                overflow: hidden;
+                gap: 0.5rem;
+                font-size: 0.85rem;
+                color: color-mix(
+                    in oklab,
+                    var(--content-meta) 60%,
+                    transparent
+                );
+            }
+            .tag-hash {
+                white-space: nowrap;
+            }
+
+            .hidden {
+                display: none !important;
+            }
+        </style>
+    </head>
+    <body>
+        <BaseLayout>
+            <LeftNav slot="left" />
+            <div class="archive-wrapper">
+                {
+                    years.map((year) => (
+                        <div class="year-block" data-year={year}>
+                            <div class="year-header">
+                                <div class="year-text">{year}</div>
+                                <div class="year-node" />
+                                <div class="year-count">
+                                    <span class="count-val">
+                                        {postsByYear[year].length}
+                                    </span>{" "}
+                                    篇文章
+                                </div>
+                            </div>
+                            <div class="timeline-group">
+                                {postsByYear[year].map((post) => (
+                                    <a
+                                        href={`/posts/${post.slug}/`}
+                                        class="post-item"
+                                        data-tags={post.tags.join(",")}
+                                    >
+                                        <div class="post-date">
+                                            {pad(post.date.getMonth() + 1)}-
+                                            {pad(post.date.getDate())}
+                                        </div>
+                                        <div class="post-node" />
+                                        <div class="post-title">
+                                            {post.title}
+                                        </div>
+                                        <div class="post-tags">
+                                            {post.tags.map((tag: string) => (
+                                                <span class="tag-hash">
+                                                    #{tag}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    </a>
+                                ))}
+                            </div>
+                        </div>
+                    ))
+                }
+
+                <div
+                    id="no-results"
+                    class="hidden"
+                    style="text-align:center; padding: 3rem; color: var(--content-meta);"
+                >
+                    没有找到当前标签下的文章...
+                </div>
+            </div>
+            <TagFilter slot="right" tags={tags} />
+        </BaseLayout>
+
+        <script>
+            function filterPosts() {
+                const activeTags =
+                    new URL(window.location.href).searchParams
+                        .get("tags")
+                        ?.split(",") || [];
+                let totalVisible = 0;
+
+                document
+                    .querySelectorAll(".year-block")
+                    .forEach((yearBlock) => {
+                        let visibleCount = 0;
+
+                        yearBlock
+                            .querySelectorAll(".post-item")
+                            .forEach((item) => {
+                                const postTags =
+                                    item
+                                        .getAttribute("data-tags")
+                                        ?.split(",") || [];
+                                // Every active tag must be present in the post's tags
+                                const isVisible =
+                                    activeTags.length === 0 ||
+                                    activeTags.every((t) =>
+                                        postTags.includes(t),
+                                    );
+
+                                item.classList.toggle("hidden", !isVisible);
+                                if (isVisible) visibleCount++;
+                            });
+
+                        const countElem = yearBlock.querySelector(".count-val");
+                        if (countElem)
+                            countElem.textContent = visibleCount.toString();
+
+                        yearBlock.classList.toggle(
+                            "hidden",
+                            visibleCount === 0,
+                        );
+                        totalVisible += visibleCount;
+                    });
+
+                const noResults = document.getElementById("no-results");
+                if (noResults) {
+                    noResults.classList.toggle("hidden", totalVisible > 0);
+                }
+            }
+
+            // Add visual toggle for year groups
+            document.querySelectorAll(".year-node").forEach((node) => {
+                node.addEventListener("click", (e) => {
+                    const block = (e.target as HTMLElement).closest(
+                        ".year-block",
+                    );
+                    if (block) {
+                        block.classList.toggle("collapsed");
+                    }
+                });
+            });
+
+            window.addEventListener("tags-updated", filterPosts);
+            window.addEventListener("popstate", filterPosts);
+
+            filterPosts();
+        </script>
+    </body>
+</html>
