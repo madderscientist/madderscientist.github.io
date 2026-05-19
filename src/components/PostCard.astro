@@ -38,7 +38,7 @@ if (!post.data.description) {
             post.data.tags?.length && (
                 <div class="tags">
                     {post.data.tags.map((tag) => (
-                        <a class="tag" href={`/tags/${tag}/`}>
+                        <a class="tag" href={`/archive/?tags=${tag}`}>
                             #{tag}
                         </a>
                     ))}
