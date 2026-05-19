@@ -112,16 +112,6 @@ Mermaid的支持：`rehype-mermaid` 是静态渲染，需要装 `playwright` 和
 
 风格左抄右抄，学到了一些CSS的小技巧。
 
-原来 `<ul>` 自带默认缩进：
-```css
-ul {
-  margin-block-start: 1em;
-  margin-block-end: 1em;
-  padding-inline-start: 40px;
-}
-```
-所以在 `<ul>` 里面用 `flex` 等就会导致左侧出现莫名其妙的缩进。文章列表干脆不用列表了，直接 `div` 堆。
-
 ### 文章搜索
 使用 [`astro-pagefind`](https://github.com/shishkin/astro-pagefind)。具体做法是：
 1. `pnpm add astro-pagefind`，根据 REAMDE 配置。

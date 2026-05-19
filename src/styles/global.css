@@ -87,7 +87,7 @@ ul,
 ol {
 	margin-bottom: 1em;
 	margin-left: 1em;
-	text-indent: 0.4em;
+	/* text-indent: 0.4em; */
 }
 code {
 	padding: 2px 5px;
@@ -173,7 +173,7 @@ hr {
 .blur {
 	backdrop-filter: blur(1.5px);
 	-webkit-backdrop-filter: blur(1.5px);
-	background: color-mix(in srgb, var(--c-card-bg), transparent 60%);
+	background: color-mix(in srgb, var(--c-card-bg), transparent 50%);
 	box-shadow: 0 2px 12px 0 rgba(var(--black), 0.1);
 	border: 2px solid var(--gray-light);
 }

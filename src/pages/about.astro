@@ -1,22 +1,24 @@
 ---
-import BaseHead from '../components/BaseHead.astro';
-import BaseLayout from '../layouts/BaseLayout.astro';
+import BaseHead from "../components/BaseHead.astro";
+import LeftNav from "../components/LeftNav.astro";
+import BaseLayout from "../layouts/BaseLayout.astro";
 ---
 
 <html lang="en">
 	<head>
-		<BaseHead title="About Me" description="Beshar's information" />
+		<BaseHead title="开盒 · About Ruigang Li" description="Ruigang Li's information" />
 		<style>
 			nav {
 				display: flex;
 				flex-direction: row;
 				align-items: center;
 				justify-content: space-around;
-				gap: 1em;
-				padding: 1em 0 0.3em 0;
-				margin: 0 2em 0 2em;
-				background: transparent;
-				border-bottom: 1px solid rgb(var(--gray));
+				padding: 0.3em 0 0.3em 0;
+				margin: 0.7em 1em 1em -1em;
+				top: 0.7em;
+				border-radius: 999px;
+				position: sticky;
+				z-index: 99;
 				a {
 					text-decoration: none;
 					color: currentColor;
@@ -24,21 +26,283 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 					font-size: 1.3rem;
 				}
 			}
+			article {
+				padding: 0 0.8em 3em 0.8em;
+			}
+
+			/* Publications */
+			ul.pub {
+				list-style: none;
+				padding: 0;
+				margin-top: 1.5em;
+			}
+			ul.pub li {
+				display: flex;
+				flex-direction: row;
+				gap: 1.5em;
+				align-items: center;
+			}
+			.pub-img-wrapper {
+				position: relative;
+				width: 35%;
+				border-radius: 8px;
+				overflow: hidden;
+				box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+			}
+			.pub-hero-img {
+				width: 100%;
+				height: auto;
+				display: block;
+				object-fit: cover;
+			}
+			.pub-badge {
+				position: absolute;
+				top: 10px;
+				left: 0;
+				background: var(--heading-color, #333);
+				color: var(--bg-color, #fff);
+				padding: 0 10px;
+				font-size: 0.85rem;
+				font-weight: bold;
+				box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+				z-index: 1;
+			}
+			.pub-content {
+				flex: 1;
+				display: flex;
+				flex-direction: column;
+				gap: 0.2em;
+			}
+			.pub-title {
+				font-size: 1.25rem;
+				font-weight: bold;
+				margin: 0;
+				line-height: 1.3;
+			}
+			.pub-authors {
+				font-size: 1rem;
+				margin: 0;
+			}
+			.pub-desc {
+				margin: 0;
+				font-size: 0.95rem;
+				opacity: 0.8;
+				line-height: 1.2;
+			}
+			a.pub-link {
+				display: inline-block;
+				color: currentColor;
+				padding: 4px 12px;
+				background: rgba(150, 150, 150, 0.15);
+				border-radius: 6px;
+				text-decoration: none;
+				font-size: 0.9rem;
+				font-weight: 600;
+				transition: background 0.2s ease;
+				&:hover {
+					background: rgba(150, 150, 150, 0.3);
+				}
+			}
+
+			ul.pub-not-main {
+				margin-top: 1.5em;
+			}
+
+			/* Education */
+			.edu {
+				list-style: none;
+				padding: 0;
+				flex-direction: column;
+				margin-top: 1.5em;
+			}
+			.edu li {
+				display: flex;
+				flex-direction: row;
+				gap: 1.5em;
+				align-items: flex-start;
+				margin-bottom: 1em;
+			}
+			.edu-time {
+				width: 158px;
+				flex-shrink: 0;
+				font-weight: 600;
+				opacity: 0.8;
+				font-size: 1rem;
+				padding-top: 2px;
+			}
+			.edu-content {
+				display: flex;
+				flex-direction: column;
+				flex: 1;
+			}
+			.edu-degree {
+				font-weight: 700;
+				font-size: 1.15rem;
+				margin: 0;
+			}
+			.edu-inst {
+				margin: 0;
+				font-size: 1rem;
+				font-weight: 500;
+				opacity: 0.9;
+			}
+			.edu-desc {
+				margin: 0;
+				font-size: 0.9rem;
+				opacity: 0.7;
+				margin-top: 0.2em;
+				line-height: 1;
+			}
+
+			@media screen and (max-width: 800px) {
+				nav {
+					margin: 0;
+					top: 0;
+					border-radius: 0;
+				}
+				ul.pub li {
+					flex-direction: column;
+					gap: 1em;
+				}
+				ul.pub .pub-img-wrapper {
+					width: 100%;
+				}
+				ul.pub .pub-content {
+					width: 100%;
+				}
+				ul.edu li {
+					flex-direction: column;
+					gap: 0.2em;
+				}
+				ul.edu .edu-time {
+					width: 100%;
+					padding-top: 0;
+				}
+			}
 		</style>
 	</head>
 	<body>
 		<BaseLayout showRightSidebar={false}>
-			<nav>
-				<a href="#self-intro">
-					Self Introduction
-				</a>
-				<a href="#publications">
-					Publications
-				</a>
-				<a href="#experience">
-					Experience
-				</a>
+			<LeftNav slot="left" title="Ruigang Li" />
+			<nav class="blur">
+				<a href="#"> Currently </a>
+				<a href="#publications"> Publications </a>
+				<a href="#education"> Education </a>
+				<a href="#personal"> Personal </a>
 			</nav>
+			<article>
+				<p>
+					I am a direct-entry Ph.D. student at Southeast University,
+					supervised by Harry Shum @IDEA and <a
+						href="https://yizhongzhang1989.github.io/"
+						>Yizhong Zhang</a
+					> @MSRA, working on Embodied AI.
+					<br />
+					Beyond my main research track, I also have an interest in Music
+					Information Retrieval.
+				</p>
+				<h3 id="publications">📝 Publications</h3>
+				<ul class="pub">
+					<li>
+						<div class="pub-img-wrapper">
+							<span class="pub-badge">TISMIR 2026</span>
+							<img
+								class="pub-hero-img"
+								src="https://github.com/madderscientist/timbreAMT/raw/main/readmeSRC/arch.jpg"
+								alt="A Lightweight Architecture for Multi-instrument Transcription"
+							/>
+						</div>
+						<div class="pub-content">
+							<h3 class="pub-title">
+								<a
+									class="pub-link"
+									href="https://github.com/madderscientist/timbreAMT"
+									>Project</a
+								>
+								<a href="https://doi.org/10.5334/tismir.300">
+									A Lightweight Architecture for
+									Multi-instrument Transcription with
+									Practical Optimizations
+								</a>
+							</h3>
+							<p class="pub-authors">
+								<strong>Ruigang Li,</strong> Yongxu Zhu
+							</p>
+							<p class="pub-desc">
+								An extremely lightweight multi-instrument
+								transcription model designed to run in the
+								browser. It serves as an alternative to
+								basic-pitch, offering fewer parameters, stronger
+								capabilities, and significantly faster speeds.
+							</p>
+						</div>
+					</li>
+				</ul>
+				<ul class="pub-not-main">
+					<li>
+						<a href="https://www.techrxiv.org/doi/abs/10.36227/techrxiv.176978652.29736845">
+							GeoChef: A Data-Centric Guide to Tailoring Vision-Language Models for Remote Sensing
+						</a>
+						<p class="pub-authors">Yue Zhou, Shujun Zhao, <strong>Ruigang Li</strong>, Xue Yang, Mengcheng Lan, Chaofeng Chen, Tianwen Zhang, Lingfei Ma, Hongjie He, Jonathan Li</p>
+					</li>
+				</ul>
+				<h3 id="education">📖 Education</h3>
+				<ul class="edu">
+					<li>
+						<div class="edu-time">2025.09 – present</div>
+						<div class="edu-content">
+							<p class="edu-degree">
+								Ph.D. Student in Intelligent Science and
+								Technology (Direct-entry)
+							</p>
+							<p class="edu-inst">
+								School of Computer Science and Engineering,
+								Southeast University
+							</p>
+						</div>
+					</li>
+					<li>
+						<div class="edu-time">2021.09 – 2025.06</div>
+						<div class="edu-content">
+							<p class="edu-degree">
+								B.E. in Information Science and Engineering
+							</p>
+							<p class="edu-inst">
+								School of Future Technology (Wu Jianxiong
+								College), Southeast University
+							</p>
+							<p class="edu-desc">Rank: 4/95</p>
+						</div>
+					</li>
+					<li>
+						<div class="edu-time">2018.09 – 2021.06</div>
+						<div class="edu-content">
+							<p class="edu-degree">High School Degree</p>
+							<p class="edu-inst">Jiangsu Tianyi High School</p>
+							<p class="edu-desc">
+								National College Entrance Examination provincial
+								rank: 997
+							</p>
+						</div>
+					</li>
+				</ul>
+				<h3 id="personal">👤 Personal</h3>
+				<p>
+					I enjoy dissecting how things work by rebuilding them from
+					scratch — there’s a pure joy in reinventing the wheel,
+					especially with vanilla JavaScript and frontend
+					technologies.<br>
+					Music has been a longtime hobby: I play
+					several instruments (harmonica, violin, flute, saxophone),
+					though none at a professional level. I’m more drawn to music
+					tech than performance.<br>
+					I believe research must eventually
+					land in real life and serve daily needs. I’m frugal (perhaps
+					because I currently have low income), and I do enjoy free
+					stuff(白嫖) and occasional reverse engineering. But when it comes
+					to open-source work, I never cut corners !
+				</p>
+			</article>
 		</BaseLayout>
 	</body>
 </html>
