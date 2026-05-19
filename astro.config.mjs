@@ -25,7 +25,10 @@ export default defineConfig({
 		format: 'directory',	// 去掉html后缀
 	},
 	redirects: {
-		"/": "/posts",
+		"/": {
+			status: 301,
+			destination: "/posts"
+		},
 	},
 	integrations: [
 		mermaid({
