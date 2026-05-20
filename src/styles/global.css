@@ -89,6 +89,9 @@ ol {
 	margin-left: 1em;
 	/* text-indent: 0.4em; */
 }
+p:has(+ ul), p:has(+ ol) {
+	margin-bottom: 0.2em;
+}
 code {
 	padding: 2px 5px;
 	background-color: rgb(var(--gray-light));
