@@ -2,6 +2,7 @@
 title: WebGPU学习
 description: 记录了WebGPU的学习路线。先复习了WebGL（需要有相关知识），然后聚焦于WebGPU实现计算加速（从概念开始）
 pubDate: 2026-01-27
+updatedDate: 2026-05-20
 tags: [技术, 前端]
 ---
 
@@ -29,7 +30,7 @@ tags: [技术, 前端]
 
 # WebGL 变量类别（不是类型）
 ## attributes
-用来从外部向顶点着色器内传输数据，**只有顶点着色器能使用**，只能被声明为全局变量，用来表示“逐顶点”信息，attribute变量的类型只能是float、vec2、vec3、vec4、mat2、mat3和mat4。只能指定为float型
+用来从外部向顶点着色器内传输数据，**只有顶点着色器能使用**，只能被声明为全局变量，用来表示“逐顶点”信息，attribute变量的类型只能是float、vec2、vec3、vec4、mat2、mat3和mat4。每个值只能指定为float型（不能是整形/布尔这种）
 
 attributes的内容有两个来源（互斥）。两个来源的切换api：`gl.enableVertexAttribArray` / `disableVertexAttribArray`。
 1. 直接赋值，默认这个模式
@@ -43,8 +44,7 @@ for (const idx of gl.ELEMENT_ARRAY_BUFFER) {
     yield data; // 传递给顶点着色器
 }
 ```
-若有多个启用了 `vertexAttribPointer` 的 `attribute`
-，数据量（指可以取的次数）必须一样，不然会读取越界。
+若有多个启用了 `vertexAttribPointer` 的 `attribute`，数据量（指可以取的次数）必须一样，不然会读取越界。
 
 ## uniform
 uniform变量可以指定为除数组和结构体之外的任意类型。uniform变量可以在顶点着色器和片元着色器中使用，且必须是全局变量，uniform变量包含了“一致”(非逐顶点/逐片元的，各顶点或各片元共用)的数据。比如，变换矩阵就不是逐顶点的，而是所有顶点共用的，所以它在着色器中是uniform变量。
@@ -53,7 +53,7 @@ uniform变量可以指定为除数组和结构体之外的任意类型。uniform
 varying变量必须为全局变量，它的任务是从顶点着色器向片元着色器传输数据，**必须在两种着色器中声明同名、同类型的varying变量**。和attribute变量一样，varying变量只能是以下类型：float、vec2、vec3、vec4、mat2、mat3和mat4。
 
 首先要在顶点着色器程序中给varying赋值，这个取值代表了在顶点处的取值。然后GPU进行光栅化，对于每个像素点会运行片元着色器，此时的varying就是插值之后的了。举两个例子：
-1. 顶点着色器的varying是顶点的颜色，比如一端是红色，一端是白色，片元着色器得到的就是红白之间的过度颜色
+1. 顶点着色器的varying是顶点的颜色，比如一端是红色，一端是白色，片元着色器得到的就是红白之间的过渡颜色
 2. 顶点着色器的varying代表了顶点纹理的uv坐标，那片元着色器的varying就是插值后的该像素的uv坐标，可以直接用于读取纹理值。
 
 ## GPU的变量和JS的关联
@@ -64,19 +64,20 @@ gl.vertexAttrib3fv(posInGL, new Float32Array([1,2,3]));
 ```
 
 ## 从WebGL 到 WebGPU
-- 都有attribute: a way to specify data pulled from buffers and fed to each iteration of a vertex shader
-- 都有uniform: a way to specify values shared by all iterations of a shader function
-- 都有varying: a way to pass data from a vertex shader to a fragment shader and interpolate between values computed by the vertex shader when rasterizing via a fragment shader
+- 都有 `attribute`: a way to specify data pulled from buffers and fed to each iteration of a vertex shader
+- 都有 `uniform`: a way to specify values shared by all iterations of a shader function
+- 都有 `varying`: a way to pass data from a vertex shader to a fragment shader and interpolate between values computed by the vertex shader when rasterizing via a fragment shader
 
-WebGL是全局的：需要将某指针绑定到buffer，这个指针就是全局的。
-WebGPU则使用*渲染管线*管理配置。
+WebGL是全局的：需要将某指针绑定到buffer，这个指针就是全局的;
+WebGPU则使用 *渲染管线* 管理配置。
 
-WebGL获取变量使用的是变量名；varying在两个着色器内需要相同的名字。
-WebGPU完全通过index或offset获取
+WebGL获取变量使用的是变量名；varying在两个着色器内需要相同的名字;
+WebGPU完全通过index或offset获取。
 
-WebGL用 `vertexAttribPointer` 规定从哪、怎么取数据；而WebGPU只在创建pipeline时规定如何取，具体数据之后再说。
+WebGL用 `vertexAttribPointer` 规定从哪、怎么取数据；
+WebGPU只在创建pipeline时规定如何取，具体数据之后再说。
 
-WebGL的内置变量变成了 `@builtin()` 前缀，变量名可以改了。
+WebGL的内置变量变成了WebGPU的 `@builtin()` 前缀，变量名可以改了。
 
 # WebGPU宏观理解
 WGSL大概长这样：
@@ -96,7 +97,7 @@ var<workgroup> internal: array<f32, 固定长度>;
 // 函数
 fn ...
 
-@是什么着色器（可选: compute vertex fragment）
+@是什么着色器（可选: compute/vertex/fragment）
 @workgroup_size(线程数)
 fn main(
     // 选择一些内置的变量（以`@builtin`开头），比如
@@ -116,8 +117,7 @@ fn main(
 
 但是一个一个线程管理效率太低，所以将一把线程打包成一个“工作组”—— `workgroup` 统一管理。想象许多工人组成一个车间，几个人是开不起来的，所有工人要一起开工、一起下班。**`workgroup` 就是WebGPU的最小调度单元**：一整组同时运行，全部运行完后再离场。这意味着如果有某个线程运行特别慢，就会让其他线程等待（“XXX什么时候完成我们什么时候放学”既视感）。所以要尽量给一组内的线程分配尽量均衡的任务。
 
-一个 `workgroup` 的大小N是可以自定的，就是WGSL中 `@workgroup_size(线程数)` 的传参，一般有上限“256”。此时，`main` 的参数 `@builtin(local_invocation_id) local_id: vec3<u32>` 就能
-给我们一个范围是 `[0, N-1]` 的编号，代表该线程的“工号”。注意，这里的数据类型是 `vec3`，所以其实编号是由三部分构成的，相当于工人们不仅可以排成一列，还可以排成方阵、多层方阵。如果我们设置 `@workgroup_size(X, Y, Z)`，则一共有 `XYZ` 个线程，每个线程的 `main` 收到的 `local_invocation_id` 就是自己在团体中的坐标 `(x, y, z)`。没设置的维度默认为1。
+一个 `workgroup` 的大小N是可以自定的，就是WGSL中 `@workgroup_size(线程数)` 的传参，一般有上限“256”。此时，`main` 的参数 `@builtin(local_invocation_id) local_id: vec3<u32>` 就能给我们一个范围是 `[0, N-1]` 的编号，代表该线程的“工号”。注意，这里的数据类型是 `vec3`，所以其实编号是由三部分构成的，相当于工人们不仅可以排成一列，还可以排成方阵、多层方阵。如果我们设置 `@workgroup_size(X, Y, Z)`，则一共有 `XYZ` 个线程，每个线程的 `main` 收到的 `local_invocation_id` 就是自己在团体中的坐标 `(x, y, z)`。没设置的维度默认为1。
 
 举个例子：输入一个长为16*16的图片数据 `input`，计算他们的平方，放到 `output` 中，则可以写成：
 ```wgsl
@@ -173,6 +173,8 @@ fn main(
 }
 ```
 
+> 注：这里用一维数组模拟了二维数组。WGSL里面是有多维数组的，但是用起来太麻烦，还不如一维效率高。
+
 总结 `@compute` 的 `main` 可以接收的参数：
 - `@builtin(workgroup_id)`：当前工作组编号（`vec3<u32>`），用于区分不同组。
 - `@builtin(num_workgroups)`：本次 dispatch 派发的工作组总数（`vec3<u32>`），有时用于边界判断。
@@ -225,11 +227,25 @@ pass.setBindGroup(0, bindGroup2);   // 把资源给程序
 pass.dispatchWorkgroups(1024);      // 派遣1024个工作组
 ```
 
+当然此时不能写 `array<f32, 256*256>` 了，会越界；可以只写 `input: array<f32>`，再用一个 `uniform` 传递数组大小；或者直接用 `arrayLength(&input)` 读元素数目。
+
+要手动创建也可以：
+```js
+const layout = device.createBindGroupLayout({
+    label: "compute_bind_group_layout",
+    entries: [
+        { binding: 0, visibility: GPUShaderStage.COMPUTE, buffer: { type: "read-only-storage" } },  // read
+        { binding: 1, visibility: GPUShaderStage.COMPUTE, buffer: { type: "storage" } },    // read-write
+    ],
+});
+```
+注意这只是声明接口，没有规定每个变量的数据量。
+
 ## GPU内存分配
 GPU只是计算，内存分配、数据填充还是得JS来。GPU空间开辟使用 `device.createBuffer` 实现。
 
 填充数据有两种形式：
-1. 创建时就填充，之后动不了。缓冲区在GPU，所有权可以互斥地归属于CPU/GPU，从GPU到CPU使用 `buffer.getMappedRange`，其中 `buffer` 是使用 `device.createBuffer` 创建的。从CPU还给GPU使用 `unmap`。CPU获得的是映射，可以直接用PCLe**直接读写**GPU。
+1. 创建时就填充，之后动不了。缓冲区在GPU，所有权可以互斥地归属于CPU/GPU，从GPU到CPU使用 `buffer.getMappedRange`，其中 `buffer` 是使用 `device.createBuffer` 创建的。从CPU还给GPU使用 `unmap`。CPU获得的是映射，可以用PCLe**直接读写**GPU。
     ```js
     const inputBuffer = device.createBuffer({
         label: "Kernel Info Buffer",
@@ -240,7 +256,7 @@ GPU只是计算，内存分配、数据填充还是得JS来。GPU空间开辟使
     new Uint32Array(inputBuffer.getMappedRange()).set(inputjsdata);
     inputBuffer.unmap();
     ```
-    mappedAtCreation 只能在创建时使用一次。一旦 unmap()，就不能再用 getMappedRange() 了。虽然可以通过 buffer.mapAsync(GPUMapMode.WRITE) 再次映射缓冲区来写入数据，但这通常比 writeBuffer 性能要差，因为它会引入 CPU-GPU 的同步点，可能导致管线停顿。因此如果要频繁更新内容，最好用下面的方式。
+    `mappedAtCreation` 只能在创建时使用一次。一旦 `unmap()`，就不能再用 `getMappedRange()` 了。虽然可以通过 `buffer.mapAsync(GPUMapMode.WRITE)` 再次映射缓冲区来写入数据，但这通常比 `writeBuffer` 性能要差，因为它会引入 CPU-GPU 的同步点，可能导致管线停顿。因此如果要频繁更新内容，最好用下面的方式。
 
 2. 创建后可以被GPU其他buffer修改（通过复制），或者用指令写：
     ```js
@@ -257,9 +273,9 @@ GPU只是计算，内存分配、数据填充还是得JS来。GPU空间开辟使
     device.queue.writeBuffer(output1, 0, new Uint32Array());
     ```
 
-createBindGroupLayout时指定的buffer.type（能接收的）（前文没用这个而是从WGSL自动推断），要和WGSL的类型一致（程序声明的），还要和createBuffer的usage（实际数据）一致
+`createBindGroupLayout` 时指定的 `buffer.type`（能接收的）（前文没用这个而是从WGSL自动推断），要和WGSL的类型一致（程序声明的），还要和 createBuffer 的 usage（实际数据）一致
 
-计算着色器只能写storage，而STORAGE和MAP_READ互斥，意味着结果只能拷贝到MAP_READ和COPY_DES的buffer中，才能在让CPU访问。
+计算着色器只能写 storage，而 STORAGE 和 MAP_READ 互斥，意味着结果只能拷贝到 MAP_READ 和 COPY_DES 的 buffer 中，才能在让CPU访问。
 
 ## 从GPU读取数据到CPU
 有一种方式：
@@ -277,13 +293,174 @@ device.queue.submit([gpuCommands]);
 
 // 可以读了 GPU操作在等下面的await中执行完
 await gpuReadBuffer.mapAsync(GPUMapMode.READ);
-const arrayBuffer = gpuReadBuffer.getMappedRange();
+const arrayBuffer = gpuReadBuffer.mapAsync();
 console.log(new Float32Array(arrayBuffer));
 ```
 
-注意 `getMappedRange` 底层的数据还在GPU上，下面的 `new Float32Array` 只不过为这个GPU数据创建了一个view，最好再套一层 `new Float32Array` 进行数据的复制。
+下面的 `new Float32Array` 只不过为这个数据创建了一个view，最好再复制一次，防止原始数据被回收。
 
 最后记得释放GPU内存：`buffer.destroy()`
 
 ## 命令
 上文出现了很多 `encoder` 和 `pass`，都可以视为对GPU命令的编码，最后统一提交到 `devide.queue` 等待被GPU处理。每条什么时候被执行？不知道，也不重要。
+
+
+# 完整流程
+
+## 1. WGSL编译
+写 WGSL 的逻辑已经在上面描述过了，只需要掌握 `workgroup` `dispatch` 的概念，建立起并行计算的思维。
+
+仍然以之前的代码为例子：
+```js
+// 内嵌WSGL代码 有VSCODE插件可以高亮
+const wgsl_code = /* wgls */`
+@group(0) @binding(0) var<storage, read> input: array<f32>;
+@group(0) @binding(1) var<storage, read_write> output: array<f32>;
+
+@compute @workgroup_size(256)
+fn mainnnnnn(
+    @builtin(workgroup_id) workgroup_id: vec3<u32>,
+    @builtin(local_invocation_id) local_id: vec3<u32>
+) {
+    let row = workgroup_id.x;   // 第几行
+    let col = local_id.x;       // 第几列
+    let idx = row * 256u + col;
+    output[idx] = input[idx] * input[idx];
+}`;
+// 编译WGSL → GPU可执行代码
+const shaderModule = device.createShaderModule({
+    label: "WebGPU demo",
+    code: wgsl_code
+});
+```
+
+这里的 `label` 强烈建议加上，这是 debug 时的标识。
+
+## 2. 创建管线
+```js
+// 链接 + 优化 + 生成最终的可执行管线
+const computePipeline = device.createComputePipeline({
+    label: 'CQT Full Compute Pipeline', layout: 'auto',
+    compute: { module: shaderModule, entryPoint: 'mainnnnnn' },
+});
+```
+注意 `entryPoint` 传递的字符串要和 `wgsl_code` 中的函数名对应上。这也意味着一个 wgsl 可以写多个管线的逻辑。
+
+这里的 `layout: 'auto'` 也可以展开：
+```js del={10} ins={11}
+const bindGroupLayout = device.createBindGroupLayout(/* 代码之前给过了 */);
+
+const pipelineLayout = device.createPipelineLayout({
+    label: "compute_pipeline_layout",
+    bindGroupLayouts: [bindGroupLayout]
+});
+
+const computePipeline = device.createComputePipeline({
+    label: 'CQT Full Compute Pipeline',
+    layout: 'auto',
+    layout: pipelineLayout,  // 使用手动创建的 layout
+    compute: { 
+        module: shaderModule, 
+        entryPoint: 'mainnnnnn' 
+    },
+});
+```
+
+什么时候需要手动创建？当一个 WGSL 里面塞了多个 pipeline 函数的时候，可以复用，有性能优化。当然复用也有偷懒的方法——从第一个 `auto` 中提取：
+```js {"提取布局": 5-6}
+const pipeline1 = device.createComputePipeline({
+    layout: "auto",
+    compute: { module: shaderModule, entryPoint: "fn1" },
+});
+
+const sharedLayout = pipeline1.getBindGroupLayout(0);
+// 复用
+const pipelineLayout = device.createPipelineLayout({
+    bindGroupLayouts: [sharedLayout]
+});
+const pipeLine2 = device.createComputePipeline({
+    layout: pipelineLayout,
+    compute: { module: shaderModule, entryPoint: "fn2" },
+});
+```
+
+## 3. 准备数据
+```js
+const DATA_SIZE = 256 * 256;
+const inputData = new Float32Array(DATA_SIZE);
+// 2. 填充测试数据
+for (let i = 0; i < DATA_SIZE; i++) inputData[i] = i;
+
+// 1. 创建输入Buffer（只读）
+const inputBuffer = device.createBuffer({
+    label: "Input Buffer",
+    size: inputData.byteLength,  // 65536 * 4 = 262144 字节
+    usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
+});
+
+// 3. 创建输出Buffer（读写）
+const outputBuffer = device.createBuffer({
+    label: "Output Buffer",
+    size: inputData.byteLength,
+    usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_SRC,
+});
+
+// 4. 将数据写入GPU
+device.queue.writeBuffer(inputBuffer, 0, inputData);
+
+// 5. 创建BindGroup（连接shader中的binding与实际buffer）
+const bindGroup = device.createBindGroup({
+    label: "Compute BindGroup",
+    layout: computePipeline.getBindGroupLayout(0), // 如果是手动创建的也可以复用
+    entries: [
+        { binding: 0, resource: { buffer: inputBuffer } },
+        { binding: 1, resource: { buffer: outputBuffer } },
+    ],
+});
+```
+这里填充数据用的是上面提到的第二种写法，好处是方便多次填充。
+
+## 4. 计算并得到结果
+```js
+const commandEncoder = device.createCommandEncoder();
+const computePass = commandEncoder.beginComputePass();
+
+computePass.setPipeline(computePipeline);
+computePass.setBindGroup(0, bindGroup);
+computePass.dispatchWorkgroups(256);  // 256个工作组，每组256个线程
+computePass.end();
+
+// 1. 创建用于读回的Buffer
+const readbackBuffer = device.createBuffer({
+    label: "Readback Buffer",
+    size: outputBuffer.size,
+    usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ,
+});
+
+// 2. 将结果从GPU复制到可读Buffer
+commandEncoder.copyBufferToBuffer(
+    outputBuffer, 0,     // 源
+    readbackBuffer, 0,   // 目标
+    outputBuffer.size    // 大小
+);
+
+// 3. 提交命令
+device.queue.submit([commandEncoder.finish()]);
+
+// 4. 读取结果
+await readbackBuffer.mapAsync(GPUMapMode.READ);
+const resultData = new Float32Array(readbackBuffer.getMappedRange()).slice();   // 复制一份
+
+// 5. 验证结果
+console.log("前10个结果:");
+for (let i = 0; i < 10; i++) {
+    console.log(`input[${i}] = ${inputData[i]}, output[${i}] = ${resultData[i]}`);
+    // 预期: 0^2=0, 1^2=1, 2^2=4, 3^2=9, ...
+}
+
+// 6. 清理
+readbackBuffer.unmap();
+// 还有destory
+```
+
+注意 `resultData` 用了 `slice` 以复制，因为 `new Float32Array` 传入 `ArrayBuffer` 只是创建视图，共用的底层；在 `unmap` 后，原来的 `ArrayBuffer` 就不能读了（但 `readbackBuffer` 是可以反复用的）。
