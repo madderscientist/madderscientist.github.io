@@ -1,0 +1,97 @@
+---
+import { type Post } from "../utils/post";
+import FormattedDate from "./FormattedDate.astro";
+
+type Props = {
+	nextPost?: Post;
+	prevPost?: Post;
+};
+const { nextPost, prevPost } = Astro.props as Props;
+---
+
+<div class="prev-next-container">
+	{
+		prevPost ? (
+			<a class="nav-button prev" href={`/posts/${prevPost.id}/`}>
+				<div class="nav-label">&lt; 上一篇 <FormattedDate date={prevPost.data.pubDate} /></div>
+				<div class="nav-title">{prevPost.data.title}</div>
+			</a>
+		) : (
+			<div class="nav-button prev disabled">
+				<div class="nav-label">&lt; 上一篇</div>
+				<div class="nav-title">来到了宇宙的初始~</div>
+			</div>
+		)
+	}
+	{
+		nextPost ? (
+			<a class="nav-button next" href={`/posts/${nextPost.id}/`}>
+				<div class="nav-label"><FormattedDate date={nextPost.data.pubDate} /> 下一篇 &gt;</div>
+				<div class="nav-title">{nextPost.data.title}</div>
+			</a>
+		) : (
+			<div class="nav-button next disabled">
+				<div class="nav-label">下一篇 &gt;</div>
+				<div class="nav-title">敬请期待</div>
+			</div>
+		)
+	}
+</div>
+
+<style>
+	.prev-next-container {
+		display: flex;
+		justify-content: space-between;
+		gap: 1rem;
+		margin-top: 1em;
+		margin-bottom: 1em;
+	}
+    @media screen and (max-width: 800px) {
+        .prev-next-container {
+            padding: 0 1rem;
+        }
+    }
+    @media screen and (max-width: 520px) {
+        .prev-next-container {
+            flex-direction: column;
+        }
+    }
+	.nav-button {
+		flex: 1;
+		display: flex;
+		flex-direction: column;
+		padding: 1rem;
+		border: 1px solid var(--line-color);
+		border-radius: 8px;
+		text-decoration: none;
+		color: inherit;
+		transition: background-color 0.2s, transform 0.2s;
+	}
+	.nav-button:hover:not(.disabled) {
+		background-color: var(--hover-bg, rgba(0, 0, 0, 0.05));
+		transform: translateY(-2px);
+	}
+	.nav-button.prev {
+		text-align: left;
+		align-items: flex-start;
+	}
+	.nav-button.next {
+		text-align: right;
+		align-items: flex-end;
+	}
+	.nav-button.disabled {
+		opacity: 0.6;
+		cursor: not-allowed;
+	}
+	.nav-label {
+		font-size: 0.9em;
+		color: var(--text-muted, #666);
+		margin-bottom: 0.5rem;
+	}
+	.nav-title {
+		font-weight: bold;
+		font-size: 1.1em;
+		margin-bottom: 0.5rem;
+	}
+</style>
+

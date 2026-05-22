@@ -1,25 +1,42 @@
 ---
-import { type CollectionEntry, getCollection, render } from 'astro:content';
-import BlogPost from '../../layouts/BlogPost.astro';
+import { render } from "astro:content";
+import BlogPost from "../../layouts/BlogPost.astro";
+import { getSortedPosts, type Post } from "../../utils/post";
+
+type PostParam = {
+	post: Post;
+	nextPost?: Post;
+	prevPost?: Post;
+};
 
 export async function getStaticPaths() {
-	const posts = await getCollection('posts');
-	return posts.map((post: { id: any; }) => ({
-		params: { slug: post.id },
-		props: post,
-	}));
+	const posts = await getSortedPosts(false);
+	const output = new Array<{ params: { slug: string }; props: PostParam }>(
+		posts.length,
+	);
+	for (let i = 0; i < posts.length; i++) {
+		output[i] = {
+			params: { slug: posts[i].id }, // getStaticPaths 要求的
+			props: {
+				post: posts[i],
+				nextPost: posts[i - 1],
+				prevPost: posts[i + 1],
+			},
+		};
+	}
+	return output;
 }
-type Props = CollectionEntry<'posts'>;
 
-const post = Astro.props;
-process.stdout.write(`Rendering post: ${post.id}\n`);
+const { post, nextPost, prevPost } = Astro.props as PostParam;
+
 const { Content, headings, remarkPluginFrontmatter } = await render(post);
-const param = {
-	...post.data,
-	headings
-}
 ---
 
-<BlogPost {...param}>
+<BlogPost
+	{...post.data}
+	headings={headings}
+	nextPost={nextPost}
+	prevPost={prevPost}
+>
 	<Content />
 </BlogPost>

@@ -1,20 +1,31 @@
 ---
 import { Image } from "astro:assets";
-import type { CollectionEntry } from "astro:content";
 import BaseHead from "../components/BaseHead.astro";
 import FormattedDate from "../components/FormattedDate.astro";
 import KatexStyle from "../components/KatexStyle.astro";
 import Giscus from "../components/Giscus.astro";
 import BaseLayout from "./BaseLayout.astro";
 import StaticTOC from "../components/StaticTOC.astro";
+import PrevNextPost from "../components/PrevNextPost.astro";
 import type { MarkdownHeading } from "astro";
+import { type Post } from "../utils/post";
 
-type Props = CollectionEntry<"posts">["data"] & {
+type Props = Post["data"] & {
 	headings: MarkdownHeading[];
+	nextPost?: Post;
+	prevPost?: Post;
 };
 
-const { title, description, pubDate, updatedDate, heroImage, headings } =
-	Astro.props;
+const {
+	title,
+	description,
+	pubDate,
+	updatedDate,
+	heroImage,
+	headings,
+	nextPost,
+	prevPost,
+} = Astro.props as Props;
 ---
 
 <html lang="zh">
@@ -131,6 +142,7 @@ const { title, description, pubDate, updatedDate, heroImage, headings } =
 					</div>
 				</div>
 			</article>
+			<PrevNextPost nextPost={nextPost} prevPost={prevPost} />
 			<Giscus style="padding: 0 1em 2em 1em; box-sizing: border-box;" />
 			{
 				headings.length > 0 && (

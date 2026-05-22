@@ -2,7 +2,7 @@
 title: 建站！!
 description: 我是如何构建我的博客的：手搓各种基本功能
 pubDate: 2026-05-11
-updatedDate: 2026-05-17
+updatedDate: 2026-05-22
 heroImage: ../../assets/blog-placeholder.jpg
 tags: [技术, Astro, 前端]
 pinned: true
@@ -236,3 +236,6 @@ expressiveCode({
 一个方案是使用 `swup`，就像主题FireFly一样；第二个方案是使用官方自带的 [`<ClientRouter />`](https://docs.astro.build/zh-cn/guides/view-transitions/)，但是官方也在文档里说，由于浏览器API越来越强大，可以考虑直接用第三种方案—— [`View Transitions API`](https://developer.mozilla.org/zh-CN/docs/Web/API/View_Transition_API/Using)。
 
 目前采用的是最后一种纯CSS的方式，改动最小。
+
+## 小技巧
+- 不能在 `.astro` 文件夹里放 `ts` 等其他文件（比如通用的函数），这会导致 build 后变成 html

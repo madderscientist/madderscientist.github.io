@@ -1,16 +1,12 @@
 ---
-import { getCollection } from "astro:content";
 import BaseHead from "../../components/BaseHead.astro";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import LeftNav from "../../components/LeftNav.astro";
 import PostCard from "../../components/PostCard.astro";
 import { SITE_DESCRIPTION, SITE_TITLE } from "../../consts";
+import { getSortedPosts } from "../../utils/post";
 
-const posts = (await getCollection("posts")).sort((a, b) => {
-	if (a.data.pinned && !b.data.pinned) return -1;
-	else if (!a.data.pinned && b.data.pinned) return 1;
-	return b.data.pubDate.valueOf() - a.data.pubDate.valueOf();
-});
+const posts = await getSortedPosts(true);
 ---
 
 <!doctype html>
