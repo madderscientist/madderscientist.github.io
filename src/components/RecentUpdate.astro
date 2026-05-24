@@ -1,0 +1,106 @@
+---
+import { getCollection, type DataEntryMap } from "astro:content";
+import "../styles/toc.css";
+
+interface Props {
+    collections: string[];
+    latestN?: number;
+    title?: string;
+    style?: string;
+}
+interface datedPost {
+    id: string;
+    title: string;
+    date: Date;
+}
+const {
+    collections = ["posts"],
+    latestN = 5,
+    title = "最近更新",
+    style = "height: fit-content;",
+} = Astro.props as Props;
+
+const allPosts = (
+    await Promise.all(
+        collections.map((c) => getCollection(c as keyof DataEntryMap)),
+    )
+)
+    .flat()
+    .map((post) => {
+        const data = post.data as {
+            title?: string;
+            pubDate: Date | string;
+            updatedDate?: Date | string;
+        };
+        const dateVal = data.updatedDate ?? data.pubDate;
+        return {
+            id: post.id,
+            title: data.title || post.id,
+            date: new Date(dateVal),
+        };
+    }) as datedPost[];
+
+const posts = allPosts
+    .sort((a, b) => b.date.valueOf() - a.date.valueOf())
+    .slice(0, latestN);
+---
+
+<nav class="toc-wrapper" aria-label={title} style={style}>
+    <span
+        class="toc-title"
+        onclick="window.scrollTo({ top: 0, behavior: 'smooth' })"
+    >
+        {title} Latest {latestN}
+    </span>
+
+    <div
+        class="toc-content toc-scroll-container recent-update-list"
+    >
+        {
+            posts.map((post) => {
+                const d = new Date(post.date);
+                const dateStr = `${String(d.getMonth() + 1)}/${String(d.getDate()).padStart(2, "0")}`;
+                return (
+                    <a
+                        href={`/posts/${post.id}/`}
+                        class="toc-item toc-level-0 recent-update-link"
+                        title={post.title}
+                    >
+                        <div class="toc-label toc-label-primary recent-update-title">
+                            {post.title}
+                        </div>
+                        <div class="recent-update-date">
+                            {dateStr}
+                        </div>
+                    </a>
+                );
+            })
+        }
+    </div>
+</nav>
+
+<style>
+    .recent-update-list {
+        padding-top: 0.5em !important;
+        gap: 0.2em;
+    }
+    .recent-update-link {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .recent-update-title {
+        flex: 1;
+        min-width: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .recent-update-date {
+        color: rgb(var(--gray));
+        font-size: 0.9em;
+        white-space: nowrap;
+        flex-shrink: 0;
+        margin-left: 0.5em;
+    }
+</style>

@@ -3,6 +3,7 @@ import BaseHead from "../../components/BaseHead.astro";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import LeftNav from "../../components/LeftNav.astro";
 import PostCard from "../../components/PostCard.astro";
+import RecentUpdate from "../../components/RecentUpdate.astro";
 import { SITE_DESCRIPTION, SITE_TITLE } from "../../consts";
 import { getSortedPosts } from "../../utils/post";
 
@@ -44,6 +45,7 @@ const posts = await getSortedPosts(true);
 					}
 				}
 			</style>
+			<RecentUpdate slot="right" collections={["posts"]} latestN={5} />
 		</BaseLayout>
 	</body>
 </html>
