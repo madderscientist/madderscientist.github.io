@@ -4,6 +4,7 @@ import mdx from '@astrojs/mdx';
 import sitemap from '@astrojs/sitemap';
 import pagefind from 'astro-pagefind';
 
+import remarkUnderline from './src/plugins/remark-underline/remark-underline';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import mermaid from 'astro-mermaid';	// 动态渲染
@@ -71,6 +72,7 @@ export default defineConfig({
 		mdx(), sitemap(), pagefind()],
 	markdown: {
 		remarkPlugins: [
+			remarkUnderline,
 			remarkMath,
 			remarkSingleLineNoLineNumbers,
 			remarkGithubAlerts,
