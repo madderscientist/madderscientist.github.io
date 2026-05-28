@@ -32,7 +32,7 @@ body {
 		font-size: 12pt !important;
 		line-height: 1.4 !important;
 	}
-	p {
+	p, hr {
 		margin-bottom: 0.6em !important;
 	}
 }
@@ -74,7 +74,7 @@ a {
 a:hover {
 	color: var(--c-a);
 }
-p {
+p, hr {
 	margin-bottom: 0.9em;
 }
 textarea {

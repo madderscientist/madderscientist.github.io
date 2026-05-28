@@ -1,7 +1,7 @@
 ---
 title: 无线物联网课程考试复习
 description: 为5/27的考试做准备
-pubDate: 2026-05-20
+pubDate: 2026-05-21
 updatedDate: 2026-05-27
 tags: [理论, 通信, 复习]
 ---
