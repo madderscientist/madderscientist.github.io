@@ -4,7 +4,7 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
 import LeftNav from "../../components/LeftNav.astro";
 import PostCard from "../../components/PostCard.astro";
 import RecentUpdate from "../../components/RecentUpdate.astro";
-import { SITE_DESCRIPTION, SITE_TITLE } from "../../consts";
+import { SITE_TITLE } from "../../consts";
 import { getSortedPosts } from "../../utils/post";
 
 const posts = await getSortedPosts(true);
@@ -13,11 +13,12 @@ const posts = await getSortedPosts(true);
 <!doctype html>
 <html lang="zh">
 	<head>
-		<BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
+		<BaseHead title={SITE_TITLE} description="蔽夏的个人博客·文章页" />
 	</head>
 	<body>
 		<BaseLayout>
 			<LeftNav slot="left" />
+            <h1 class="sr-only">最新文章</h1>
 			<div>
 				{
 					posts.map((post) => (

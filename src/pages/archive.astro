@@ -4,7 +4,7 @@ import BaseHead from "../components/BaseHead.astro";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import LeftNav from "../components/LeftNav.astro";
 import TagFilter from "../components/TagFilter.astro";
-import { SITE_DESCRIPTION, SITE_TITLE } from "../consts";
+import { SITE_TITLE } from "../consts";
 
 const posts = (await getCollection("posts")).sort((a, b) => {
     return b.data.pubDate.valueOf() - a.data.pubDate.valueOf();
@@ -56,7 +56,7 @@ function pad(num: number) {
     <head>
         <BaseHead
             title={`归档 - ${SITE_TITLE}`}
-            description={SITE_DESCRIPTION}
+            description="蔽夏文章归档，按照年份和标签分类展示所有文章，方便浏览、查找和筛选"
         />
         <style>
             .archive-wrapper {
@@ -229,6 +229,7 @@ function pad(num: number) {
     <body>
         <BaseLayout>
             <LeftNav slot="left" />
+            <h1 class="sr-only">文章归档</h1>
             <div class="archive-wrapper">
                 {
                     years.map((year) => (

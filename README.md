@@ -10,4 +10,9 @@ pnpm build
 然后再进行 `pnpm dev` 进行热重载开发。
 
 ## 部署
+[![Netlify Status](https://api.netlify.com/api/v1/badges/602ab239-2afd-45d0-8118-e94bebe53ea6/deploy-status)](https://app.netlify.com/projects/madderscientist/deploys)
+
 考虑到 `github.io` 薛定谔的墙，选择部署在 `netlify` 上。
+
+## SEO
+接入了 bing webmaster tools，使用了 `IndexNow` API 来通知 Bing 索引更新的内容。
