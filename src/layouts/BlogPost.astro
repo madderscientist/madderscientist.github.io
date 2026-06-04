@@ -71,26 +71,22 @@ const {
 				h4,
 				h5,
 				h6 {
-					position: relative;
-					width: fit-content;
-					&::after {
-						content: "";
-						display: block;
-						position: absolute;
-						height: 0.55em;
-						--left-offset: -0.3em;
-						left: var(--left-offset);
-						bottom: 0;
-						transform: translateY(-50%);
-						width: calc(100% - var(--left-offset));
-						background-color: rgba(221, 0, 255, 0.1);
-					}
-				}
-				h1::after {
-					border-left: rgba(221, 0, 255, 0.4) 5px solid;
-				}
-				h2::after {
-					border-left: rgba(221, 0, 255, 0.3) 4px solid;
+					margin-left: -0.2em;
+					padding-left: 0.2em;
+					background: linear-gradient(
+						to bottom,
+						transparent 0%,
+						transparent calc(100% - 0.6em),
+						rgba(221, 0, 255, 0.1) calc(100% - 0.6em),
+						rgba(221, 0, 255, 0.1) calc(100% - 0.1em),
+						transparent calc(100% - 0.1em),
+						transparent 100%
+					);
+					
+					/* 多行每行独立渲染 */
+					box-decoration-break: clone;
+					-webkit-box-decoration-break: clone;
+					display: inline;
 				}
 			}
 			/* 和 BaseLayout 的保持一致 */
