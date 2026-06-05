@@ -7,13 +7,16 @@ import Giscus from "../components/Giscus.astro";
 import BaseLayout from "./BaseLayout.astro";
 import StaticTOC from "../components/StaticTOC.astro";
 import PrevNextPost from "../components/PrevNextPost.astro";
+import Bibliography from "../components/Bibliography.astro";
 import type { MarkdownHeading } from "astro";
 import { type Post } from "../utils/post";
+import type { BibliographyReference } from "../utils/bibliography";
 
 type Props = Post["data"] & {
 	headings: MarkdownHeading[];
 	nextPost?: Post;
 	prevPost?: Post;
+	references?: BibliographyReference[];
 };
 
 const {
@@ -25,6 +28,7 @@ const {
 	headings,
 	nextPost,
 	prevPost,
+	references = [],
 } = Astro.props as Props;
 ---
 
@@ -135,6 +139,7 @@ const {
 						<KatexStyle>
 							<slot />
 						</KatexStyle>
+						<Bibliography references={references} />
 					</div>
 				</div>
 			</article>

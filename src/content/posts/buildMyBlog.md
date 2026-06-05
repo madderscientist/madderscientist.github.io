@@ -2,7 +2,7 @@
 title: 建站！!
 description: 我是如何构建我的博客的：手搓各种基本功能
 pubDate: 2026-05-11
-updatedDate: 2026-05-26
+updatedDate: 2026-06-5
 heroImage: ../../assets/blog-placeholder.jpg
 tags: [技术, Astro, 前端]
 pinned: true
@@ -200,6 +200,7 @@ export interface MarkdownHeading {
 - 块级公式： `$$\n{formula}\n$$`，`$` 不能和公式同行，不然会被 `katex` 插件视为行内公式
 - md内两个换行是一个 `<p>`，有段落间margin；而单个换行是段内换行，不会产生额外的间距
 - 单下划线包裹 已经从原来的 `<em>` 改为了 `<u>`，是 _下划线_ 效果。
+- 文献引用：`[](@alias)`，其中 `alias` 是 `ref.bib` 中的条目的别名。`bib` 文件通过 fontmatter 的 `bibliography` 字段指定。
 
 ## 细节的修改
 ### 标题链接

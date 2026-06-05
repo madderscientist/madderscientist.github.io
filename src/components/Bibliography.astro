@@ -1,0 +1,49 @@
+---
+import {
+	formatReferenceHtml,
+	type BibliographyReference,
+} from "../utils/bibliography";
+
+type Props = {
+	references?: BibliographyReference[];
+};
+
+const { references = [] } = Astro.props as Props;
+---
+
+{
+	references.length > 0 && (
+		<section class="bibliography" aria-labelledby="references-heading">
+			<h2 id="references-heading">参考文献</h2>
+			<ol>
+				{references.map(({ id, index, entry }) => (
+					<li id={id}>
+						<span set:html={formatReferenceHtml(entry, index)} />
+					</li>
+				))}
+			</ol>
+		</section>
+	)
+}
+
+<style>
+	.bibliography {
+		margin-top: 2em;
+		padding-top: 1em;
+		border-top: 1px solid rgb(var(--gray-light));
+	}
+	.bibliography h2 {
+		font-size: 1.3em;
+	}
+	.bibliography ol {
+		margin-left: 1.5em;
+	}
+	.bibliography li {
+		padding-left: 0.25em;
+		margin-bottom: 0.45em;
+		font-size: 0.85em;
+	}
+	.bibliography li:target {
+		background: var(--accent-light);
+	}
+</style>

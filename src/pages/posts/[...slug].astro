@@ -30,6 +30,7 @@ export async function getStaticPaths() {
 const { post, nextPost, prevPost } = Astro.props as PostParam;
 
 const { Content, headings, remarkPluginFrontmatter } = await render(post);
+const references = remarkPluginFrontmatter.bibliography?.references || [];	// 这个字段是 remark-bibliography 插件添加的
 ---
 
 <BlogPost
@@ -37,6 +38,7 @@ const { Content, headings, remarkPluginFrontmatter } = await render(post);
 	headings={headings}
 	nextPost={nextPost}
 	prevPost={prevPost}
+	references={references}
 >
 	<Content />
 </BlogPost>

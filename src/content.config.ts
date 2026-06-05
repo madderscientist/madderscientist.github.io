@@ -18,6 +18,7 @@ const posts = defineCollection({
 			heroImage: z.optional(image()),
 			tags: z.array(z.string()).optional(),
 			pinned: z.boolean().optional(),
+			bibliography: z.string().optional(),	// 在 remark-bibliography 插件中会被替换为 { source: string, references: BibliographyReference[] } 的对象
 		}),
 });
 
