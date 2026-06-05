@@ -69,6 +69,7 @@ const {
 				padding: 1em 0 0 0;
 			}
 			.content {
+				--highlight-bg: rgba(221, 0, 255, 0.1);
 				h1,
 				h2,
 				h3,
@@ -81,8 +82,8 @@ const {
 						to bottom,
 						transparent 0%,
 						transparent calc(100% - 0.6em),
-						rgba(221, 0, 255, 0.1) calc(100% - 0.6em),
-						rgba(221, 0, 255, 0.1) calc(100% - 0.1em),
+						var(--highlight-bg) calc(100% - 0.6em),
+						var(--highlight-bg) calc(100% - 0.1em),
 						transparent calc(100% - 0.1em),
 						transparent 100%
 					);
@@ -91,7 +92,17 @@ const {
 					box-decoration-break: clone;
 					-webkit-box-decoration-break: clone;
 					display: inline;
+
+					/* 模拟block行为 否则不会换行 */
+					&::after {
+						content: "";
+						display: block;
+						height: 0;
+					}
 				}
+			}
+			:global(.dark) .content {
+				--highlight-bg: rgba(221, 0, 255, 0.3);
 			}
 			/* 和 BaseLayout 的保持一致 */
 			@media screen and (max-width: 800px) {
