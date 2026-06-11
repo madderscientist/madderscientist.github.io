@@ -126,7 +126,7 @@ pre {
 blockquote {
 	border-left: 4px solid var(--accent);
 	background-color: var(--accent-light);
-	padding: 0.5em 0 0.6em 1.3em;
+	padding: 0.5em 0.5em 0.6em 1.2em;
 	margin: 0 0 1em 0;
 
 	* {

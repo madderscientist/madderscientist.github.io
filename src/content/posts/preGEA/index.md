@@ -1,6 +1,6 @@
 ---
 title: "汇报：From Multimodal LLMs to Generalist Embodied Agents: Methods and Lessons"
-description: 课程《机器学习》10min汇报，将如何用MLLM构建通用具身智能体的
+description: 课程《机器学习》10min汇报，如何用MLLM构建通用具身智能体
 pubDate: 2026-04-12
 tags: [理论, 汇报]
 ---

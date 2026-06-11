@@ -276,17 +276,18 @@ $$
 简要说说作业吧。
 
 ### 1. 最小二乘复原
-有向量 $x$，经过 变换矩阵 $A$ 变成 $y$，有噪声 $n$（高斯噪声，每个维度的方差不一样），所以 $y = Ax + n$。已知 $A$ 和 $y$，求 $x$ 的估计 $\hat{x}$。方法是最小二乘：
+有向量 $x$，经过 变换矩阵 $A$ 变成 $y$，有噪声 $n$（高斯噪声，每个维度的方差不一样），所以 $y = Ax + n$。已知 $A$ 和 $y$，求 $x$ 的估计 $\hat{x}$。方法是最小二乘（矩阵的二范数也是逐项平方和）：
 $$
 \hat{x} = \argmin_z \| y - Az \|^2
 $$
 求个导，顺别复习一下矩阵求导（也可以展开逐项套公式）：
 $$
 \begin{aligned}
-d\| y - Az \|^2 &= d\left( (y - Az)^T (y - Az) \right) \\
-&= (-Adz)^T (y - Az) - (y - Az)^T A dz \\
-&= 2 (Az - y)^T A dz \quad\quad\text{都是标量，直接转置直接加} \\
-&= \left\{ [2A^T (Az - y)]^T dz\right\}^T \quad\text{整理成} df=[(\frac{df}{dz})^T dz]^T \\
+d\| y - Az \|^2 &= d\operatorname{tr}\left( (y - Az)^T (y - Az) \right) \\
+&= \operatorname{tr}\left\{ (-Adz)^T (y - Az) - (y - Az)^T A dz \right\} \\
+&= \operatorname{tr}\left\{ (Adz)^T (Az - y) \right\} + \operatorname{tr}\left\{ (Az - y)^T A dz \right\} \\
+&= 2 \operatorname{tr}\left((Az - y)^T A dz\right) \quad\quad\text{都是标量，直接转置直接加} \\
+&= \operatorname{tr}\left( [2A^T (Az - y)]^T dz\right) \quad\text{整理成} dL = \operatorname{tr} \left( \left(\frac{\partial L}{\partial \tilde{W}}\right)^T d\tilde{W} \right) \\
 \frac{d\| y - Az \|^2}{dz} &= 2 A^T (Az - y) := 0 \\
 A^T A z &= A^T y \\
 z &= (A^T A)^{-1} A^T y

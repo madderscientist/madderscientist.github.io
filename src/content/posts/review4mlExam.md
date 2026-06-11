@@ -16,30 +16,90 @@ tags: [理论, 机器学习, 复习]
 pass
 
 ## 3. 推导线性回归
-假设数据为 $\{(x_i, y_i)\}_{i=1}^n$，线性回归模型为 $y = wx + b$（输入和输出都是向量），损失函数为均方误差：
+假设数据为 $\{(\vec{x}_i, \vec{y}_i) \in \mathbb{R}^a \times \mathbb{R}^b\}_{i=1}^n$，线性回归模型为 $\vec{y} = W^T \vec{x} + \vec{b}$（输入和输出都是向量，之后省略向量箭头），损失函数为均方误差：
 $$
-L(w, b) = \frac{1}{n} \sum_{i=1}^n \|y_i - (wx_i + b)\|^2\\
+L(W, b) = \frac{1}{n} \sum_{i=1}^n \|y_i - (W^T x_i + b)\|^2\\
 $$
 
-给 $x$ 的第一维加上偏置项，定义 $\tilde{x}_i = [1; x_i]$ 和 $\tilde{w} = [b; w]$，则损失函数可以重写为：
+给 $x$ 的第一维加上偏置项，定义 $\tilde{x}_i = \begin{bmatrix} 1 \\ x_i \end{bmatrix} \in \mathbb{R}^{a+1}$ 和 $\tilde{W} = \begin{bmatrix} b^T \\ W \end{bmatrix} \in \mathbb{R}^{(a+1) \times b}$，则损失函数可以重写为：
 $$
 \begin{aligned}
-L(\tilde{w}) &= \frac{1}{n} \sum_{i=1}^n \|y_i - \tilde{w}^T \tilde{x}_i\|^2 \\
-&= \frac{1}{n} (\tilde{w}\tilde{X} - Y)^T (\tilde{w}\tilde{X} - Y)
+L(\tilde{W}) &= \frac{1}{n} \sum_{i=1}^n \|y_i - \tilde{W}^T \tilde{x}_i\|^2 \\
+&= \frac{1}{n} \operatorname{tr}\left((\tilde{W}^T\tilde{X} - Y)^T (\tilde{W}^T\tilde{X} - Y)\right) \\
+&= \frac{1}{n} \| \tilde{W}^T\tilde{X} - Y \|_F^2 \quad \text{每项平方的和}
 \end{aligned}
 $$
 
-求导过程在[《图象分析与理解复习》](/posts/review4imageexam/#1-最小二乘复原) 中用通用方法进行；这里用运算率：
+求导过程在[《图象分析与理解复习》](/posts/review4imageexam/#1-最小二乘复原) 中已经写过，这里是对系数矩阵求导。目标是凑成
+$$
+dL = \operatorname{tr} \left( \left(\frac{\partial L}{\partial \tilde{W}}\right)^T d\tilde{W} \right)
+$$
+
+> 如果 $f$ 是行向量，则凑 $df = \left[ \left(\frac{\partial L}{\partial x}\right)^T d\vec{x} \right]^T$
+> 如果 $f$ 是标量，则凑 $df =  \left(\frac{\partial L}{\partial x}\right)^T d\vec{x}$
+
+首先求微分
+$$
+dL = \frac{1}{n} \operatorname{tr}(d(A^T A)) = \frac{1}{n} \operatorname{tr}(dA^T A + A^T dA)
+$$
+因为 $\operatorname{tr}(dA^T A) = \operatorname{tr}(A^T dA)$，所以
+$$
+dL = \frac{2}{n} \operatorname{tr}(A^T dA)
+$$
+而
+$$
+dA = d\tilde{W}^T \cdot \tilde{X}
+$$
+代入
 $$
 \begin{aligned}
-nL'(\tilde{w}) &= \tilde{X}^T (\tilde{w}\tilde{X} - Y) + (\tilde{w}\tilde{X} - Y)^T \tilde{X} \quad \text{两项相乘的求导} \\
-&= 2\tilde{X}^T (\tilde{w}\tilde{X} - Y) \quad \text{标量直接转置} \\
-&= 2\tilde{X}^T \tilde{w}\tilde{X} - 2\tilde{X}^T Y := 0 \\
-\Rightarrow \tilde{w} &= (\tilde{X}^T \tilde{X})^{-1} \tilde{X}^T Y
+dL &= \frac{2}{n} \operatorname{tr}(A^T \cdot d\tilde{W}^T \tilde{X})\\
+&= \frac{2}{n} \operatorname{tr}(\tilde{X} A^T d\tilde{W}^T) \quad \text{循环移位}\\
+&= \frac{2}{n} \operatorname{tr}((\tilde{X} A^T)^T d\tilde{W}) \quad \text{迹的性质}
 \end{aligned}
+$$
+得到导数
+$$
+\frac{\partial L}{\partial \tilde{W}} = \frac{2}{n} \tilde{X} A^T = \frac{2}{n} \tilde{X} (\tilde{W}^T\tilde{X} - Y)^T :=0 \\
+\Rightarrow \tilde{W} = (\tilde{X} \tilde{X}^T)^{-1} \tilde{X} Y^T
 $$
 
 如果是非线性呢？可以加上高次项，比如标量自变量 $x$ 变为向量 $[x, x^2, x^3...]^T$。
+
+---
+
+老师的 PPT 上是这样：
+$$
+X = \begin{bmatrix}
+1 & x_1^{(1)} & x_2^{(1)} & \dots & x_n^{(1)} \\
+1 & x_1^{(2)} & x_2^{(2)} & \dots & x_n^{(2)} \\
+\vdots & \vdots & \vdots & \ddots & \vdots \\
+1 & x_1^{(m)} & x_2^{(m)} & \dots & x_n^{(m)}
+\end{bmatrix}, \quad
+y = \begin{bmatrix}
+y^{(1)} \\
+y^{(2)} \\
+\vdots \\
+y^{(m)}
+\end{bmatrix}, \quad
+\theta = \begin{bmatrix}
+\theta_0 \\
+\theta_1 \\
+\theta_2 \\
+\vdots \\
+\theta_n
+\end{bmatrix}\\
+J(\theta) = \| X\theta - y \|_2^2 = (X\theta - y)^T (X\theta - y)
+$$
+这里就都是向量了，不需要套trace，可以直接用运算律：
+$$
+\begin{aligned}
+\frac{\partial J}{\partial \theta} &= X^T (X\theta - y) + (X\theta - y)^T X \\
+&= 2(X\theta - y)^T X \quad \text{都是标量，直接转置相加} \\
+:&= 0 \\
+\Rightarrow \theta &= (X^T X)^{-1} X^T y
+\end{aligned}
+$$
 
 ## 3.5. 逻辑回归
 也就是做分类，$y_i \in \{0, 1\}$。用 sigmoid 函数将线性输出转为概率（此处的 $x$ 和 $\theta$ 已经包含了偏置，懒得打波浪号了）：

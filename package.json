@@ -1,9 +1,12 @@
 {
   "name": "beshar_blog",
   "type": "module",
-  "version": "0.0.1",
+  "version": "0.1.0",
+  "private": true,
+  "homepage": "https://github.com/madderscientist/madderscientist.github.io",
   "engines": {
-    "node": ">=22.12.0"
+    "node": ">=22.12.0",
+    "pnpm": ">=10"
   },
   "scripts": {
     "dev": "astro dev",
