@@ -45,16 +45,10 @@ const { tags, title = "标签聚合", style = "max-height:100%;height: fit-conte
                 tags.length > 0 &&
                 tags.map((tag) => (
                     <div
-                        class="toc-item toc-level-0 tag-filter-item"
+                        class="toc-item tag-filter-item"
                         data-tag={tag}
                         style="cursor: pointer;"
                     >
-                        <div
-                            class="toc-badge toc-badge-index"
-                            style="background:transparent; color: var(--primary);"
-                        >
-                            #
-                        </div>
                         <div class="toc-label toc-label-primary">{tag}</div>
                     </div>
                 ))
@@ -117,11 +111,31 @@ const { tags, title = "标签聚合", style = "max-height:100%;height: fit-conte
     .tag-filter-wrapper {
         margin-top: 2em;
     }
-    html.dark .tag-filter-item.visible {
-        background: color-mix(
-            in oklab,
-            var(--primary) 25%,
-            transparent
-        ) !important;
+    .tag-filter-wrapper .toc-content {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-items: flex-start;
+        gap: 0.3em !important;
+    }
+    .tag-filter-wrapper .tag-filter-item {
+        width: auto;
+        align-items: center;
+        gap: 0.2em;
+        padding: 0.1em 0.55em;
+        border-radius: 999px;
+        border: 1px solid color-mix(in oklab, var(--line-color) 72%, transparent);
+    }
+    .tag-filter-wrapper .tag-filter-item::before {
+        content: "#";
+        font-size: 0.7em;
+        font-weight: bold;
+        color: var(--primary);
+    }
+    .tag-filter-wrapper .tag-filter-item:hover {
+        transform: translateY(-1.5px);
+    }
+    .tag-filter-wrapper .tag-filter-item .toc-label {
+        max-width: none;
     }
 </style>

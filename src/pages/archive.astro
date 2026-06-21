@@ -11,12 +11,20 @@ const posts = (await getCollection("posts")).sort((a, b) => {
 });
 
 const allTags = new Set<string>();
+const tagCounts = new Map<string, number>();
 posts.forEach((post) => {
     if (post.data.tags) {
         post.data.tags.forEach((tag) => allTags.add(tag));
+        post.data.tags.forEach((tag) => {
+            tagCounts.set(tag, (tagCounts.get(tag) || 0) + 1);
+        });
     }
 });
-const tags = Array.from(allTags);
+const tags = Array.from(allTags).sort((a, b) => {
+    const diff = (tagCounts.get(b) || 0) - (tagCounts.get(a) || 0);
+    if (diff !== 0) return diff;
+    return a.localeCompare(b, "zh-Hans-CN");
+});
 
 type PostItem = {
     slug: string;
