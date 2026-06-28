@@ -1,6 +1,6 @@
 ---
 title: 图象分析与理解复习
-description: 为5/29的考试做准备
+description: 为5/29的考试做准备 | 涵盖形态学、模糊系统、SIFT、Harris角点、图像分割等核心考点，附考题预测与公式详解
 pubDate: 2026-05-20
 updatedDate: 2026-05-29
 tags: [理论, 图像, 复习]

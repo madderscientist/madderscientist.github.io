@@ -1,6 +1,6 @@
 ---
 title: 汇报：可学习信道编码
-description: 《物联网》课程汇报。讲述了如何用神经网络设计信道编码。Neural Belief Propagation Auto-Encoder for Linear Block Code Design
+description: 《物联网》课程汇报。深度解读论文《Neural Belief Propagation Auto-Encoder for Linear Block Code Design》，展示如何利用神经网络同时设计线性分组码与解码器。内容涵盖可微二元矩阵运算、系统码结构优化、RNN实现信念传播，并对比短码、中短码与LDPC性能差异。适合通信与AI交叉领域研究者阅读。
 pubDate: 2026-04-15
 tags: [理论, 汇报, 通信]
 ---

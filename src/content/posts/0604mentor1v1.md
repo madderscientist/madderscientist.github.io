@@ -1,7 +1,7 @@
 ---
 pubDate: 2026-06-03
 title: "对 AI Agent 的探索"
-description: "给大导汇报的稿子"
+description: "给大导汇报的稿子。手写 Agent 全链路实践：API 封装、计划-执行循环、长期记忆机制。反思 Vibe Coding 陷阱与工具迭代本质，探讨机制智能从虚拟到物理身体的迁移可能"
 tags: ["agent", "汇报"]
 ---
 

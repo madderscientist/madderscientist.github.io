@@ -1,7 +1,7 @@
 ---
 title: Clash Verge 无 GUI 使用
 pubDate: 2026-06-20
-description: 在linux中无桌面时如何使用 Clash Verge
+description: 在 Linux 无桌面环境下使用 Clash Verge 的方法——直接启动mihomo核心，通过API切换节点与模式，适合SSH远程时使用有桌面环境的服务器的场景
 tags: [技术, Clash, Linux]
 ---
 

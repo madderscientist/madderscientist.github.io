@@ -1,6 +1,6 @@
 ---
 title: WebGPU学习
-description: 记录了WebGPU的学习路线。先复习了WebGL（需要有相关知识），然后聚焦于WebGPU实现计算加速（从概念开始）
+description: 本文系统梳理了从WebGL到WebGPU的技术演进与学习路径，重点聚焦WebGPU在通用计算（GPGPU）上的高性能并行加速能力。内容从WebGL着色器管线、变量类型与数据流转讲起，平滑过渡到WebGPU的核心概念，如WGSL语法、工作组（workgroup）与线程调度、资源绑定（group/binding）、GPU内存管理及完整计算流程。通过平方计算等实例，深入讲解如何利用计算着色器高效处理大规模数据，并涵盖缓冲区创建、数据读写、命令编码等工程实践。适合有一定图形学或WebGL基础、希望转向现代GPU计算的前端开发者与图形工程师阅读。
 pubDate: 2026-01-27
 updatedDate: 2026-05-20
 tags: [技术, 前端]

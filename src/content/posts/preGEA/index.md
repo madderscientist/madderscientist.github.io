@@ -1,6 +1,6 @@
 ---
 title: "汇报：From Multimodal LLMs to Generalist Embodied Agents: Methods and Lessons"
-description: 课程《机器学习》10min汇报，如何用MLLM构建通用具身智能体
+description: 课程《机器学习》10min汇报。多模态大模型如何走向通用具身智能？解读Apple CVPR 2025论文：动作空间统一、训练策略创新、多任务正向迁移及强化学习的关键结论。
 pubDate: 2026-04-12
 tags: [理论, 汇报]
 ---

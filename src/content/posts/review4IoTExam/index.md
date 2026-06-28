@@ -1,6 +1,6 @@
 ---
 title: 无线物联网课程考试复习
-description: 为5/27的考试做准备
+description: 为5/27的考试做准备，涵盖 MIMO、OFDM、LoRa、卷积码、QAM 等核心考点。含考试真题解析与论文《NN-Defined Modulator》深度批判
 pubDate: 2026-05-21
 updatedDate: 2026-05-27
 tags: [理论, 通信, 复习]

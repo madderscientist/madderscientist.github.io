@@ -1,6 +1,6 @@
 ---
 title: 机器人学习工具初探
-description: 2026春学期对机器人研究工具的探索总结，包括 ROS2、Unitree、Mujoco、MJLAB 等。主要为配置、使用方法、基本概念、踩坑与解决。
+description: 2026春学期对机器人研究工具的探索总结，工具包括 ROS2、Unitree Go2、Mujoco与MJLAB仿真框架，内容涵盖WSL2环境配置、ROS2安装调试、宇树机器人SDK桥接、Go2站立控制PD原理、Mujoco模型构建（含UR5e机械臂擦黑板案例）及MJLAB强化学习踩坑记录
 pubDate: 2026-06-26
 tags: [机器人, 仿真]
 ---

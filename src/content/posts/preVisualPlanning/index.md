@@ -1,6 +1,6 @@
 ---
 title: "汇报：Visual Planning: Let’s Think Only with Images"
-description: 课程《图像分析与理解》8min 汇报。完全用图像的思维链
+description: 课程《图像分析与理解》8min 汇报。不用文字，只靠图像“思考”来规划路径？解读ICLR 2026论文Visual Planning，看模型如何用连续生成的图像完成推理，并探讨纯视觉思维链的潜力与边界。
 pubDate: 2026-04-20
 tags: [理论, 汇报]
 ---
