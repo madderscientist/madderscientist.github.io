@@ -30,8 +30,12 @@ export default defineConfig({
 	redirects: {
 		"/": {
 			status: 301,
-			destination: "/posts"
+			destination: "/page/1"
 		},
+		"/posts": {
+			status: 301,
+			destination: "/page/1"
+		}
 	},
 	integrations: [
 		mermaid({

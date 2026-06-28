@@ -33,7 +33,7 @@ sudo -u beshar /usr/bin/verge-mihomo \
 > 似乎切换模式不能动态进行，但是切换代理节点是可以的。
 
 ### TCP 端口
-```raw
+```txt
 INFO[2026-06-20T14:22:21.445217550+08:00] RESTful API listening at: 127.0.0.1:9097
 ```
 `127.0.0.1:9097` 就是后续更改配置要用的端口了。
@@ -67,7 +67,7 @@ curl -X PUT -H "Authorization: Bearer ${SECRET}" ${BASE_URL}/proxies/xxxxx -d '{
 > 可以通过启动时加入 `-ext-ctl 127.0.0.1:9097` 强制开启端口版本的 RESTful API
 
 ### Unix Socket
-```raw
+```txt
 INFO[2026-06-20T14:56:42.626245863+08:00] RESTful API unix listening at: /tmp/verge/verge-mihomo.sock
 ```
 此时请求这样写（无需认证）：

@@ -1,0 +1,120 @@
+---
+type Props = {
+	currentPage: number;
+	totalPages: number;
+	basePath?: string;
+};
+
+const { currentPage, totalPages, basePath = "/page/" } = Astro.props as Props;
+
+if (totalPages <= 1) return null;
+
+// 分为三栏，左右显示第一页和最后一页，中间如果页面变多可以滑动
+const middlePages = Array.from(
+	{ length: Math.max(totalPages - 2, 0) },
+	(_, index) => index + 1,
+);
+const paginationId = `post-pagination-${currentPage}-${totalPages}`;
+
+const pageHref = (page: number) => `${basePath}${page}/`;
+const isCurrent = (page: number) => currentPage === page;
+---
+
+<nav id={paginationId} class="post-pagination" aria-label="文章分页">
+	<a
+		class={`page-chip ${isCurrent(1) ? "current" : ""}`}
+		href={pageHref(1)}
+		aria-current={isCurrent(1) ? "page" : undefined}
+	>
+		1
+	</a>
+{
+	middlePages.length > 0 && (
+		<div class="middle-track">
+			{middlePages.map((page) => (
+				<a
+					class={`page-chip middle ${isCurrent(page) ? "current" : ""}`}
+					href={pageHref(page)}
+					aria-current={isCurrent(page) ? "page" : undefined}
+				>
+					{page}
+				</a>
+			))}
+		</div>
+	)
+}
+	<a
+		class={`page-chip ${isCurrent(totalPages) ? "current" : ""}`}
+		href={pageHref(totalPages)}
+		aria-current={isCurrent(totalPages) ? "page" : undefined}
+	>
+		{totalPages}
+	</a>
+</nav>
+
+<script is:inline define:vars={{ paginationId }}>
+	const pagination = document.getElementById(paginationId);
+	const activeMiddlePage = pagination?.querySelector(
+		".page-chip.middle.current",
+	);
+	if (activeMiddlePage) {
+		activeMiddlePage.scrollIntoView({
+			behavior: "auto",
+			block: "nearest",
+			inline: "center",
+		});
+	}
+</script>
+
+<style>
+	.post-pagination {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 100%;
+		box-sizing: border-box;
+		gap: 0.5em;
+	}
+
+	.middle-track {
+		flex: 1 1 0;
+		min-width: 0;
+		overflow-x: auto;
+		scrollbar-width: none;
+		-ms-overflow-style: none;
+		scroll-snap-type: x mandatory;
+		scroll-padding-inline: 50%;
+	}
+
+	.middle-track::-webkit-scrollbar {
+		display: none;
+	}
+
+	.page-chip {
+		flex: 0 0 auto;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		min-width: 2.75rem;
+		padding: 0.35rem 0.6rem;
+		border-radius: 0.3em;
+		border: 1px solid var(--line-color);
+		background: var(--c-card-bg);
+		color: rgb(var(--black));
+		text-decoration: none;
+		line-height: 1;
+		box-sizing: border-box;
+		transition:
+			transform 0.2s ease,
+			background-color 0.2s ease,
+			border-color 0.2s ease,
+			color 0.2s ease,
+			box-shadow 0.2s ease;
+	}
+
+	.page-chip.current {
+		background: color-mix(in oklab, var(--primary) 20%, transparent);
+		color: var(--primary);
+		pointer-events: none;
+	}
+</style>
