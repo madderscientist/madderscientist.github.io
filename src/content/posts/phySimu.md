@@ -2,6 +2,7 @@
 title: 物理仿真的基本知识
 description: 学习 mujoco 时需要了解的物理知识
 pubDate: 2026-06-27
+updatedDate: 2026-07-06
 tags: [理论, 仿真, mujoco]
 ---
 
@@ -48,11 +49,64 @@ $$
 J = \int dJ = \int M dm \cdot \vec{\omega} = I \cdot \vec{\omega}
 $$
 
-## 四元数和旋转
+### 基础的物理运动计算
+复习一下物理。无阻力情况下，给某物体某个位置施加一个冲量 $p$，如何求解之后的运动状态？
 
+首先看成质点，用动量定理求平动速度：$v = \frac{p}{m}$。然后算绕质心的转动。先计算转动张量 $I$，然后算角速度 $\omega = I^{-1} \cdot J$，其中 $J = r \times p$ 是角动量。最后根据速度和角速度更新位置和姿态。
+
+为什么计算转动时算的是绕质点的？最重要的原因是省去了惯性力矩。
+
+如果有约束，比如绕某个轴，直接以该轴算转动即可，不用管质心。注意，此时杆子会给予动量，因此不能用质点的动量定理算瞬时速度、再算角速度。
+
+
+## 四元数和旋转
+[这里](https://krasjet.github.io/quaternion/quaternion.pdf)讲的很清楚，下面是精练版。
+
+### 三维空间旋转推导
+先沿着转轴 $\vec{n}$（限定为单位长度）将待旋转分量 $\vec{x}$ 分解为平行分量 $\vec{x}_\parallel$ 和正交分量 $\vec{x}_\perp$：
+$$
+\begin{aligned}
+\vec{x}_\parallel &= (\vec{x} \cdot \vec{n}) \vec{n}\\
+\vec{x}_\perp &= \vec{x} - \vec{x}_\parallel
+\end{aligned}
+$$
+
+只要表示出垂直分量旋转后的新垂直分量 $\vec{x}_\perp'$，就能得到旋转后的向量 $\vec{x}' = \vec{x}_\parallel + \vec{x}_\perp'$。垂直分量的旋转在 $\vec{n}$ 的垂直平面中进行，要表示这个平面内的向量，需要两个正交基，那就选择 $\vec{x}_\perp$ 和 $(\vec{n} \times \vec{x})$ （利用了叉乘的性质）。假设 $\vec{x}$ 和 $\vec{n}$ 的夹角为 $\theta$，则旋转 $\alpha$ 后 $\vec{x}_\perp'$ 的长度保持为 $\|\vec{x}_\perp\| = \|\vec{x}\|\sin\theta$，将两个正交基归一化并投影后可以得到公式：
+$$
+\begin{aligned}
+\vec{x}_\perp' &= \|\vec{x}_\perp\| \cdot (\cos\alpha \cdot \frac{\vec{x}_\perp}{\|\vec{x}_\perp\|} + \sin\alpha \cdot \frac{\vec{n} \times \vec{x}}{\|\vec{n} \times \vec{x}\|})\\
+&= \cos\alpha \cdot \vec{x}_\perp + \sin\alpha \cdot \frac{\|\vec{x}_\perp\|}{\|\vec{n} \times \vec{x}\|} \cdot (\vec{n} \times \vec{x})\\
+&= \cos\alpha \cdot \vec{x}_\perp + \sin\alpha \cdot (\vec{n} \times \vec{x})
+\end{aligned}
+$$
+
+这个过程中把 $sin\theta$ 消去了。最终可以改写为矩阵的形式（略）
+
+### 用四元数表示
+四元数最少的定义：
+- 形式：$q = w + xi + yj + zk$
+- 虚数单位：$i^2 = j^2 = k^2 = ijk = -1$
+
+表示三维空间的点时，让实部为0，虚部系数为三维坐标。
+
+绕轴 $\vec{n}$（单位向量）旋转 $\alpha$ 的四元数为：
+$$
+q = \cos\left(\frac{\alpha}{2}\right) + \mathbf{n} \sin\frac{\alpha}{2}
+$$
+此处 $\mathbf{n}$ 是 $\vec{n}$ 的四元数表示。将此旋转作用到向量 $\vec{x}$ 的结果为：
+$$
+\mathbf{x}' = q \mathbf{x} q^{-1}
+$$
+
+这个“夹心”的形式很眼熟：用矩阵描述空间变换也有类似的形式：$R = M R_{\text{轴}} M^{-1}$。不过矩阵作用的是变换本身，改变的是观察的坐标系，而四元数直接作用在向量上。
+
+为什么用四元数？可以解决欧拉角的万向锁问题和插值问题、参数比矩阵少。虽然自由度都是3，但四元数比欧拉角多一个维度，避免了奇点，天然平滑。在实际引擎中三者都有使用：
+- 美术/策划用欧拉角调参数（因为看得懂）。
+- 底层运算（骨骼插值、姿态计算）用四元数（因为平滑高效）。
+- 最终送入GPU渲染前，把四元数转成旋转矩阵（因为显卡只认矩阵）。
 
 ## 约束求解
-[Mujoco Computation 文档](https://mujoco.readthedocs.io/en/stable/computation/index.html)的开篇就提到了“LCP”——线性互补问题（Linear Complementarity Problem）。这里主要讲怎么将约束问题转变为LCP问题。
+[Mujoco Computation 文档](https://mujoco.readthedocs.io/en/stable/computation/index.html) 的开篇就提到了“LCP”——线性互补问题（Linear Complementarity Problem）。这里主要讲怎么将约束问题转变为LCP问题。
 
 ### LCP 问题的定义
 一维线性互补问题：
@@ -89,7 +143,7 @@ $$
 接触力 $\vec{f}_{contact}$ 必须遵循两个物理规则：
 1. 每个物体上的法向力 $\vec{f}_n$ 必须指向物体内部，定义这个方向为正，则 $f_n \ge 0$，也就是只能推，不能拉。
 下面定义接触法向 $\vec{n}$ 为 A 指向 B，则 A 受到的法向力为 $-f_n \vec{n}$，B 受到的法向力为 $f_n \vec{n}$。
-2. 切向力 $\vec{f}_t$ 必须满足库仑摩擦定律：$\|\vec{f}_t\| \le \mu \|\vec{f}_n\|$。这是非线性的，这里先不考虑。
+2. 切向力 $\vec{f}_t$ 必须满足摩擦定律：$\|\vec{f}_t\| \le \mu \|\vec{f}_n\|$。这是非线性的，这里先不考虑。
 
 物体（只考虑刚体）之间的接触间隙 $\phi$ 必须满足 $\phi \ge 0$，也就是不能穿透。
 
