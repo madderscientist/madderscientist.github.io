@@ -12,11 +12,11 @@ if (totalPages <= 1) return null;
 // 分为三栏，左右显示第一页和最后一页，中间如果页面变多可以滑动
 const middlePages = Array.from(
 	{ length: Math.max(totalPages - 2, 0) },
-	(_, index) => index + 1,
+	(_, index) => index + 2,
 );
 const paginationId = `post-pagination-${currentPage}-${totalPages}`;
 
-const pageHref = (page: number) => `${basePath}${page}/`;
+const pageHref = (page: number) => page === 1 ? "/" : `${basePath}${page}/`;
 const isCurrent = (page: number) => currentPage === page;
 ---
 

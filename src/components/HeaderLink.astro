@@ -4,9 +4,9 @@ import type { HTMLAttributes } from 'astro/types';
 type Props = HTMLAttributes<'a'>;
 
 const { href, class: className, ...props } = Astro.props;
-const pathname = Astro.url.pathname.replace(import.meta.env.BASE_URL, '');
+const pathname = Astro.url.pathname.replace(import.meta.env.BASE_URL, '/');
 const subpath = pathname.match(/[^\/]+/g);
-const isPostsPager = href === "/page/1" || href === "/page/1/";
+const isPostsPager = href === "/";
 const isActive = isPostsPager
 	? pathname === "/" || pathname.startsWith("/page/")
 	: href === pathname || href === '/' + (subpath?.[0] || '');

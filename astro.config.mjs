@@ -28,13 +28,13 @@ export default defineConfig({
 		format: 'directory',	// 去掉html后缀
 	},
 	redirects: {
-		"/": {
+		"/page/1": {
 			status: 301,
-			destination: "/page/1"
+			destination: "/"
 		},
 		"/posts": {
 			status: 301,
-			destination: "/page/1"
+			destination: "/"
 		}
 	},
 	integrations: [

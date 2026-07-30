@@ -1,0 +1,64 @@
+---
+import BaseHead from "../components/BaseHead.astro";
+import LeftNav from "../components/LeftNav.astro";
+import PostCard from "../components/PostCard.astro";
+import PostPagination from "../components/PostPagination.astro";
+import RecentUpdate from "../components/RecentUpdate.astro";
+import { SITE_DESCRIPTION, SITE_TITLE } from "../consts";
+import { getSortedPosts, paginatePosts } from "../utils/post";
+import BaseLayout from "./BaseLayout.astro";
+
+type Props = {
+	currentPage: number;
+};
+
+const { currentPage } = Astro.props as Props;
+const posts = await getSortedPosts(true);
+const { pagePosts, totalPages } = paginatePosts(posts, currentPage);
+---
+
+<!doctype html>
+<html lang="zh">
+	<head>
+		<BaseHead
+			title={currentPage === 1 ? SITE_TITLE : `${SITE_TITLE} - 第 ${currentPage} 页`}
+			description={currentPage === 1
+				? SITE_DESCRIPTION
+				: `蔽夏的个人博客·文章目录第 ${currentPage} 页`}
+		/>
+	</head>
+	<body>
+		<BaseLayout>
+			<LeftNav slot="left" />
+			<h1 class="sr-only">最新文章</h1>
+			<section class="posts-page">
+				{
+					pagePosts.map((post) => (
+						<PostCard postid={post.id} />
+					))
+				}
+				<PostPagination currentPage={currentPage} totalPages={totalPages} />
+			</section>
+			<style>
+				.posts-page {
+					list-style: none;
+					padding: 1em 0;
+					display: flex;
+					flex-direction: column;
+					gap: 1em;
+					width: 100%;
+					box-sizing: border-box;
+					justify-content: start;
+					min-height: 99vh;
+				}
+				/* 和 BaseLayout 的保持一致 */
+				@media screen and (max-width: 800px) {
+					.posts-page {
+						padding: 0.8em 1em;
+					}
+				}
+			</style>
+			<RecentUpdate slot="right" collections={["posts"]} latestN={5} />
+		</BaseLayout>
+	</body>
+</html>
