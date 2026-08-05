@@ -25,9 +25,7 @@ def get_urls():
         allowed_prefixes = ["posts/", "everylearn/", "about/"]
         migration_paths = {"", "page/1/"}
         url_path_lower = url_path.lower()
-        if url_path_lower in migration_paths or any(
-            url_path_lower.startswith(prefix) for prefix in allowed_prefixes
-        ):
+        if url_path_lower in migration_paths or any(url_path_lower.startswith(prefix) for prefix in allowed_prefixes):
             # 保证每个 URL 以 / 结尾（除了根路径）
             if url_path != "" and not url_path.endswith("/"):
                 url_path = url_path + "/"
