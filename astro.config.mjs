@@ -39,8 +39,21 @@ export default defineConfig({
 	},
 	integrations: [
 		mermaid({
-			theme: 'forest',
-			autoTheme: true
+			theme: 'base',
+			autoTheme: true,
+			mermaidConfig: {
+				themeVariables: {
+					primaryColor: '#ede7fb',
+					primaryTextColor: '#222939',
+					primaryBorderColor: '#6527e4',
+					lineColor: '#6527e4',
+					secondaryColor: '#f4efff',
+					tertiaryColor: '#faf7ff',
+					clusterBkg: '#f4efff',
+					clusterBorder: '#6527e4',
+					edgeLabelBackground: '#fbfafb',
+				},
+			},
 		}),
 		expressiveCode({
 			themes: ['catppuccin-latte', 'catppuccin-macchiato'],

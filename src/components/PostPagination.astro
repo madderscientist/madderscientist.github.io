@@ -57,12 +57,12 @@ const isCurrent = (page: number) => currentPage === page;
 	const activeMiddlePage = pagination?.querySelector(
 		".page-chip.middle.current",
 	);
-	if (activeMiddlePage) {
-		activeMiddlePage.scrollIntoView({
-			behavior: "auto",
-			block: "nearest",
-			inline: "center",
-		});
+	const middleTrack = pagination?.querySelector(".middle-track");
+	if (activeMiddlePage && middleTrack) {
+		const activeRect = activeMiddlePage.getBoundingClientRect();
+		const trackRect = middleTrack.getBoundingClientRect();
+		middleTrack.scrollLeft += activeRect.left - trackRect.left
+			- (middleTrack.clientWidth - activeRect.width) / 2;
 	}
 </script>
 
@@ -77,8 +77,12 @@ const isCurrent = (page: number) => currentPage === page;
 	}
 
 	.middle-track {
-		flex: 1 1 0;
+		display: flex;
+		align-items: center;
+		justify-content: safe center;
+		flex: 0 1 auto;
 		min-width: 0;
+		gap: 0.5em;
 		overflow-x: auto;
 		scrollbar-width: none;
 		-ms-overflow-style: none;
@@ -88,6 +92,10 @@ const isCurrent = (page: number) => currentPage === page;
 
 	.middle-track::-webkit-scrollbar {
 		display: none;
+	}
+
+	.page-chip.middle {
+		scroll-snap-align: center;
 	}
 
 	.page-chip {
